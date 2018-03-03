@@ -1,0 +1,32 @@
+{
+  "name": "event-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "interface/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nerdsauce/adapters": "file:../adapters",
+    "graphql": "^0.13.1",
+    "graphql-relay": "^0.5.4",
+    "graphql-tools": "^2.21.0",
+    "micro": "^9.1.0",
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "dotenv": "^5.0.1",
+    "dynalite": "^1.2.0",
+    "eslint": "^4.18.2",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^22.4.2",
+    "nodemon": "^1.17.1"
+  }
+}

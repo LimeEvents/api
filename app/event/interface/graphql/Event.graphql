@@ -1,0 +1,133 @@
+scalar DateTime
+
+type Query {
+  node(id: ID!): Node
+  event(id: ID!): Event
+  events(first: Int, last: Int, before: String, after: String): EventConnection
+  stream(id: ID, first: Int, last: Int, before: String, after: String): EventLogConnection
+}
+
+type Mutation {
+  createEvent(input: CreateEventInput!): CreateEventResponse
+  cancelEvent(input: CancelEventInput!): CancelEventResponse
+  rescheduleEvent(input: RescheduleEventInput!): RescheduleEventResponse
+}
+
+type EventConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [ EventEdge! ]!
+}
+
+type EventEdge implements Edge {
+  cursor: String!
+  node: Event!
+}
+
+type Event implements Node {
+  id: ID!
+  locationId: ID!
+  performerIds: [ ID! ]!
+  start: DateTime!
+  end: DateTime!
+  cancelled: DateTime
+  price: Float!
+  sold: Int!
+  available: Int!
+  reserved: Int!
+  ageRange: String
+  minimumAge: Int
+  notes: [ String! ]
+  history(first: Int, last: Int, before: String, after: String): EventLogConnection
+}
+
+type EventLogConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [ EventLogEdge! ]!
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+type EventLogEdge implements Edge {
+  cursor: String!
+  node: Event!
+}
+
+type EventLog implements Log & Node {
+  id: ID!
+  type: EventLogType
+  event: Event
+  hash: String!
+}
+
+interface Node {
+  id: ID!
+}
+
+interface Connection {
+  pageInfo: PageInfo!
+  edges: [ Edge! ]!
+}
+
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+
+interface Log {
+  id: ID!
+  hash: String!
+}
+
+enum EventLogType {
+  EventCreated
+  EventCancelled
+  EventRescheduled
+}
+
+input CreateEventInput {
+  clientMutationId: ID!
+  locationId: ID!
+  performerIds: [ ID! ]
+  start: DateTime!
+  end: DateTime
+  price: Float!
+  available: Int!
+  ageRange: String
+  minimumAge: Int
+  notes: [ String! ]
+}
+
+type CreateEventResponse {
+  clientMutationId: ID!
+  event: Event!
+}
+
+input CancelEventInput {
+  clientMutationId: ID!
+  id: ID!
+}
+
+type CancelEventResponse {
+  clientMutationId: ID!
+  event: Event!
+}
+
+input RescheduleEventInput {
+  clientMutationId: ID!
+  id: ID!
+  start: DateTime!
+  end: DateTime
+  doorsOpen: DateTime
+}
+
+type RescheduleEventResponse {
+  clientMutationId: ID!
+  event: Event!
+}
+
+

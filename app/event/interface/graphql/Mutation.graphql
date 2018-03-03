@@ -1,0 +1,48 @@
+type Mutation {
+  createEvent(input: CreateEventInput!): CreateEventResponse
+  cancelEvent(input: CancelEventInput!): CancelEventResponse
+  rescheduleEvent(input: RescheduleEventInput!): RescheduleEventResponse
+}
+
+input CreateEventInput {
+  clientMutationId: ID!
+  locationId: ID!
+  performerIds: [ ID! ]
+  start: DateTime!
+  end: DateTime
+  price: Float!
+  available: Int!
+  ageRange: String
+  minimumAge: Int
+  notes: [ String! ]
+}
+
+type CreateEventResponse {
+  clientMutationId: ID!
+  event: Event!
+}
+
+input CancelEventInput {
+  clientMutationId: ID!
+  id: ID!
+}
+
+type CancelEventResponse {
+  clientMutationId: ID!
+  event: Event!
+}
+
+input RescheduleEventInput {
+  clientMutationId: ID!
+  id: ID!
+  start: DateTime!
+  end: DateTime
+  doorsOpen: DateTime
+}
+
+type RescheduleEventResponse {
+  clientMutationId: ID!
+  event: Event!
+}
+
+

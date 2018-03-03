@@ -1,0 +1,19 @@
+{
+  "name": "@nerdsauce/adapters",
+  "version": "1.0.0",
+  "description": "",
+  "main": "DynamoRepository.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.202.0",
+    "dataloader": "^1.4.0",
+    "end-of-stream": "^1.4.1",
+    "quick-lru": "^1.1.0",
+    "stream-to-array": "^2.3.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
