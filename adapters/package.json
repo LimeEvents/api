@@ -10,6 +10,7 @@
     "aws-sdk": "^2.202.0",
     "dataloader": "^1.4.0",
     "end-of-stream": "^1.4.1",
+    "monk": "^6.0.5",
     "quick-lru": "^1.1.0",
     "stream-to-array": "^2.3.0"
   },

@@ -46,7 +46,6 @@ dynaliteServer.listen(4567, async (err) => {
         },
         TableName: name
       }).promise()
-      console.log(results)
     } catch (ex) {
       console.error(ex)
     }

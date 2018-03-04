@@ -1,33 +1,31 @@
-const Repo = require('@nerdsauce/adapters/dynamo/repository')
+const Repo = require('@nerdsauce/adapters/mongo/repository')
 
 exports.reducer = (src = {}, event) => {
   const entity = Object.assign({}, src)
   return {
     EventCancelled () {
-      entity.cancelled = event.timestamp
+      entity.cancelled = event.meta.timestamp
       return entity
     },
     EventCreated () {
-      const { payload } = event
       entity.id = event.id
-      entity.locationId = payload.locationId
-      entity.performerIds = payload.performerIds
-      entity.start = payload.start
-      entity.end = payload.end
-      entity.price = payload.price
-      entity.available = payload.available
-      entity.ageRange = payload.ageRange
-      entity.minimumAge = payload.minimumAge
-      entity.notes = payload.notes
+      entity.locationId = event.locationId
+      entity.performerIds = event.performerIds
+      entity.start = event.start
+      entity.end = event.end
+      entity.price = event.price
+      entity.available = event.available
+      entity.ageRange = event.ageRange
+      entity.minimumAge = event.minimumAge
+      entity.notes = event.notes
       return entity
     },
     EventRescheduled () {
-      const { payload } = event
-      entity.start = payload.start
-      entity.end = payload.end
-      entity.doorsOpen = payload.doorsOpen
+      entity.start = event.start
+      entity.end = event.end
+      entity.doorsOpen = event.doorsOpen
       return entity
     }
-  }[event.type](event.type)
+  }[event.meta.type](event.meta.type)
 }
 exports.repository = new Repo('Event', exports.reducer)

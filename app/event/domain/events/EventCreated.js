@@ -5,7 +5,7 @@ const Base = require('@nerdsauce/adapters/BaseEvent')
 module.exports = class EventCreated extends Base {
   constructor (body) {
     body.id = uuid.v4()
-    super(body.id, body)
+    super(body)
     this.meta.type = 'EventCreated'
     assert(typeof this.locationId === 'string', 'EventCreated: "locationId" must be a ID!')
     assert(Array.isArray(this.performerIds), 'EventCreated: "performerIds" must be a [ ID! ]')

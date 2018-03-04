@@ -44,7 +44,8 @@ module.exports = class ESRepository extends Repository {
     }))
   }
 
-  async list () {
+  async find (params) {
+    const _reducer = this.reducer.bind(this)
     const list = await toArray(
       this.read()
         .pipe(new Transform({
@@ -52,7 +53,7 @@ module.exports = class ESRepository extends Repository {
           transform (chunk, encoding, callback) {
             if (!this[_map]) this[_map] = {}
             const obj = Object.assign({}, this[_map][chunk.id] || {})
-            this[_map][chunk.id] = this.reducer(obj, chunk)
+            this[_map][chunk.id] = _reducer(obj, chunk)
             callback()
           },
           flush (callback) {
