@@ -3,7 +3,7 @@ scalar Url
 type Query {
   node(id: ID!): Node
   performer(id: ID!): Performer
-  performers(first: Int, last: Int, before: String, after: String): PerformerConnection
+  performers(filter: PerformerFilter, first: Int, last: Int, before: String, after: String): PerformerConnection
   stream(id: ID, first: Int, last: Int, before: String, after: String): LogConnection
 }
 
@@ -11,6 +11,10 @@ type Mutation {
   registerPerformer(input: RegisterPerformerInput!): RegisterPerformerResponse
   updatePerformer(input: UpdatePerformerInput!): UpdatePerformerResponse
   removePerformer(input: RemovePerformerInput!): RemovePerformerResponse
+}
+
+input PerformerFilter {
+  in: [ ID! ]
 }
 
 input RegisterPerformerInput {
