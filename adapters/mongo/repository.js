@@ -5,7 +5,7 @@ const { Readable, Writable } = require('./stream')
 module.exports = class MongoRepository extends ESRepository {
   constructor (name, reducer = (src, evt) => src) {
     super(name, reducer)
-    this.db = new Monk(process.env.MONGODB_URL).get('event_source')
+    this.db = new Monk(process.env.MONGODB_URL).get(name)
   }
 
   read (id, start = new Date(0), end = new Date()) {

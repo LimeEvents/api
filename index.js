@@ -2,6 +2,7 @@ const { microGraphql } = require('apollo-server-micro')
 const { mergeSchemas } = require('graphql-tools')
 const { graphql: event } = require('./app/event')
 const { schema: location } = require('./app/location')
+const performer = require('./app/performer')
 
 const stitch = `
 extend type Event {
@@ -13,7 +14,7 @@ extend type Location {
 `
 
 const schema = mergeSchemas({
-  schemas: [ event.schema, location, stitch ],
+  schemas: [ event.schema, location, performer, stitch ],
   resolvers: (mergeInfo) => ({
     Location: {
       events: {

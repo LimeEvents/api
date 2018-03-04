@@ -1,0 +1,117 @@
+scalar Url
+
+type Query {
+  node(id: ID!): Node
+  performer(id: ID!): Performer
+  performers(first: Int, last: Int, before: String, after: String): PerformerConnection
+  stream(id: ID, first: Int, last: Int, before: String, after: String): LogConnection
+}
+
+type Mutation {
+  registerPerformer(input: RegisterPerformerInput!): RegisterPerformerResponse
+  updatePerformer(input: UpdatePerformerInput!): UpdatePerformerResponse
+  removePerformer(input: RemovePerformerInput!): RemovePerformerResponse
+}
+
+input RegisterPerformerInput {
+  clientMutationId: ID!
+  name: String!
+  caption: String
+  description: String
+  images: [ Url! ]
+  videos: [ Url! ]
+}
+type RegisterPerformerResponse {
+  clientMutationId: ID!
+  performer: Performer!
+}
+input UpdatePerformerInput {
+  clientMutationId: ID!
+  id: ID!
+  name: String!
+  caption: String
+  description: String
+  images: [ Url! ]
+  videos: [ Url! ]
+}
+type UpdatePerformerResponse {
+  clientMutationId: ID!
+  performer: Performer!
+}
+input RemovePerformerInput {
+  clientMutationId: ID!
+  id: ID!
+}
+type RemovePerformerResponse {
+  clientMutationId: ID!
+  performer: Performer!
+}
+
+type PerformerConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [ PerformerEdge! ]!
+}
+
+type PerformerEdge implements Edge {
+  cursor: String!
+  node: Performer!
+}
+
+type Performer implements Node {
+  id: ID!
+  name: String!
+  caption: String
+  description: String
+  images: [ Url! ]
+  videos: [ Url! ]
+  history(first: Int, last: Int, before: String, after: String): LogConnection
+}
+
+type LogConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [ PerformerLogEdge! ]!
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+type PerformerLogEdge implements Edge {
+  cursor: String!
+  node: Performer!
+}
+
+type PerformerLog implements Log & Node {
+  id: ID!
+  type: PerformerLogType
+  performer: Performer
+  hash: String!
+}
+
+interface Node {
+  id: ID!
+}
+
+interface Connection {
+  pageInfo: PageInfo!
+  edges: [ Edge! ]!
+}
+
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+
+interface Log {
+  id: ID!
+  hash: String!
+}
+
+enum PerformerLogType {
+  PerformerRegistered
+  PerformerUpdated
+  PerformerRemoved
+}
