@@ -32,7 +32,7 @@ const schema = mergeSchemas({
     Event: {
       location: {
         fragment: 'fragment EventFragment on Event { locationId }',
-        resolve (source, { locationId: id }, context, info) {
+        resolve ({ locationId: id }, args, context, info) {
           return mergeInfo.delegate(
             'query',
             'location',

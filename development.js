@@ -8,8 +8,8 @@ const dynaliteServer = dynalite({ path: './tmp', createTableMs: 50 })
 
 dynaliteServer.listen(4567, async (err) => {
   if (err) throw err
-  console.log('Dynalite started on port 4567')
+  console.info('Dynalite started on port 4567')
   const server = micro(graphql)
   server.listen(PORT)
-  console.log(`Server listening on port "${PORT}"`)
+  console.info(`Server listening on port "${PORT}"`)
 })

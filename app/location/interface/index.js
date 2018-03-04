@@ -11,11 +11,11 @@ exports.schema = makeExecutableSchema({
   typeDefs: [ fs.readFileSync(path.resolve(__dirname, 'Location.graphql'), 'utf8') ],
   resolvers: {
     Query: {
-      location (source, { id }) {
-        return application.get(id)
+      location (source, { id }, { viewer }) {
+        return application.get(viewer, id)
       },
-      locations (source, args) {
-        return connectionFromPromisedArray(application.find(), args)
+      locations (source, args, { viewer }) {
+        return connectionFromPromisedArray(application.find(viewer), args)
       }
     }
   }
