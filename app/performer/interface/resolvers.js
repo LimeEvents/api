@@ -40,6 +40,6 @@ module.exports = {
   }
 }
 
-function refetchPerformer ({ id }, { id: _id }, { viewer }) {
-  return application.get(viewer, id || id)
+function refetchPerformer (source, args, { viewer }) {
+  return application.get(viewer, args.id || source.id)
 }

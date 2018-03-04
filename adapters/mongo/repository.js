@@ -5,7 +5,7 @@ const { Readable, Writable } = require('./stream')
 module.exports = class MongoRepository extends ESRepository {
   constructor (name, reducer = (src, evt) => src) {
     super(name, reducer)
-    this.db = new Monk(process.env.MONGODB_URL).get(name)
+    this.db = new Monk(process.env.MONGODB_URL).get(name, { castIds: false })
   }
 
   read (id, start = new Date(0), end = new Date()) {
@@ -13,7 +13,7 @@ module.exports = class MongoRepository extends ESRepository {
       return new Readable(this.db, {})
     }
     return new Readable(this.db, {
-      // id,
+      id
       // timestamp: { $gte: start, $lte: end }
     })
   }

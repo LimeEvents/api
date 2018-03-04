@@ -7,8 +7,12 @@ const performer = require('./app/performer')
 const stitch = `
 extend type Event {
   location: Location!
+  performers(first: Int, last: Int, before: String, after: String): PerformerConnection!
 }
 extend type Location {
+  events(first: Int, last: Int, before: String, after: String): EventConnection!
+}
+extend type Performer {
   events(first: Int, last: Int, before: String, after: String): EventConnection!
 }
 `
@@ -16,6 +20,21 @@ extend type Location {
 const schema = mergeSchemas({
   schemas: [ event.schema, location, performer, stitch ],
   resolvers: (mergeInfo) => ({
+    Performer: {
+      events: {
+        fragment: 'fragment PerformerFragment on Performer { id }',
+        async resolve ({ id }, { first, last, before, after }, context, info) {
+          const events = await mergeInfo.delegate(
+            'query',
+            'events',
+            { filter: { performerId: id }, first, last, before, after },
+            context,
+            info
+          )
+          return events
+        }
+      }
+    },
     Location: {
       events: {
         fragment: 'fragment LocationFragment on Location { id }',
@@ -39,6 +58,18 @@ const schema = mergeSchemas({
             'query',
             'location',
             { id },
+            context,
+            info
+          )
+        }
+      },
+      performers: {
+        fragment: 'fragment EventFragment on Event { performerIds }',
+        resolve ({ performerIds }, { first, last, before, after }, context, info) {
+          return mergeInfo.delegate(
+            'query',
+            'performers',
+            { filter: { in: performerIds }, first, last, before, after },
             context,
             info
           )

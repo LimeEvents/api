@@ -15,6 +15,7 @@ type Mutation {
 
 input EventFilter {
   locationId: ID
+  performerId: ID
 }
 
 type EventConnection implements Connection {

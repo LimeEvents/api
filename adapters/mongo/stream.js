@@ -5,7 +5,7 @@ exports.Readable = class SourceWrapper extends Readable {
   constructor (db, query, options) {
     super(Object.assign({ objectMode: true }, options))
     this.db = db
-    this.query = {} // query
+    this.query = query
     this._cursor = null
   }
 
@@ -42,6 +42,7 @@ exports.Writable = class MongoWriteStream extends Writable {
   }
 
   _write (chunk, encoding, callback) {
+    chunk._id = chunk.meta.id
     return this.db.insert(chunk)
       .then(results => callback(null, results))
       .catch(callback)

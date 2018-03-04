@@ -18,6 +18,7 @@ module.exports = (repo) => {
       if (query.filter) {
         events = events.filter((event) => {
           if (query.filter.locationId && query.filter.locationId !== event.locationId) return false
+          if (query.filter.performerId && !event.performerIds.includes(query.filter.performerId)) return false
           return true
         })
       }
