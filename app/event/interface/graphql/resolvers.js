@@ -7,7 +7,7 @@ module.exports = {
     event: refetchEvent,
     events (source, args, context, info) {
       return connectionFromPromisedArray(
-        application.find(context.viewer, args.query),
+        application.find(context.viewer, args),
         args
       )
     },

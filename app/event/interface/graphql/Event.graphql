@@ -3,7 +3,7 @@ scalar DateTime
 type Query {
   node(id: ID!): Node
   event(id: ID!): Event
-  events(first: Int, last: Int, before: String, after: String): EventConnection
+  events(filter: EventFilter, first: Int, last: Int, before: String, after: String): EventConnection
   stream(id: ID, first: Int, last: Int, before: String, after: String): EventLogConnection
 }
 
@@ -11,6 +11,10 @@ type Mutation {
   createEvent(input: CreateEventInput!): CreateEventResponse
   cancelEvent(input: CancelEventInput!): CancelEventResponse
   rescheduleEvent(input: RescheduleEventInput!): RescheduleEventResponse
+}
+
+input EventFilter {
+  locationId: ID
 }
 
 type EventConnection implements Connection {

@@ -18,14 +18,15 @@ const schema = mergeSchemas({
     Location: {
       events: {
         fragment: 'fragment LocationFragment on Location { id }',
-        resolve ({ id }, { first, last, before, after }, context, info) {
-          return mergeInfo.delegate(
+        async resolve ({ id }, { first, last, before, after }, context, info) {
+          const events = await mergeInfo.delegate(
             'query',
             'events',
-            { locationId: id, first, last, before, after },
+            { filter: { locationId: id }, first, last, before, after },
             context,
             info
           )
+          return events
         }
       }
     },

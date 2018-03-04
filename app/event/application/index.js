@@ -13,8 +13,14 @@ module.exports = (repo) => {
         domain.cancel(viewer, { event })
       )
     },
-    async find (viewer, query) {
-      const events = await repo.find(query)
+    async find (viewer, query = {}) {
+      let events = await repo.find(query)
+      if (query.filter) {
+        events = events.filter((event) => {
+          if (query.filter.locationId && query.filter.locationId !== event.locationId) return false
+          return true
+        })
+      }
       return domain.find(viewer, { events })
     },
     async get (viewer, id) {
