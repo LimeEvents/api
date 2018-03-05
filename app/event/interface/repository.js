@@ -1,3 +1,4 @@
+const emitter = require('@nerdsauce/adapters/emitter')
 const Repo = require('@nerdsauce/adapters/mongo/repository')
 
 exports.reducer = (src = {}, event) => {
@@ -31,4 +32,4 @@ exports.reducer = (src = {}, event) => {
   console.warn(`Invalid event type: "${event.meta.type}"`)
   return src
 }
-exports.repository = new Repo('event_source', exports.reducer)
+exports.repository = new Repo('event_source', exports.reducer, emitter)

@@ -3,8 +3,8 @@ const ESRepository = require('../ESRepository')
 const { Readable, Writable } = require('./stream')
 
 module.exports = class MongoRepository extends ESRepository {
-  constructor (name, reducer = (src, evt) => src) {
-    super(name, reducer)
+  constructor (name, reducer = (src, evt) => src, emitter) {
+    super(name, reducer, emitter)
     this.db = new Monk(process.env.MONGODB_URL).get(name, { castIds: false })
   }
 

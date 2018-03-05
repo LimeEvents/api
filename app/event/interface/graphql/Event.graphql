@@ -37,7 +37,7 @@ type Event implements Node {
   cancelled: DateTime
   price: Float!
   sold: Int!
-  available: Int!
+  capacity: Int!
   reserved: Int!
   ageRange: String
   minimumAge: Int
@@ -101,7 +101,7 @@ input CreateEventInput {
   start: DateTime!
   end: DateTime
   price: Float!
-  available: Int!
+  capacity: Int!
   ageRange: String
   minimumAge: Int
   notes: [ String! ]

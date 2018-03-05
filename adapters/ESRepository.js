@@ -26,8 +26,8 @@ db
   })
 
 module.exports = class ESRepository extends Repository {
-  constructor (name, reducer = (src, evt) => src) {
-    super()
+  constructor (name, reducer = (src, evt) => src, emitter) {
+    super(emitter)
     this.name = name
     this.reducer = reducer
     assert(typeof this.read === 'function', 'Class extending ESRespository must implement `read`')

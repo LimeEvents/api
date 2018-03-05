@@ -1,12 +1,12 @@
 
 const assert = require('assert')
+const EventEmitter = require('events')
 const Dataloader = require('dataloader')
 const QuickLru = require('quick-lru')
-const EventEmitter = require('events')
 
-module.exports = class Repository extends EventEmitter {
-  constructor () {
-    super()
+module.exports = class Repository {
+  constructor (emitter = new EventEmitter()) {
+    this.emitter = emitter
     assert(typeof this.get === 'function', '`get` must be a function')
     assert(typeof this.save === 'function', '`save` must be a function')
 
@@ -20,30 +20,10 @@ module.exports = class Repository extends EventEmitter {
     this.get = (id, ...args) => args.length ? _get(id, ...args) : this.dataloader.load(id)
     this.save = async (events) => {
       const results = await _save(events)
-      events.forEach((event) => this.emit(event.type, event))
+      events.forEach((event) => this.emitter.emit(event.type, event))
       // Invalidate the cache, something changed
       this.dataloader.clear(events[0].id)
       return results
     }
-  }
-
-  get emitter () {
-    return [
-      'addListener',
-      'emit',
-      'eventNames',
-      'getMaxListeners',
-      'listeners',
-      'listenerCount',
-      'on',
-      'once',
-      'prependListener',
-      'prependOnceListener',
-      'removeAllListeners',
-      'removeListener'
-    ].reduce((prev, curr) => {
-      prev[curr] = this[curr].bind(this)
-      return prev
-    }, {})
   }
 }

@@ -1,4 +1,5 @@
 const Repo = require('@nerdsauce/adapters/mongo/repository')
+const emitter = require('@nerdsauce/adapters/emitter')
 
 exports.reducer = (performer = {}, event = {}) => {
   const entity = Object.assign({}, performer)
@@ -24,4 +25,4 @@ exports.reducer = (performer = {}, event = {}) => {
     }
   }[event.meta.type]()
 }
-exports.repository = new Repo('performer_source', exports.reducer)
+exports.repository = new Repo('performer_source', exports.reducer, emitter)
