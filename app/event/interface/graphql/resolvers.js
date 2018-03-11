@@ -1,6 +1,5 @@
 const { connectionFromPromisedArray } = require('graphql-relay')
-const { repository } = require('../repository')
-const application = require('../../application')(repository)
+const application = require('../application')
 
 module.exports = {
   Query: {

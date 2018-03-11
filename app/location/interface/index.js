@@ -20,3 +20,5 @@ exports.schema = makeExecutableSchema({
     }
   }
 })
+
+exports.application = application
