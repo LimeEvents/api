@@ -93,6 +93,7 @@ type Location implements Node {
   description: String
   images: [ Url ]
   address: Address!
+  capacity: Int!
   history(first: Int, last: Int, before: String, after: String): LocationLogConnection
 }
 

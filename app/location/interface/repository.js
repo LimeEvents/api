@@ -6,7 +6,8 @@ const LOCATIONS = {
     state: 'UT',
     street: '194 South 400 West',
     postalCode: '84101',
-    googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=194 South 400 West Salt Lake City UT 84101 US'
+    googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=194 South 400 West Salt Lake City UT 84101 US',
+    capacity: 300
   },
   'ogden': {
     id: 'ogden',
@@ -15,7 +16,8 @@ const LOCATIONS = {
     state: 'UT',
     street: '269 25th St',
     postalCode: '84401',
-    googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=269 25th St Ogden UT 84401 US'
+    googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=269 25th St Ogden UT 84401 US',
+    capacity: 170
   },
   'jordan-landing': {
     id: 'jordan-landing',
@@ -24,7 +26,8 @@ const LOCATIONS = {
     state: 'UT',
     street: '3763 West Center Park Drive',
     postalCode: '84084',
-    googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=3763 West Center Park Drive West Jordan UT 84084 US'
+    googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=3763 West Center Park Drive West Jordan UT 84084 US',
+    capacity: 300
   }
 }
 
