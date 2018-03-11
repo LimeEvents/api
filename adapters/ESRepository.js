@@ -1,29 +1,11 @@
 const assert = require('assert')
 const { Transform } = require('stream')
 const toArray = require('stream-to-array')
-const AWS = require('aws-sdk')
 const onEnd = require('end-of-stream')
 const Repository = require('./Repository')
 
 const _map = Symbol('_map')
 const _reduction = Symbol('_reduction')
-
-const db = new AWS.DynamoDB({
-  apiVersion: '2012-08-10',
-  region: 'us-west-2',
-  endpoint: process.env.DYNAMO_ENDPOINT,
-  params: {
-    TableName: this.name
-  }
-})
-db
-  .listTables()
-  .promise()
-  .then(({ TableNames }) => {
-    return db.describeTable({
-      TableName: TableNames[0]
-    }).promise()
-  })
 
 module.exports = class ESRepository extends Repository {
   constructor (name, reducer = (src, evt) => src, emitter) {

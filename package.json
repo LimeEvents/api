@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "nodemon -e js,graphql development.js",
+    "start": "micro",
+    "dev": "micro-dev development.js",
     "postinstall": "npm run setup",
     "setup": "node environment.js"
   },
@@ -14,14 +15,15 @@
   "license": "ISC",
   "devDependencies": {
     "dotenv": "^5.0.0",
-    "dynalite": "^1.2.0",
     "eslint": "^4.18.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "jest": "^22.4.2"
+    "jest": "^22.4.2",
+    "micro-dev": "^2.2.0",
+    "microrouter": "^3.1.1"
   },
   "dependencies": {
     "@nerdsauce/adapters": "file:adapters",
