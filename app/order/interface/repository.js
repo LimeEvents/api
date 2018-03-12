@@ -4,7 +4,11 @@ const Repo = require('@nerdsauce/adapters/mongo/repository')
 exports.reducer = (src, event) => {
   const entity = Object.assign({
     refunded: false,
-    paid: false
+    paid: false,
+    fee: 0,
+    taxes: 0,
+    amount: 0,
+    willcall: []
   }, src)
   const fn = {
     OrderCreated () {
@@ -12,6 +16,7 @@ exports.reducer = (src, event) => {
         id: event.id,
         eventId: event.eventId,
         tickets: event.tickets,
+        email: event.email,
         created: event.meta.timestamp,
         ...entity
       }

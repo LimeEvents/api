@@ -79,9 +79,9 @@ type Order implements Node {
   refunded: Boolean!
   paid: Boolean!
 
-  fingerprint: ID!
+  fingerprint: ID
   willcall: [ String! ]!
-  billing: Billing!
+  billing: Billing
 }
 
 type Billing {

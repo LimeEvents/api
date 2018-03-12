@@ -3,7 +3,9 @@ const assert = require('assert')
 
 module.exports = {
   get (viewer, { order }) {
+    authenticated(viewer)
 
+    return order
   },
   create (viewer, { inventory, eventId, tickets }) {
     const id = uuid()
