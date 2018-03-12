@@ -4,7 +4,7 @@ const { makeExecutableSchema } = require('graphql-tools')
 
 const resolvers = require('./resolvers')
 
-module.exports = makeExecutableSchema({
+exports.schema = makeExecutableSchema({
   typeDefs: [ load('Performer') ],
   resolvers
 })

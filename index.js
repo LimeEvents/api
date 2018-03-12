@@ -2,7 +2,7 @@ const { microGraphql } = require('apollo-server-micro')
 const { mergeSchemas } = require('graphql-tools')
 const { graphql: event } = require('./app/event')
 const { schema: location } = require('./app/location')
-const performer = require('./app/performer')
+const { schema: performer } = require('./app/performer')
 
 const stitch = `
 extend type Event {
