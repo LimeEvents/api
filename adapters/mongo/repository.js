@@ -8,13 +8,11 @@ module.exports = class MongoRepository extends ESRepository {
     this.db = new Monk(process.env.MONGODB_URL).get(name, { castIds: false })
   }
 
-  read (id, start = new Date(0), end = new Date()) {
-    if (!id) {
-      return new Readable(this.db, {})
-    }
+  read (params = {}) {
     return new Readable(this.db, {
-      id
-      // timestamp: { $gte: start, $lte: end }
+      start: new Date(0).getTime(),
+      end: Date.now(),
+      ...params
     })
   }
 

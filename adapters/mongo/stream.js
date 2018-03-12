@@ -1,12 +1,23 @@
 
 const { Readable, Writable } = require('stream')
 
+const RESTRICTED_KEYS = ['start', 'end']
+
 exports.Readable = class SourceWrapper extends Readable {
   constructor (db, query, options) {
     super(Object.assign({ objectMode: true }, options))
     this.db = db
-    this.query = query
+    this.query = this.formatQuery(query)
     this._cursor = null
+  }
+
+  formatQuery (query) {
+    const base = { 'meta.timestamp': { $gte: query.start, $lte: query.end } }
+    return Object.entries(query)
+      .reduce((prev, [ key, value ]) => {
+        if (!RESTRICTED_KEYS.includes(key)) prev[key] = value
+        return prev
+      }, base)
   }
 
   _start () {

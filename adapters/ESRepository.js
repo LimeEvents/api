@@ -26,10 +26,10 @@ module.exports = class ESRepository extends Repository {
     }))
   }
 
-  async find (params) {
+  async find (params = {}) {
     const _reducer = this.reducer.bind(this)
     const list = await toArray(
-      this.read()
+      this.read(params)
         .pipe(new Transform({
           objectMode: true,
           transform (chunk, encoding, callback) {
@@ -39,7 +39,7 @@ module.exports = class ESRepository extends Repository {
             callback()
           },
           flush (callback) {
-            Object.values(this[_map])
+            Object.values(this[_map] || {})
               .map(value => this.push(value))
             this[_map] = {}
             callback()
@@ -49,10 +49,10 @@ module.exports = class ESRepository extends Repository {
     return list
   }
 
-  async get (id, start, end) {
+  async get (id, start = 0, end = Date.now()) {
     const [ object ] = await toArray(
       this
-        .read(id, start, end)
+        .read({ id, start, end })
         .pipe(reduce(this.reducer))
     )
     return object
