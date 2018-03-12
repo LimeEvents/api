@@ -36,9 +36,6 @@ type Event implements Node {
   end: DateTime!
   cancelled: DateTime
   price: Float!
-  sold: Int!
-  capacity: Int!
-  reserved: Int!
   ageRange: String
   minimumAge: Int
   notes: [ String! ]

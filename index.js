@@ -3,6 +3,7 @@ const { mergeSchemas } = require('graphql-tools')
 const { graphql: event } = require('./app/event')
 const { schema: location } = require('./app/location')
 const { schema: performer } = require('./app/performer')
+const { schema: order } = require('./app/order')
 
 const stitch = `
 extend type Event {
@@ -15,10 +16,13 @@ extend type Location {
 extend type Performer {
   events(first: Int, last: Int, before: String, after: String): EventConnection!
 }
+extend type Event {
+  inventory: Inventory!
+}
 `
 
 const schema = mergeSchemas({
-  schemas: [ event.schema, location, performer, stitch ],
+  schemas: [ event.schema, location, performer, order, stitch ],
   resolvers: (mergeInfo) => ({
     Performer: {
       events: {
@@ -51,6 +55,18 @@ const schema = mergeSchemas({
       }
     },
     Event: {
+      inventory: {
+        fragment: 'fragment EventFragment on Event { id, locationId }',
+        resolve ({ id, locationId }, args, context, info) {
+          return mergeInfo.delegate(
+            'query',
+            'inventory',
+            { eventId: id },
+            context,
+            info
+          )
+        }
+      },
       location: {
         fragment: 'fragment EventFragment on Event { locationId }',
         resolve ({ locationId: id }, args, context, info) {
@@ -79,7 +95,9 @@ const schema = mergeSchemas({
   })
 })
 
-module.exports = microGraphql((req) => ({
+exports.http = microGraphql((req) => ({
   schema,
   context: { viewer: { roles: ['admin'] } }
 }))
+
+exports.schema = schema

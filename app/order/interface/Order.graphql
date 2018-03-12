@@ -1,0 +1,148 @@
+scalar DateTime
+scalar Currency
+
+type Query {
+  order(id: ID!): Order
+  inventory(eventId: ID!): Inventory
+  stream(id: ID, first: Int, last: Int, before: String, after: String): OrderLogConnection
+}
+
+type Mutation {
+  createOrder(input: CreateOrderInput!): CreateOrderResponse
+  chargeOrder(input: ChargeOrderInput!): ChargeOrderResponse
+  refundOrder(input: RefundOrderInput!): RefundOrderResponse
+  transferOrder(input: TransferOrderInput!): TransferOrderResponse
+  reassignOrder(input: ReassignOrderInput!): ReassignOrderResponse
+}
+input CreateOrderInput {
+  clientMutationId: ID!
+  id: ID
+  eventId: ID!
+  tickets: Int!
+}
+type CreateOrderResponse {
+  clientMutationId: ID!
+  order: Order!
+  inventory: Inventory!
+}
+input ChargeOrderInput {
+  clientMutationId: ID!
+}
+type ChargeOrderResponse {
+  clientMutationId: ID!
+  order: Order!
+  inventory: Inventory!
+}
+input RefundOrderInput {
+  clientMutationId: ID!
+  id: ID!
+  name: String!
+}
+type RefundOrderResponse {
+  clientMutationId: ID!
+  order: Order!
+  inventory: Inventory!
+}
+input TransferOrderInput {
+  clientMutationId: ID!
+  from: ID!
+  fromAmount: Int!
+  to: ID!
+  toAmount: Int!
+}
+type TransferOrderResponse {
+  clientMutationId: ID!
+  order: Order!
+  fromInventory: Inventory!
+  toInventory: Inventory!
+}
+input ReassignOrderInput {
+  clientMutationId: ID!
+  id: ID!
+  to: String!
+  from: String!
+}
+type ReassignOrderResponse {
+  clientMutationId: ID!
+  order: Order!
+}
+
+type Order implements Node {
+  id: ID!
+  eventId: ID!
+  tickets: Int!
+
+  amount: Currency!
+  fee: Currency!
+  taxes: Currency!
+
+  refunded: Boolean!
+  paid: Boolean!
+
+  fingerprint: ID!
+  willcall: [ String! ]!
+  billing: Billing!
+}
+
+type Billing {
+  name: String!
+  postalCode: String!
+}
+
+type Inventory {
+  available: Int!
+  sold: Int!
+  reserved: Int!
+  history(first: Int, last: Int, before: String, after: String): OrderLogConnection
+}
+
+type OrderLogConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [ OrderLogEdge! ]!
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+type OrderLogEdge implements Edge {
+  cursor: String!
+  node: Node!
+}
+
+type OrderLog implements Log & Node {
+  id: ID!
+  type: OrderLogType
+  event: Inventory
+  hash: String!
+}
+
+interface Node {
+  id: ID!
+}
+
+interface Connection {
+  pageInfo: PageInfo!
+  edges: [ Edge! ]!
+}
+
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+
+interface Log {
+  id: ID!
+  hash: String!
+}
+
+enum OrderLogType {
+  # TicketsReserved
+  OrderCreated
+  OrderRefunded
+  OrderReassigned
+  OrderTransferred
+}
