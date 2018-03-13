@@ -7,6 +7,11 @@ module.exports = {
 
     return order
   },
+  find (viewer, { orders }) {
+    authenticated(viewer)
+
+    return orders
+  },
   create (viewer, { inventory, eventId, tickets }) {
     const id = uuid()
     assert(inventory, 'Invalid event')

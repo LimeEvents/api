@@ -16,6 +16,10 @@ module.exports = (repo, services) => {
       const order = await repo.get(id)
       return domain.get(viewer, { order })
     },
+    async find (viewer, params) {
+      const orders = await repo.find(params)
+      return domain.find(viewer, { orders })
+    },
     async getInventory (viewer, eventId) {
       const orders = await repo.find({ eventId })
       const [ sold, reserved ] = orders

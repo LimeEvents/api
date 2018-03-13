@@ -14,7 +14,7 @@ type Mutation {
 }
 
 input PerformerFilter {
-  in: [ ID! ]
+  id: [ ID! ]
 }
 
 input RegisterPerformerInput {

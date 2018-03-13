@@ -1,3 +1,4 @@
+const { connectionFromPromisedArray } = require('graphql-relay')
 const application = require('./application')
 
 module.exports = {
@@ -5,6 +6,12 @@ module.exports = {
     order: refetchResolver,
     inventory (source, { eventId }, { viewer }) {
       return application.getInventory(viewer, eventId)
+    },
+    orders (source, args, { viewer }, info) {
+      return connectionFromPromisedArray(
+        application.find(viewer, args.filter),
+        args
+      )
     }
   },
   Mutation: {

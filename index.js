@@ -19,6 +19,9 @@ extend type Performer {
 extend type Event {
   inventory: Inventory!
 }
+extend type Order {
+  event: Event!
+}
 `
 
 const schema = mergeSchemas({
@@ -54,6 +57,20 @@ const schema = mergeSchemas({
         }
       }
     },
+    Order: {
+      event: {
+        fragment: 'fragment OrderFragment on Order { eventId }',
+        resolve ({ eventId: id }, args, context, info) {
+          return mergeInfo.delegate(
+            'query',
+            'event',
+            { id },
+            context,
+            info
+          )
+        }
+      }
+    },
     Event: {
       inventory: {
         fragment: 'fragment EventFragment on Event { id, locationId }',
@@ -85,7 +102,7 @@ const schema = mergeSchemas({
           return mergeInfo.delegate(
             'query',
             'performers',
-            { filter: { in: performerIds }, first, last, before, after },
+            { filter: { id: performerIds }, first, last, before, after },
             context,
             info
           )

@@ -3,6 +3,7 @@ scalar Currency
 
 type Query {
   order(id: ID!): Order
+  orders(first: Int, last: Int, before: String, after: String): OrderConnection!
   inventory(eventId: ID!): Inventory
   stream(id: ID, first: Int, last: Int, before: String, after: String): OrderLogConnection
 }
@@ -94,6 +95,16 @@ type Inventory {
   sold: Int!
   reserved: Int!
   history(first: Int, last: Int, before: String, after: String): OrderLogConnection
+}
+
+type OrderConnection implements Connection {
+  edges: [ OrderEdge! ]!
+  pageInfo: PageInfo!
+}
+
+type OrderEdge implements Edge {
+  cursor: String!
+  node: Order!
 }
 
 type OrderLogConnection implements Connection {
