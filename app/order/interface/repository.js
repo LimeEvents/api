@@ -1,6 +1,8 @@
 const emitter = require('@nerdsauce/adapters/emitter')
 const Repo = require('@nerdsauce/adapters/mongo/repository')
 
+const FIFTEEN_MINUTES = 1000 * 60 * 15
+
 exports.reducer = (src, event) => {
   const entity = Object.assign({
     refunded: false,
@@ -18,7 +20,8 @@ exports.reducer = (src, event) => {
         eventId: event.eventId,
         tickets: event.tickets,
         email: event.email,
-        created: event.meta.timestamp
+        created: event.meta.timestamp,
+        expired: FIFTEEN_MINUTES + event.meta.timestamp
       }
     },
     OrderCharged () {

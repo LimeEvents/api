@@ -27,8 +27,18 @@ module.exports = {
       })
     ]
   },
-  reassign (viewer, { order }) {
+  reassign (viewer, { name, order }) {
+    assert(viewer.roles.includes('admin'), 'Unauthorized. Only administrator can modify willcall.')
+    assert(name, '"name" is required to reassign willcall')
+    assert(order.paid, 'Order must be paid for to reassign willcall')
+    assert(!order.refunded, 'Willcall cannot be reassigned to refunded orders')
 
+    return [
+      toEvent('OrderReassigned', {
+        id: order.id,
+        name
+      })
+    ]
   },
   transfer (viewer, { order }) {
 
@@ -36,10 +46,11 @@ module.exports = {
   charge (viewer, { order, event, name, email, source }) {
     assert(!order.paid, 'Order is already paid for, don\'t charge card')
     assert(!order.refunded, 'Order has been refunded. Create a new order.')
+    assert(order.expired > Date.now(), 'Order reservation has expired. Please create a new order')
 
     const amount = order.tickets * event.price * 100
-    const taxes = amount * 0.0675
-    const fee = (order.tickets * 0.5) + (amount * 0.03)
+    const taxes = Math.ceil(amount * 0.0675)
+    const fee = Math.ceil((order.tickets * 0.5) + (amount * 0.03))
     const total = amount + taxes
     return [
       toEvent('OrderCharged', {

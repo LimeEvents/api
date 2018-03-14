@@ -7,6 +7,9 @@ module.exports = {
     inventory (source, { eventId }, { viewer }) {
       return application.getInventory(viewer, eventId)
     },
+    orderStatistics (source, args, { viewer }, info) {
+      return application.getStatistics(viewer, args)
+    },
     orders (source, args, { viewer }, info) {
       return connectionFromPromisedArray(
         application.find(viewer, args.filter),

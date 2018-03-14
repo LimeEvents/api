@@ -21,15 +21,68 @@ module.exports = (repo, services) => {
       if (params.filter) {
         orders = orders.filter((order) => {
           if (params.filter.eventId && params.filter.eventId !== order.eventId) return false
+          if (!order.paid && order.expired < Date.now()) return false
+          if (order.refunded) return false
           return true
         })
       }
       return domain.find(viewer, { orders })
     },
+    async getStatistics (viewer, { eventId, performerId, locationId, startDate, endDate }) {
+      let orders = await this.find(viewer, { filter: { eventId, performerId, locationId } })
+      return orders
+        .reduce((totals, { paid, refunded, tickets, amount, fee, taxes }) => {
+          if (!paid) return totals
+          totals.revenue += amount
+          totals.taxes = taxes
+          if (refunded) {
+            totals.refundedAmount += amount
+            totals.refunded += tickets
+          }
+          totals.ticketsSold += tickets
+          totals.orders += 1
+          totals.fees += fee
+          return totals
+        }, {
+          revenue: 0,
+          taxes: 0,
+          refundedAmount: 0,
+          refunded: 0,
+          ticketsSold: 0,
+          orders: 0,
+          fees: 0,
+          startDate,
+          endDate
+        })
+    },
+    async getWillcall (viewer, eventId) {
+      const orders = await this.find(viewer, { filter: { eventId } })
+      const list = orders
+        .filter(({ refunded, paid, created, expired }) => {
+          if (refunded) return false
+          if (paid) return true
+          if (expired < Date.now()) return false
+          return true
+        })
+        .reduce((list, { id, willcall, tickets }) => {
+          list[id] = {
+            tickets,
+            names: willcall
+          }
+          return list
+        }, {})
+
+      return list
+    },
     async getInventory (viewer, eventId) {
       const orders = await this.find(viewer, { filter: { eventId } })
       const [ sold, reserved ] = orders
-        .filter(({ refunded }) => !refunded)
+        .filter(({ refunded, paid, created, expired }) => {
+          if (refunded) return false
+          if (paid) return true
+          if (expired < Date.now()) return false
+          return true
+        })
         .reduce((totals, { id, tickets, paid }) => {
           if (paid) totals[0] += tickets
           else totals[1] += tickets

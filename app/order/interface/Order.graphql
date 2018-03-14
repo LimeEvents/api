@@ -4,8 +4,28 @@ scalar Currency
 type Query {
   order(id: ID!): Order
   orders(first: Int, last: Int, before: String, after: String): OrderConnection!
+  orderStatistics(startDate: Int!, endDate: Int!, performerId: ID, locationId: ID, eventId: ID): OrderStatistic!
   inventory(eventId: ID!): Inventory
   stream(id: ID, first: Int, last: Int, before: String, after: String): OrderLogConnection
+}
+
+type OrderStatistic {
+  startDate: Int!
+  endDate: Int!
+  """ Total number of orders created """
+  orders: Int!
+  """ Total number of tickets sold """
+  ticketsSold: Int!
+  """ Total revenue """
+  revenue: Currency!
+  """ Number of tickets that have been refunded """
+  refunded: Int!
+  """ Total amount refunded """
+  refundedAmount: Currency!
+  """ Amount collected in fees """
+  fees: Currency!
+  """ Amount colllected for taxes """
+  taxes: Currency!
 }
 
 type Mutation {
@@ -91,6 +111,7 @@ type Order implements Node {
   fingerprint: ID
   willcall: [ String! ]!
   billing: Billing
+  created: DateTime!
 }
 
 type Billing {
