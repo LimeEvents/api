@@ -22,6 +22,9 @@ extend type Event {
 extend type Order {
   event: Event!
 }
+extend type Event {
+  orders(first: Int, last: Int, before: String, after: String): OrderConnection!
+}
 `
 
 const schema = mergeSchemas({
@@ -72,6 +75,18 @@ const schema = mergeSchemas({
       }
     },
     Event: {
+      orders: {
+        fragment: 'fragment EventFragment on Event { id }',
+        resolve ({ id: eventId }, args, context, info) {
+          return mergeInfo.delegate(
+            'query',
+            'orders',
+            { filter: { eventId }, ...args },
+            context,
+            info
+          )
+        }
+      },
       inventory: {
         fragment: 'fragment EventFragment on Event { id, locationId }',
         resolve ({ id, locationId }, args, context, info) {

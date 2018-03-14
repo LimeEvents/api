@@ -3,10 +3,15 @@ scalar Currency
 
 type Query {
   order(id: ID!): Order
-  orders(first: Int, last: Int, before: String, after: String): OrderConnection!
+  orders(filter: OrderFilter, first: Int, last: Int, before: String, after: String): OrderConnection!
   orderStatistics(startDate: Int!, endDate: Int!, performerId: ID, locationId: ID, eventId: ID): OrderStatistic!
   inventory(eventId: ID!): Inventory
   stream(id: ID, first: Int, last: Int, before: String, after: String): OrderLogConnection
+}
+
+input OrderFilter {
+  eventId: ID
+  locationId: ID
 }
 
 type OrderStatistic {

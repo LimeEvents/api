@@ -12,7 +12,7 @@ module.exports = {
     },
     orders (source, args, { viewer }, info) {
       return connectionFromPromisedArray(
-        application.find(viewer, args.filter),
+        application.find(viewer, args),
         args
       )
     }
