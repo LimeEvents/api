@@ -34,6 +34,9 @@ module.exports = {
 
   },
   charge (viewer, { order, event, name, email, source }) {
+    assert(!order.paid, 'Order is already paid for, don\'t charge card')
+    assert(!order.refunded, 'Order has been refunded. Create a new order.')
+
     const amount = order.tickets * event.price * 100
     const taxes = amount * 0.0675
     const fee = (order.tickets * 0.5) + (amount * 0.03)
