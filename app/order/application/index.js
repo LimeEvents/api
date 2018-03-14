@@ -31,7 +31,17 @@ module.exports = (repo, services) => {
     async getStatistics (viewer, { eventId, performerId, locationId, startDate, endDate }) {
       let orders = await this.find(viewer, { filter: { eventId, performerId, locationId } })
       return orders
-        .reduce((totals, { paid, refunded, tickets, amount, fee, taxes }) => {
+        .reduce(async (prev, { eventId: orderEventId, paid, refunded, tickets, amount, fee, taxes }) => {
+          const totals = await prev
+          if (performerId || locationId) {
+            const event = await services.event.get(viewer, orderEventId)
+            if (locationId && event.locationId !== locationId) {
+              return totals
+            }
+            if (performerId && !event.performerIds.includes(performerId)) {
+              return totals
+            }
+          }
           if (!paid) return totals
           totals.revenue += amount
           totals.taxes = taxes
