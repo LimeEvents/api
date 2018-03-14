@@ -13,12 +13,36 @@ exports.reducer = (src, event) => {
   const fn = {
     OrderCreated () {
       return {
-        id: event.id,
+        ...entity,
+        id: event.meta.id,
         eventId: event.eventId,
         tickets: event.tickets,
         email: event.email,
-        created: event.meta.timestamp,
-        ...entity
+        created: event.meta.timestamp
+      }
+    },
+    OrderCharged () {
+      return {
+        ...entity,
+        id: event.meta.id,
+        fee: event.fee,
+        taxes: event.taxes,
+        amount: event.amount,
+        willcall: entity.willcall.concat(event.name)
+      }
+    },
+    OrderChargeSucceeded () {
+      return {
+        ...entity,
+        id: event.meta.id,
+        paid: true
+      }
+    },
+    OrderChargeFailed () {
+      return {
+        ...entity,
+        id: event.meta.id,
+        paid: false
       }
     }
     // TicketsReassigned () {
@@ -55,4 +79,4 @@ exports.reducer = (src, event) => {
   return src
 }
 
-exports.repository = new Repo('ticketing_source', exports.reducer, emitter)
+exports.repository = new Repo('order_source', exports.reducer, emitter)

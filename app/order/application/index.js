@@ -16,15 +16,21 @@ module.exports = (repo, services) => {
       const order = await repo.get(id)
       return domain.get(viewer, { order })
     },
-    async find (viewer, params) {
-      const orders = await repo.find(params)
+    async find (viewer, params = {}) {
+      let orders = await repo.find()
+      if (params.filter) {
+        orders = orders.filter((order) => {
+          if (params.filter.eventId && params.filter.eventId !== order.eventId) return false
+          return true
+        })
+      }
       return domain.find(viewer, { orders })
     },
     async getInventory (viewer, eventId) {
-      const orders = await repo.find({ eventId })
+      const orders = await this.find(viewer, { filter: { eventId } })
       const [ sold, reserved ] = orders
         .filter(({ refunded }) => !refunded)
-        .reduce((totals, { tickets, paid }) => {
+        .reduce((totals, { id, tickets, paid }) => {
           if (paid) totals[0] += tickets
           else totals[1] += tickets
           return totals
@@ -55,11 +61,14 @@ module.exports = (repo, services) => {
         domain.transfer(viewer, { order, amount })
       )
     },
-    async charge (viewer, { id, amount, source, description }) {
+    async charge (viewer, { id, name, email, source }) {
       const order = await repo.get(id)
-      const events = domain.purchase(viewer, { order, amount })
+      const event = await services.event.get(viewer, order.eventId)
+      const events = domain.charge(viewer, { order, event, id, name, email, source })
 
-      const chargeEvents = await services.payment(viewer, { id, amount, source, description })
+      const { amount, taxes, fee } = events.find(({ meta: { type } }) => type === 'OrderCharged') || {}
+
+      const chargeEvents = await services.payment.charge(viewer, { order, amount, taxes, fee, event, name, email, source })
 
       return repo.save(events.concat(chargeEvents))
     },

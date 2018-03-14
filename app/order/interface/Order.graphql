@@ -28,6 +28,14 @@ type CreateOrderResponse {
 }
 input ChargeOrderInput {
   clientMutationId: ID!
+  """ Order ID created from reserving tickets """
+  id: ID!
+  """ Customer Name """
+  name: String!
+  """ Customer Email """
+  email: String!
+  """ Payment token """
+  source: String!
 }
 type ChargeOrderResponse {
   clientMutationId: ID!
