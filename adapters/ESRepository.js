@@ -22,7 +22,7 @@ module.exports = class ESRepository extends Repository {
     stream.end()
     return new Promise((resolve, reject) => onEnd(stream, (err) => {
       if (err) return reject(err)
-      return resolve({ id: events[0].id })
+      return resolve({ id: events[0].meta.id })
     }))
   }
 
@@ -34,8 +34,8 @@ module.exports = class ESRepository extends Repository {
           objectMode: true,
           transform (chunk, encoding, callback) {
             if (!this[_map]) this[_map] = {}
-            const obj = Object.assign({}, this[_map][chunk.id] || {})
-            this[_map][chunk.id] = _reducer(obj, chunk)
+            const obj = Object.assign({}, this[_map][chunk.meta.id] || {})
+            this[_map][chunk.meta.id] = _reducer(obj, chunk)
             callback()
           },
           flush (callback) {

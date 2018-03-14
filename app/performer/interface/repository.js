@@ -5,7 +5,7 @@ exports.reducer = (performer = {}, event = {}) => {
   const entity = Object.assign({}, performer)
   return {
     PerformerRegistered () {
-      entity.id = event.id
+      entity.id = event.meta.id
       entity.name = event.name
       entity.description = event.description
       entity.caption = event.caption
@@ -14,7 +14,7 @@ exports.reducer = (performer = {}, event = {}) => {
       return entity
     },
     PerformerRemoved () {
-      return { id: event.id, removed: true }
+      return { id: event.meta.id, removed: true }
     },
     PerformerUpdated () {
       entity.name = event.name

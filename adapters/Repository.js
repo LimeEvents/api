@@ -22,7 +22,7 @@ module.exports = class Repository {
       const results = await _save(events)
       events.forEach((event) => this.emitter.emit(event.type, event))
       // Invalidate the cache, something changed
-      this.dataloader.clear(events[0].id)
+      this.dataloader.clear(events[0].meta.id)
       return results
     }
   }

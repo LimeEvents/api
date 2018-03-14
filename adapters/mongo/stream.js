@@ -15,6 +15,7 @@ exports.Readable = class SourceWrapper extends Readable {
     const base = { 'meta.timestamp': { $gte: query.start, $lte: query.end } }
     return Object.entries(query)
       .reduce((prev, [ key, value ]) => {
+        if (key === 'id') key = 'meta.id'
         if (Array.isArray(value)) value = { $in: value }
         if (!RESTRICTED_KEYS.includes(key)) prev[key] = value
         return prev
@@ -54,7 +55,6 @@ exports.Writable = class MongoWriteStream extends Writable {
   }
 
   _write (chunk, encoding, callback) {
-    chunk._id = chunk.meta.id
     return this.db.insert(chunk)
       .then(results => callback(null, results))
       .catch(callback)

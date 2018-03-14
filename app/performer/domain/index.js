@@ -1,5 +1,5 @@
 const assert = require('assert')
-const PerformerRegistered = require('./events/PerformerRegistered')
+const toEvent = require('@nerdsauce/adapters/BaseEvent')
 
 module.exports = {
   get (viewer, { performer }) {
@@ -12,7 +12,7 @@ module.exports = {
     assert(viewer, 'Unauthenticated')
     assert(viewer.roles.includes('admin'), 'Unauthorized')
     return [
-      new PerformerRegistered(performer)
+      toEvent('PerformerRegistered', performer)
     ]
   },
   update (viewer, { performer, update }) {

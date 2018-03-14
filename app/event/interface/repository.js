@@ -9,7 +9,7 @@ exports.reducer = (src = {}, event) => {
       return entity
     },
     EventCreated () {
-      entity.id = event.id
+      entity.id = event.meta.id
       entity.locationId = event.locationId
       entity.performerIds = event.performerIds
       entity.start = event.start

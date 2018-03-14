@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { EventCancelled, EventCreated, EventRescheduled } = require('./events')
+const toEvent = require('@nerdsauce/adapters/BaseEvent')
 
 // Query
 exports.get = (viewer, { event }) => {
@@ -15,7 +15,7 @@ exports.find = (viewer, { events = [] }) => {
 exports.create = (viewer, { event }) => {
   if (!viewer) throw new Error('Unauthorized')
   return [
-    new EventCreated(event)
+    toEvent('EventCreated', event)
   ]
 }
 
@@ -24,7 +24,7 @@ exports.cancel = (viewer, { event }) => {
   assert(event, 'Cannot cancel a non-existent event')
   assert(!event.cancelled, 'Cannot cancel a cancelled event')
   return [
-    new EventCancelled(event)
+    toEvent('EventCancelled', event)
   ]
 }
 
@@ -37,6 +37,6 @@ exports.reschedule = (viewer, { event, start, end, doorsOpen }) => {
   assert(!doorsOpen || doorsOpen < start, 'Doors cannot open after show begins')
 
   return [
-    new EventRescheduled({ id: event.id, start, end, doorsOpen })
+    toEvent('EventRescheduled', { id: event.id, start, end, doorsOpen })
   ]
 }

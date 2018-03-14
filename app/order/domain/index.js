@@ -1,5 +1,6 @@
 const uuid = require('uuid/v4')
 const assert = require('assert')
+const toEvent = require('@nerdsauce/adapters/BaseEvent')
 
 module.exports = {
   get (viewer, { order }) {
@@ -18,16 +19,13 @@ module.exports = {
     assert(inventory.available >= tickets, 'Not enough available seats. Please try again.')
     assert(tickets > 0, 'Must reserve at least one ticket')
 
-    return [{
-      id,
-      eventId,
-      tickets,
-      meta: {
+    return [
+      toEvent('OrderCreated', {
         id,
-        type: 'OrderCreated',
-        timestamp: Date.now()
-      }
-    }]
+        eventId,
+        tickets
+      })
+    ]
   },
   reassign (viewer, { order }) {
 
@@ -35,16 +33,22 @@ module.exports = {
   transfer (viewer, { order }) {
 
   },
-  purchase (viewer, { order, customer, inventory }) {
-    return [{
-      id: order.id,
-      email: customer.email,
-      meta: {
+  charge (viewer, { order, event, name, email, source }) {
+    const amount = order.tickets * event.price * 100
+    const taxes = amount * 0.0675
+    const fee = (order.tickets * 0.5) + (amount * 0.3)
+    const total = amount + taxes
+    return [
+      toEvent('OrderCharged', {
         id: order.id,
-        type: 'OrderCharged',
-        timestamp: Date.now()
-      }
-    }]
+        name,
+        email,
+        amount: total,
+        taxes,
+        fee,
+        total
+      })
+    ]
   },
   refund (viewer, { order }) {
 
