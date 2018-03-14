@@ -36,7 +36,7 @@ module.exports = {
   charge (viewer, { order, event, name, email, source }) {
     const amount = order.tickets * event.price * 100
     const taxes = amount * 0.0675
-    const fee = (order.tickets * 0.5) + (amount * 0.3)
+    const fee = (order.tickets * 0.5) + (amount * 0.03)
     const total = amount + taxes
     return [
       toEvent('OrderCharged', {
