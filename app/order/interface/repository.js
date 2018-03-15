@@ -38,6 +38,7 @@ exports.reducer = (src, event) => {
       return {
         ...entity,
         id: event.meta.id,
+        chargeId: event.chargeId,
         paid: true
       }
     },
@@ -46,6 +47,24 @@ exports.reducer = (src, event) => {
         ...entity,
         id: event.meta.id,
         paid: false
+      }
+    },
+    OrderRefunded () {
+      return {
+        ...entity,
+        refundAmount: entity.amount
+      }
+    },
+    OrderRefundSucceeded () {
+      return {
+        ...entity,
+        refunded: true
+      }
+    },
+    OrderRefundFailed () {
+      return {
+        ...entity,
+        refunded: false
       }
     }
     // TicketsReassigned () {

@@ -1,7 +1,9 @@
+const assert = require('assert')
 const domain = require('../domain')
 
 module.exports = (repo) => ({
   async get (viewer, id) {
+    assert(typeof id === 'string', `Invalid ID '${id}' passed to 'performer.application'`)
     const performer = await repo.get(id)
     return domain.get(viewer, { performer })
   },

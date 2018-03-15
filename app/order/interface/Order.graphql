@@ -70,7 +70,7 @@ type ChargeOrderResponse {
 input RefundOrderInput {
   clientMutationId: ID!
   id: ID!
-  name: String!
+  tickets: Int
 }
 type RefundOrderResponse {
   clientMutationId: ID!

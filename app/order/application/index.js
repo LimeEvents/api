@@ -1,3 +1,4 @@
+const assert = require('assert')
 const domain = require('../domain')
 
 module.exports = (repo, services) => {
@@ -13,6 +14,7 @@ module.exports = (repo, services) => {
   //   })
   return {
     async get (viewer, id) {
+      assert(typeof id === 'string', `Invalid ID '${id}' passed to 'order.application'`)
       const order = await repo.get(id)
       return domain.get(viewer, { order })
     },

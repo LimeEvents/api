@@ -27,8 +27,9 @@ module.exports = {
       return { ...input, ...results }
     },
     async refundOrder (source, { input }, { viewer }) {
-      const results = await application.refund(viewer, input)
-      return { ...input, ...results }
+      const { id } = await application.refund(viewer, input)
+      const { eventId } = await application.get(viewer, id)
+      return { ...input, id, eventId }
     },
     async transferOrder (source, { input }, { viewer }) {
       const results = await application.transfer(viewer, input)

@@ -65,7 +65,14 @@ module.exports = {
     ]
   },
   refund (viewer, { order }) {
+    assert(order.paid, 'Order cannot be refunded until it has been paid')
+    assert(!order.refunded, 'Order has already be refunded')
 
+    return [
+      toEvent('OrderRefunded', {
+        id: order.id
+      })
+    ]
   }
 }
 

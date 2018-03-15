@@ -10,10 +10,10 @@ module.exports = class Payment {
       charges: {
         async create (params) {
           return { id: uuid(), ...params }
+        },
+        async refund (id) {
+          return { id }
         }
-      },
-      refund (params) {
-
       }
     }
   }
@@ -45,7 +45,24 @@ module.exports = class Payment {
     }
   }
 
-  refund (viewer, { id }) {
+  async refund (viewer, { order }) {
+    assert(order.chargeId, 'Order must have a valid chargeId to be refunded')
 
+    try {
+      const { id } = await this.stripe.charges.refund(order.chargeId)
+      return [
+        toEvent('OrderRefundSucceeded', {
+          id: order.id,
+          chargeId: id
+        })
+      ]
+    } catch (ex) {
+      console.error(ex)
+      return [
+        toEvent('OrderRefundFailed', {
+          id: order.id
+        })
+      ]
+    }
   }
 }
