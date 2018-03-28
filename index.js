@@ -1,9 +1,10 @@
 const { graphql } = require('graphql')
 const { json, send } = require('micro')
+const { router, get, post, options } = require('microrouter')
+const { microGraphiql } = require('apollo-server-micro')
 
 const schema = require('./schema')
-
-module.exports = async (req, res) => {
+const http = async (req, res) => {
   res.setHeader('Access-Control-Max-Age', 60 * 60 * 24)
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', [ 'POST', 'OPTIONS' ])
@@ -17,3 +18,9 @@ module.exports = async (req, res) => {
   console.log('return real thing', query, variables)
   return graphql(schema, query, {}, { viewer: { roles: ['admin'] } }, variables)
 }
+
+module.exports = router(
+  get('/', microGraphiql({ schema, endpointURL: '/' })),
+  options('/', http),
+  post('/', http)
+)
