@@ -26,7 +26,7 @@ extend type Event {
 }
 `
 
-const schema = mergeSchemas({
+module.exports = mergeSchemas({
   schemas: [ event.schema, location, performer, order, stitch ],
   resolvers: (mergeInfo) => ({
     Performer: {
@@ -125,5 +125,3 @@ const schema = mergeSchemas({
     }
   })
 })
-
-exports = schema

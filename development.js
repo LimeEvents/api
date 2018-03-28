@@ -1,2 +1,3 @@
 require('dotenv').load()
-require('./index')
+
+module.exports = require('./index')
