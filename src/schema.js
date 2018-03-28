@@ -1,8 +1,8 @@
 const { mergeSchemas } = require('graphql-tools')
-const { schema: event } = require('./app/event')
-const { schema: location } = require('./app/location')
-const { schema: performer } = require('./app/performer')
-const { schema: order } = require('./app/order')
+const { schema: event } = require('./services/event')
+const { schema: location } = require('./services/location')
+const { schema: performer } = require('./services/performer')
+const { schema: order } = require('./services/order')
 
 const stitch = `
 extend type Event {
