@@ -3,7 +3,7 @@ const application = require('./application')
 
 module.exports = {
   Query: {
-    order: refetchResolver,
+    order: refetchResolver(),
     inventory (source, { eventId }, { viewer }) {
       return application.getInventory(viewer, eventId)
     },
@@ -41,29 +41,32 @@ module.exports = {
     }
   },
   CreateOrderResponse: {
-    order: refetchResolver,
+    order: refetchResolver(),
     inventory: inventoryResolver()
   },
   ChargeOrderResponse: {
-    order: refetchResolver,
+    order: refetchResolver(),
     inventory: inventoryResolver()
   },
   RefundOrderResponse: {
-    order: refetchResolver,
+    order: refetchResolver(),
     inventory: inventoryResolver()
   },
   TransferOrderResponse: {
-    order: refetchResolver,
-    fromInventory: inventoryResolver('fromEventId'),
-    toInventory: inventoryResolver('toEventId')
+    sourceOrder: refetchResolver('sourceOrderId'),
+    destinationOrder: refetchResolver('destinationOrderId'),
+    sourceInventory: inventoryResolver('sourceEventId'),
+    destinationInventory: inventoryResolver('destinationEventId')
   },
   ReassignOrderResponse: {
-    order: refetchResolver
+    order: refetchResolver()
   }
 }
 
-function refetchResolver (source, args, { viewer }) {
-  return application.get(viewer, args.id || source.id)
+function refetchResolver (field = 'id') {
+  return (source, args, { viewer }) => {
+    return application.get(viewer, args[field] || source[field])
+  }
 }
 
 function inventoryResolver (field = 'eventId') {
