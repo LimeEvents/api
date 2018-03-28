@@ -1,5 +1,5 @@
 const assert = require('assert')
-const toEvent = require('@nerdsauce/adapters/BaseEvent')
+const toEvent = require('../../../adapters/BaseEvent')
 
 // Query
 exports.get = (viewer, { event }) => {

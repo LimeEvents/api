@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4')
 const assert = require('assert')
-const toEvent = require('@nerdsauce/adapters/BaseEvent')
+const toEvent = require('../../../adapters/BaseEvent')
 
 module.exports = {
   get (viewer, { order }) {
