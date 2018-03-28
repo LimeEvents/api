@@ -1,5 +1,5 @@
 const { mergeSchemas } = require('graphql-tools')
-const { graphql: event } = require('./app/event')
+const { schema: event } = require('./app/event')
 const { schema: location } = require('./app/location')
 const { schema: performer } = require('./app/performer')
 const { schema: order } = require('./app/order')
