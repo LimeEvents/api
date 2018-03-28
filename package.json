@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "micro",
+    "start": "micro -p $PORT",
     "dev": "micro-dev development.js",
     "setup": "node environment.js"
   },
