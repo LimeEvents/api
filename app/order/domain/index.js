@@ -40,8 +40,20 @@ module.exports = {
       })
     ]
   },
-  transfer (viewer, { order }) {
-
+  transfer (viewer, { order, inventory, eventId, tickets }) {
+    assert(order.paid, 'Cannot transfer order tickets until they have been paid for')
+    assert(order.tickets >= tickets, 'Cannot transfer more tickets than available on the order')
+    console.log('new order', tickets)
+    console.log('old order', order.tickets - tickets)
+    return this
+      .create(viewer, { inventory, tickets, eventId })
+      .concat([
+        toEvent('OrderTransferred', {
+          id: order.id,
+          eventId,
+          tickets: order.tickets - tickets
+        })
+      ])
   },
   charge (viewer, { order, event, name, email, source }) {
     assert(!order.paid, 'Order is already paid for, don\'t charge card')
@@ -66,7 +78,7 @@ module.exports = {
   },
   refund (viewer, { order }) {
     assert(order.paid, 'Order cannot be refunded until it has been paid')
-    assert(!order.refunded, 'Order has already be refunded')
+    assert(!order.refunded, 'Order has already been refunded')
 
     return [
       toEvent('OrderRefunded', {

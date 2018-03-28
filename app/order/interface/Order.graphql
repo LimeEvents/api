@@ -79,16 +79,19 @@ type RefundOrderResponse {
 }
 input TransferOrderInput {
   clientMutationId: ID!
-  from: ID!
-  fromAmount: Int!
-  to: ID!
-  toAmount: Int!
+  """ Order ID """
+  id: ID!
+  """ Event tickets are transferring to """
+  eventId: ID!
+  """ Amount of tickets to transfer """
+  tickets: Int!
 }
 type TransferOrderResponse {
   clientMutationId: ID!
-  order: Order!
-  fromInventory: Inventory!
-  toInventory: Inventory!
+  sourceOrder: Order!
+  destinationOrder: Order!
+  sourceInventory: Inventory!
+  destinationInventory: Inventory!
 }
 input ReassignOrderInput {
   clientMutationId: ID!

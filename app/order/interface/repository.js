@@ -66,6 +66,12 @@ exports.reducer = (src, event) => {
         ...entity,
         refunded: false
       }
+    },
+    OrderTransferred () {
+      return {
+        ...entity,
+        tickets: event.tickets
+      }
     }
     // TicketsReassigned () {
     //   entity.willcall[event.to] -= event.tickets

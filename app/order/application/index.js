@@ -120,11 +120,18 @@ module.exports = (repo, services) => {
         domain.reassign(viewer, { to, from, order, amount })
       )
     },
-    async transfer (viewer, { id, amount }) {
+    async transfer (viewer, { id, tickets, eventId }) {
       const order = await repo.get(id)
-      return repo.save(
-        domain.transfer(viewer, { order, amount })
+      const inventory = await this.getInventory(viewer, eventId)
+      const { id: destinationOrderId } = await repo.save(
+        domain.transfer(viewer, { order, inventory, eventId, tickets })
       )
+      return {
+        destinationOrderId,
+        sourceOrderId: id,
+        sourceEventId: order.eventId,
+        destinationEventId: eventId
+      }
     },
     async charge (viewer, { id, name, email, source }) {
       const order = await repo.get(id)

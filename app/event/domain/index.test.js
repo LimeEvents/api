@@ -1,4 +1,5 @@
 /* global describe, it, expect */
+const uuid = require('uuid/v4')
 const {
   // get,
   // find,
@@ -13,6 +14,7 @@ describe('Domain', () => {
   describe('Create event', () => {
     it('return a valid "EventCreated" event', () => {
       const event = {
+        id: uuid(),
         start: 1519853050611,
         locationId: '1234',
         performerIds: ['1234'],
