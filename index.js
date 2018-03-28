@@ -1,7 +1,7 @@
 const { router, get, post } = require('microrouter')
 const { microGraphql, microGraphiql } = require('apollo-server-micro')
 
-const schema = require('./schema')
+const schema = require('./src/schema')
 
 module.exports = router(
   get('/*', microGraphiql({ schema, endpointURL: '/graphql' })),
