@@ -1,5 +1,5 @@
-const Repo = require('../../../adapters/mongo/repository')
-const emitter = require('../../../adapters/emitter')
+const Repo = require('../../../lib/mongo/repository')
+const emitter = require('../../../lib/emitter')
 
 exports.reducer = (performer = {}, event = {}) => {
   const entity = Object.assign({}, performer)

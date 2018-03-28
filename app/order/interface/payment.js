@@ -1,7 +1,7 @@
 const assert = require('assert')
 const Stripe = require('stripe')
 const uuid = require('uuid/v4')
-const toEvent = require('../../../adapters/BaseEvent')
+const toEvent = require('../../../lib/BaseEvent')
 
 module.exports = class Payment {
   constructor () {

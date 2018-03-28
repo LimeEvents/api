@@ -1,5 +1,5 @@
 const assert = require('assert')
-const toEvent = require('../../../adapters/BaseEvent')
+const toEvent = require('../../../lib/BaseEvent')
 
 module.exports = {
   get (viewer, { performer }) {
