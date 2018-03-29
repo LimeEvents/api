@@ -1,4 +1,5 @@
 scalar DateTime
+scalar Url
 
 type Query {
   node(id: ID!): Node
@@ -30,6 +31,8 @@ type EventEdge implements Edge {
 
 type Event implements Node {
   id: ID!
+  name: String!
+  image: Url!
   locationId: ID!
   performerIds: [ ID! ]!
   start: DateTime!
@@ -93,6 +96,8 @@ enum EventLogType {
 
 input CreateEventInput {
   clientMutationId: ID!
+  name: String!
+  image: Url
   locationId: ID!
   performerIds: [ ID! ]
   start: DateTime!
