@@ -2,15 +2,18 @@ const Repo = require('../../../lib/mongo/repository')
 const emitter = require('../../../lib/emitter')
 
 exports.reducer = (performer = {}, event = {}) => {
-  const entity = Object.assign({}, performer)
+  const entity = Object.assign({
+    images: [],
+    videos: []
+  }, performer)
   return {
     PerformerRegistered () {
       entity.id = event.meta.id
       entity.name = event.name
       entity.description = event.description
       entity.caption = event.caption
-      entity.images = event.images
-      entity.videos = event.videos
+      entity.images = event.images || []
+      entity.videos = event.videos || []
       return entity
     },
     PerformerRemoved () {

@@ -66,8 +66,8 @@ type Performer implements Node {
   name: String!
   caption: String
   description: String
-  images: [ Url! ]
-  videos: [ Url! ]
+  images: [ Url! ]!
+  videos: [ Url! ]!
   history(first: Int, last: Int, before: String, after: String): LogConnection
 }
 
