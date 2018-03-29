@@ -21,12 +21,27 @@ module.exports = (repo, services) => {
     async find (viewer, params = {}) {
       let orders = await repo.find()
       if (params.filter) {
-        orders = orders.filter((order) => {
-          if (params.filter.eventId && params.filter.eventId !== order.eventId) return false
-          if (!order.paid && order.expired < Date.now()) return false
-          if (order.refunded) return false
-          return true
-        })
+        orders = await orders
+          .reduce(async (prev, order) => {
+            const { eventId: orderEventId } = order
+            const { locationId, performerId } = params.filter
+            const totals = await prev
+            if (performerId || locationId) {
+              const event = await services.event.get(viewer, orderEventId)
+              if (locationId && event.locationId !== locationId) {
+                return totals
+              }
+              if (performerId && !event.performerIds.includes(performerId)) {
+                return totals
+              }
+            }
+            if (params.filter.eventId && params.filter.eventId !== order.eventId) return totals
+            if (params.filter.eventId && params.filter.eventId !== order.eventId) return totals
+            if (!order.paid && order.expired < Date.now()) return totals
+            if (order.refunded) return totals
+            totals.push(order)
+            return totals
+          }, [])
       }
       return domain.find(viewer, { orders })
     },
