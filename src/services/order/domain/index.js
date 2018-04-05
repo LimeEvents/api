@@ -62,6 +62,7 @@ module.exports = {
 
     const amount = order.tickets * event.price * 100
     const taxes = Math.ceil(amount * 0.0675)
+    // Fee: 3% + $0.50/ticket
     const fee = Math.ceil((order.tickets * 0.5) + (amount * 0.03))
     const total = amount + taxes
     return [
