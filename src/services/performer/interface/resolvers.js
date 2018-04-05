@@ -5,6 +5,8 @@ module.exports = {
   Query: {
     performer: refetchPerformer,
     performers (source, args, { viewer }) {
+      if (args.first) args.first = Math.min(args.first, 50)
+      if (args.last) args.last = Math.min(args.last, 50)
       return connectionFromPromisedArray(
         application.find(viewer, args),
         args
