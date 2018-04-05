@@ -19,6 +19,7 @@ input PerformerFilter {
 
 input RegisterPerformerInput {
   clientMutationId: ID!
+  id: ID
   name: String!
   caption: String
   description: String
