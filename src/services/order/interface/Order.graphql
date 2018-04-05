@@ -21,8 +21,10 @@ type OrderStatistic {
   orders: Int!
   """ Total number of tickets sold """
   ticketsSold: Int!
-  """ Total revenue """
-  revenue: Currency!
+  """ Total gross """
+  gross: Currency!
+  """ Total net """
+  net: Currency!
   """ Number of tickets that have been refunded """
   refunded: Int!
   """ Total amount refunded """
@@ -131,6 +133,7 @@ type Inventory {
   available: Int!
   sold: Int!
   reserved: Int!
+  capacity: Int!
   history(first: Int, last: Int, before: String, after: String): OrderLogConnection
 }
 

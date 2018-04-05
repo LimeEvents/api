@@ -60,18 +60,20 @@ module.exports = (repo, services) => {
             }
           }
           if (!paid) return totals
-          totals.revenue += amount
-          totals.taxes = taxes
+          totals.gross += amount
+          totals.taxes += taxes
           if (refunded) {
             totals.refundedAmount += amount
             totals.refunded += tickets
           }
+          totals.net += amount - taxes - fee
           totals.ticketsSold += tickets
           totals.orders += 1
           totals.fees += fee
           return totals
         }, {
-          revenue: 0,
+          gross: 0,
+          net: 0,
           taxes: 0,
           refundedAmount: 0,
           refunded: 0,
@@ -120,6 +122,7 @@ module.exports = (repo, services) => {
       return {
         sold,
         available: capacity - reserved - sold,
+        capacity,
         reserved
       }
     },
