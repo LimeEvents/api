@@ -3,8 +3,8 @@ scalar Url
 
 type Query {
   node(id: ID!): Node
-  location(id: ID!): Location
-  locations(first: Int, last: Int, before: String, after: String): LocationConnection
+  location(id: ID!): Location @cacheControl(maxAge: 500)
+  locations(first: Int, last: Int, before: String, after: String): LocationConnection @cacheControl(maxAge: 500)
   stream(first: Int, last: Int, before: String, after: String): LocationLogConnection
 }
 
@@ -86,7 +86,7 @@ type LocationEdge implements Edge {
   node: Location!
 }
 
-type Location implements Node {
+type Location implements Node @cacheControl(maxAge: 500) {
   id: ID!
   name: String!
   caption: String
