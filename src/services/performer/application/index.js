@@ -8,13 +8,7 @@ module.exports = (repo) => ({
     return domain.get(viewer, { performer })
   },
   async find (viewer, query = {}) {
-    let performers = await repo.find()
-    if (query.filter) {
-      performers = performers.filter((performer) => {
-        if (query.filter.id && !query.filter.id.includes(performer.id)) return false
-        return true
-      })
-    }
+    let performers = await repo.find(query.filter)
     return domain.find(viewer, { performers })
   },
   async register (viewer, performer) {
