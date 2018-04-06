@@ -1,4 +1,5 @@
 const assert = require('assert')
+const uuid = require('uuid/v4')
 const toEvent = require('../../../lib/BaseEvent')
 
 // Query
@@ -14,6 +15,7 @@ exports.find = (viewer, { events = [] }) => {
 // Mutation
 exports.create = (viewer, { event }) => {
   if (!viewer) throw new Error('Unauthorized')
+  if (!event.id) event = { id: uuid(), ...event }
   return [
     toEvent('EventCreated', event)
   ]

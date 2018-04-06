@@ -5,12 +5,16 @@ module.exports = {
   Query: {
     event: refetchEvent,
     events (source, args, context, info) {
+      if (args.first) args.first = Math.min(args.first, 50)
+      if (args.last) args.last = Math.min(args.last, 50)
       return connectionFromPromisedArray(
         application.find(context.viewer, args),
         args
       )
     },
     stream (source, args, { viewer }, info) {
+      if (args.first) args.first = Math.min(args.first, 50)
+      if (args.last) args.last = Math.min(args.last, 50)
       return connectionFromPromisedArray(
         application.list(viewer, args)
       )
