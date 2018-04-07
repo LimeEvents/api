@@ -1,7 +1,8 @@
 const assert = require('assert')
+const { promisify } = require('util')
 const { Transform } = require('stream')
 const toArray = require('stream-to-array')
-const onEnd = require('end-of-stream')
+const onEnd = promisify(require('end-of-stream'))
 const Repository = require('./Repository')
 
 const _map = Symbol('_map')
@@ -20,10 +21,8 @@ module.exports = class ESRepository extends Repository {
     const stream = this.write()
     events.map(event => stream.write(event))
     stream.end()
-    return new Promise((resolve, reject) => onEnd(stream, (err) => {
-      if (err) return reject(err)
-      return resolve({ id: events[0].meta.id })
-    }))
+    await onEnd(stream)
+    return { id: events[0].meta.id }
   }
 
   async find (params = {}) {
