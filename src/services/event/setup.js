@@ -10,7 +10,7 @@ const AGE_RANGES = ['7-', '13-', '18-', '21-']
 let performers = null
 let locations = null
 
-async function createFakeEvents () {
+module.exports = async function createFakeEvents () {
   if (process.env.NODE_ENV === 'production') throw new Error('Cannot run fake data script on production')
 
   await Promise.all(
@@ -35,18 +35,9 @@ async function createFakeEvents () {
     })
   )
   const results = await eventApplication.find(VIEWER)
+  console.info(`Created ${results.length} events`)
   return results
 }
-
-createFakeEvents()
-  .then((results) => {
-    console.info(`Created ${results.length} events`)
-    process.exit(0)
-  })
-  .catch((ex) => {
-    console.error('Problem creating events', ex)
-    process.exit(1)
-  })
 
 async function getRandomLocationId () {
   if (!locations) {

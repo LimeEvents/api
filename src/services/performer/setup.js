@@ -4,7 +4,7 @@ const application = require('./interface/application')
 
 const VIEWER = { roles: ['admin'], name: 'system' }
 
-async function createFakePerformers () {
+module.exports = async function createFakePerformers () {
   if (process.env.NODE_ENV === 'production') throw new Error('Cannot run fake data script on production')
 
   const performers = await Promise.all(
@@ -23,8 +23,3 @@ async function createFakePerformers () {
   const results = await application.find(VIEWER)
   return results
 }
-
-createFakePerformers()
-  .catch((ex) => {
-    console.error('Problem creating performers', ex)
-  })
