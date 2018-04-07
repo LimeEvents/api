@@ -33,6 +33,7 @@ type Event implements Node {
   id: ID!
   name: String!
   image: Url!
+  feeDistribution: FeeDistribution!
   locationId: ID!
   performerIds: [ ID! ]!
   start: DateTime!
@@ -94,6 +95,12 @@ enum EventLogType {
   EventRescheduled
 }
 
+enum FeeDistribution {
+  Customer
+  Location
+  Split
+}
+
 input CreateEventInput {
   clientMutationId: ID!
   name: String!
@@ -106,6 +113,7 @@ input CreateEventInput {
   capacity: Int!
   ageRange: String
   minimumAge: Int
+  feeDistribution: FeeDistribution = "Location"
   notes: [ String! ]
 }
 

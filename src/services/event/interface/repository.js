@@ -2,7 +2,9 @@ const emitter = require('../../../lib/emitter')
 const Repo = require('../../../lib/mongo/repository')
 
 exports.reducer = (src = {}, event) => {
-  const entity = Object.assign({}, src)
+  const entity = Object.assign({
+    feeDistribution: 'Location'
+  }, src)
   const fn = {
     EventCancelled () {
       entity.cancelled = event.meta.timestamp
