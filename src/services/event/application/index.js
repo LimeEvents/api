@@ -15,7 +15,7 @@ module.exports = (repo) => {
       )
     },
     async find (viewer, query = {}) {
-      let events = await repo.find()
+      let events = await repo.find(query.filter)
       if (query.filter) {
         events = events.filter((event) => {
           if (query.filter.locationId && query.filter.locationId !== event.locationId) return false

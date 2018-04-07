@@ -19,28 +19,31 @@ module.exports = (repo, services) => {
       return domain.get(viewer, { order })
     },
     async find (viewer, params = {}) {
-      let orders = await repo.find()
+      const filters = params.filter || {}
+      let orders = await repo.find({ paid: true, expired: { $lt: Date.now() }, ...filters })
       if (params.filter) {
-        orders = await orders
-          .reduce(async (prev, order) => {
-            const { eventId: orderEventId } = order
-            const { locationId, performerId } = params.filter
-            const totals = await prev
-            if (performerId || locationId) {
-              const event = await services.event.get(viewer, orderEventId)
-              if (locationId && event.locationId !== locationId) {
-                return totals
+        const { locationId, performerId } = params.filter
+        orders = await Promise.all(
+          orders
+            .map(async (order) => {
+              if (performerId || locationId) {
+                order.event = await services.event.get(viewer, order.eventId)
               }
-              if (performerId && !event.performerIds.includes(performerId)) {
-                return totals
+              return order
+            })
+        )
+        orders = orders
+          .reduce((prev, order) => {
+            if (performerId || locationId) {
+              if (locationId && order.event.locationId !== locationId) {
+                return prev
+              }
+              if (performerId && !order.event.performerIds.includes(performerId)) {
+                return prev
               }
             }
-            if (params.filter.eventId && params.filter.eventId !== order.eventId) return totals
-            if (params.filter.eventId && params.filter.eventId !== order.eventId) return totals
-            if (!order.paid && order.expired < Date.now()) return totals
-            if (order.refunded) return totals
-            totals.push(order)
-            return totals
+            prev.push(order)
+            return prev
           }, [])
       }
       return domain.find(viewer, { orders })
