@@ -60,7 +60,7 @@ module.exports = {
     assert(!order.refunded, 'Order has been refunded. Create a new order.')
     assert(order.expired > Date.now(), 'Order reservation has expired. Please create a new order')
 
-    const amount = order.tickets * event.price * 100
+    const amount = order.tickets * event.price
     const taxes = Math.ceil(amount * 0.0675)
     // Fee: 3% + $0.50/ticket
     const fee = Math.ceil((order.tickets * 0.5) + (amount * 0.03))

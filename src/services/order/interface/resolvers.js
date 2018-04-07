@@ -11,6 +11,8 @@ module.exports = {
       return application.getStatistics(viewer, args)
     },
     orders (source, args, { viewer }, info) {
+      if (args.first) args.first = Math.min(args.first, 50)
+      if (args.last) args.last = Math.min(args.last, 50)
       return connectionFromPromisedArray(
         application.find(viewer, args),
         args
