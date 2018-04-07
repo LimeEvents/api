@@ -7,7 +7,7 @@
     "test": "jest",
     "start": "node production.js",
     "dev": "concurrently --names \"WEB,MONGO\" -c \"bgGreen.bold,bgBlue.bold\" \"nodemon development.js\" \"mongod\" --kill-others-on-fail",
-    "setup": "node environment.js"
+    "setup": "node setup.js"
   },
   "keywords": [],
   "author": "",
