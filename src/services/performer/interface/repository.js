@@ -1,7 +1,7 @@
 const Repo = require('../../../lib/mongo/repository')
 const emitter = require('../../../lib/emitter')
 
-exports.reducer = (performer = {}, event = {}) => {
+const reducer = (performer = {}, event = {}) => {
   const entity = Object.assign({
     images: [],
     videos: []
@@ -28,4 +28,4 @@ exports.reducer = (performer = {}, event = {}) => {
     }
   }[event.meta.type]()
 }
-exports.repository = new Repo('performer_source', exports.reducer, emitter)
+exports.repository = (tenantId) => new Repo('performer_source', reducer, emitter, tenantId)

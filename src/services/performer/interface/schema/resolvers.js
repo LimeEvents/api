@@ -1,10 +1,9 @@
 const { connectionFromPromisedArray } = require('graphql-relay')
-const application = require('./application')
 
 module.exports = {
   Query: {
     performer: refetchPerformer,
-    performers (source, args, { viewer }) {
+    performers (source, args, { viewer, application }) {
       if (args.first) args.first = Math.min(args.first, 50)
       if (args.last) args.last = Math.min(args.last, 50)
       return connectionFromPromisedArray(
@@ -14,17 +13,17 @@ module.exports = {
     }
   },
   Mutation: {
-    async registerPerformer (source, { input }, { viewer }) {
+    async registerPerformer (source, { input }, { viewer, application }) {
       const results = await application.register(viewer, input)
       results.clientMutationId = input.clientMutationId
       return results
     },
-    async updatePerformer (source, { input }, { viewer }) {
+    async updatePerformer (source, { input }, { viewer, application }) {
       const results = await application.update(viewer, input)
       results.clientMutationId = input.clientMutationId
       return results
     },
-    async removePerformer (source, { id, clientMutationId }, { viewer }) {
+    async removePerformer (source, { id, clientMutationId }, { viewer, application }) {
       const results = await application.remove(viewer, id)
       results.clientMutationId = clientMutationId
       return results
@@ -41,6 +40,6 @@ module.exports = {
   }
 }
 
-function refetchPerformer (source, args, { viewer }) {
+function refetchPerformer (source, args, { viewer, application }) {
   return application.get(viewer, args.id || source.id)
 }

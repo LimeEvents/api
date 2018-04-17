@@ -1,5 +1,6 @@
 const { mergeSchemas, introspectSchema, makeRemoteExecutableSchema } = require('graphql-tools')
 const { Binding } = require('lime-utils')
+const performer = require('./services/performer')
 const location = require('./services/location')
 
 const { microGraphql, microGraphiql } = require('apollo-server-micro')
@@ -47,7 +48,7 @@ const schemaPromise = (async function (services) {
       }
     })
   }
-}({ location }))
+}({ location, performer }))
 
 async function schemaFromLink (link) {
   return makeRemoteExecutableSchema({

@@ -1,17 +1,26 @@
-const fs = require('fs')
-const path = require('path')
-const { makeExecutableSchema } = require('graphql-tools')
+const { SchemaLink } = require('lime-utils')
+const { schema } = require('./schema')
+const { repository } = require('./repository')
+const { application } = require('./application')
+const memo = require('lodash.memoize')
 
-const application = require('./application')
-const resolvers = require('./resolvers')
-
-exports.schema = makeExecutableSchema({
-  typeDefs: [ load('Performer') ],
-  resolvers
-})
-
-exports.application = application
-
-function load (src) {
-  return fs.readFileSync(path.resolve(__dirname, `${src}.graphql`), 'utf8')
+exports.extensions = {
+  schema: null,
+  resolvers: (mergeInfo) => ({
+  })
 }
+
+exports.link = memo(async function () {
+  return new SchemaLink({
+    schema: await schema(),
+    context (operation) {
+      const context = operation.getContext().graphqlContext || {}
+      const {
+        viewer = { tenantId: 'default', roles: ['administrator'] },
+        services = {}
+      } = context
+      const repo = repository(viewer.tenantId)
+      return { viewer, application: application(repo, services) }
+    }
+  })
+})
