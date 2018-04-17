@@ -1,8 +1,11 @@
-const { mergeSchemas } = require('graphql-tools')
+const assert = require('assert')
+const { fromGlobalId } = require('graphql-relay')
+const { mergeSchemas, delegateToSchema } = require('graphql-tools')
+
 const { schema: event } = require('./services/event')
 const { schema: location } = require('./services/location')
-const { schema: performer } = require('./services/performer')
 const { schema: order } = require('./services/order')
+const { schema: performer } = require('./services/performer')
 
 const stitch = `
 extend type Event {
@@ -26,9 +29,36 @@ extend type Event {
 }
 `
 
+const schemas = [ event.schema, location, performer, order ]
+
+function getNodeResolver (schemas) {
+  const typeMap = schemas.reduce((all, schemata) => {
+    const possible = schemata.getPossibleTypes(schemata.getType('Node'))
+
+    if (!possible) return all
+    possible
+      .forEach((type) => {
+        all[type.toString()] = schemata
+      })
+    return all
+  }, {})
+
+  return function node (source, args, context, info) {
+    const id = args.id || source.id
+    assert(id, 'Node resolver requires an ID')
+    const { type } = fromGlobalId(id)
+    const schemata = typeMap[type]
+    if (!schemata) throw new Error('Invalid Node ID')
+    return delegateToSchema(schemata, 'query', 'node', { id }, context, info)
+  }
+}
+
 module.exports = mergeSchemas({
-  schemas: [ event.schema, location, performer, order, stitch ],
+  schemas: [ ...schemas, stitch ],
   resolvers: (mergeInfo) => ({
+    Query: {
+      node: getNodeResolver(schemas)
+    },
     Performer: {
       events: {
         fragment: 'fragment PerformerFragment on Performer { id }',

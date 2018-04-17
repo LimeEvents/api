@@ -43,8 +43,6 @@ module.exports = {
   transfer (viewer, { order, inventory, eventId, tickets }) {
     assert(order.paid, 'Cannot transfer order tickets until they have been paid for')
     assert(order.tickets >= tickets, 'Cannot transfer more tickets than available on the order')
-    console.log('new order', tickets)
-    console.log('old order', order.tickets - tickets)
     return this
       .create(viewer, { inventory, tickets, eventId })
       .concat([
