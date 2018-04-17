@@ -3,7 +3,7 @@ const Repo = require('../../../lib/mongo/repository')
 
 const FIFTEEN_MINUTES = 1000 * 60 * 15
 
-exports.reducer = (src, event) => {
+const reducer = (src, event) => {
   const entity = Object.assign({
     refunded: false,
     paid: false,
@@ -107,4 +107,4 @@ exports.reducer = (src, event) => {
   return src
 }
 
-exports.repository = new Repo('order_source', exports.reducer, emitter)
+exports.repository = (tenantId) => new Repo('order_source', reducer, emitter, tenantId)

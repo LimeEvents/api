@@ -1,16 +1,15 @@
 const { connectionFromPromisedArray } = require('graphql-relay')
-const application = require('./application')
 
 module.exports = {
   Query: {
     order: refetchResolver(),
-    inventory (source, { eventId }, { viewer }) {
+    inventory (source, { eventId }, { viewer, application }) {
       return application.getInventory(viewer, eventId)
     },
-    orderStatistics (source, args, { viewer }, info) {
+    orderStatistics (source, args, { viewer, application }, info) {
       return application.getStatistics(viewer, args)
     },
-    orders (source, args, { viewer }, info) {
+    orders (source, args, { viewer, application }, info) {
       if (args.first) args.first = Math.min(args.first, 50)
       if (args.last) args.last = Math.min(args.last, 50)
       return connectionFromPromisedArray(
@@ -20,24 +19,24 @@ module.exports = {
     }
   },
   Mutation: {
-    async createOrder (source, { input }, { viewer }) {
+    async createOrder (source, { input }, { viewer, application }) {
       const results = await application.create(viewer, input)
       return { ...input, ...results }
     },
-    async chargeOrder (source, { input }, { viewer }) {
+    async chargeOrder (source, { input }, { viewer, application }) {
       const results = await application.charge(viewer, input)
       return { ...input, ...results }
     },
-    async refundOrder (source, { input }, { viewer }) {
+    async refundOrder (source, { input }, { viewer, application }) {
       const { id } = await application.refund(viewer, input)
       const { eventId } = await application.get(viewer, id)
       return { ...input, id, eventId }
     },
-    async transferOrder (source, { input }, { viewer }) {
+    async transferOrder (source, { input }, { viewer, application }) {
       const results = await application.transfer(viewer, input)
       return { ...input, ...results }
     },
-    async reassignOrder (source, { input }, { viewer }) {
+    async reassignOrder (source, { input }, { viewer, application }) {
       const results = await application.reassign(viewer, input)
       return { ...input, ...results }
     }
@@ -66,13 +65,13 @@ module.exports = {
 }
 
 function refetchResolver (field = 'id') {
-  return (source, args, { viewer }) => {
+  return (source, args, { viewer, application }) => {
     return application.get(viewer, args[field] || source[field])
   }
 }
 
 function inventoryResolver (field = 'eventId') {
-  return (source, args, { viewer }) => {
+  return (source, args, { viewer, application }) => {
     return application.getInventory(viewer, args[field] || source[field])
   }
 }

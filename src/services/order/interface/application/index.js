@@ -1,7 +1,7 @@
 const assert = require('assert')
-const domain = require('../domain')
+const domain = require('./domain')
 
-module.exports = (repo, services) => {
+exports.application = (repo, services) => {
   // repo.emitter
   //   .on('EventCreated', ({ locationId }) => {
   //     // Create ticket inventory

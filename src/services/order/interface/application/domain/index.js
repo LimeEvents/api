@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4')
 const assert = require('assert')
-const toEvent = require('../../../lib/BaseEvent')
+const toEvent = require('../../../../../lib/BaseEvent')
 
 module.exports = {
   get (viewer, { order }) {
