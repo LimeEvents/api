@@ -1,6 +1,6 @@
 const assert = require('assert')
 const uuid = require('uuid/v4')
-const toEvent = require('../../../lib/BaseEvent')
+const toEvent = require('../../../../../lib/BaseEvent')
 
 // Query
 exports.get = (viewer, { event }) => {

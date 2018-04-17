@@ -1,7 +1,7 @@
 const emitter = require('../../../lib/emitter')
 const Repo = require('../../../lib/mongo/repository')
 
-exports.reducer = (src = {}, event) => {
+const reducer = (src = {}, event) => {
   const entity = Object.assign({
     feeDistribution: 'Location'
   }, src)
@@ -36,4 +36,4 @@ exports.reducer = (src = {}, event) => {
   console.warn(`Invalid event type: "${event.meta.type}"`)
   return src
 }
-exports.repository = new Repo('event_source', exports.reducer, emitter)
+exports.repository = (tenantId) => new Repo('event_source', reducer, emitter, tenantId)

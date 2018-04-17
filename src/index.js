@@ -1,5 +1,6 @@
 const { mergeSchemas, introspectSchema, makeRemoteExecutableSchema } = require('graphql-tools')
 const { Binding } = require('lime-utils')
+const event = require('./services/event')
 const performer = require('./services/performer')
 const location = require('./services/location')
 
@@ -48,7 +49,7 @@ const schemaPromise = (async function (services) {
       }
     })
   }
-}({ location, performer }))
+}({ location, performer, event }))
 
 async function schemaFromLink (link) {
   return makeRemoteExecutableSchema({

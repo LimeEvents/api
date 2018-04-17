@@ -1,7 +1,7 @@
 const assert = require('assert')
-const domain = require('../domain')
+const domain = require('./domain')
 
-module.exports = (repo) => {
+exports.application = (repo) => {
   return {
     async create (viewer, event) {
       return repo.save(
