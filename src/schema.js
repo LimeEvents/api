@@ -8,10 +8,6 @@ const { schema: order } = require('./services/order')
 const { schema: performer } = require('./services/performer')
 
 const stitch = `
-extend type Event {
-  location: Location!
-  performers(first: Int, last: Int, before: String, after: String): PerformerConnection!
-}
 extend type Location {
   events(first: Int, last: Int, before: String, after: String): EventConnection!
 }
@@ -19,13 +15,13 @@ extend type Performer {
   events(first: Int, last: Int, before: String, after: String): EventConnection!
 }
 extend type Event {
+  location: Location!
+  performers(first: Int, last: Int, before: String, after: String): PerformerConnection!
   inventory: Inventory!
+  orders(first: Int, last: Int, before: String, after: String): OrderConnection!
 }
 extend type Order {
   event: Event!
-}
-extend type Event {
-  orders(first: Int, last: Int, before: String, after: String): OrderConnection!
 }
 `
 

@@ -5,8 +5,26 @@ const { application } = require('./application')
 const memo = require('lodash.memoize')
 
 exports.extensions = {
-  schema: null,
+  schema: `
+    extend type Performer {
+      events(first: Int, last: Int, before: String, after: String): EventConnection!
+    }
+  `,
   resolvers: (mergeInfo) => ({
+    Performer: {
+      events: {
+        fragment: 'fragment PerformerEventsFragment on Performer { id }',
+        resolve ({ id }, args, context, info) {
+          return mergeInfo.delegate(
+            'query',
+            'events',
+            { filter: { performerId: id }, ...args },
+            context,
+            info
+          )
+        }
+      }
+    }
   })
 }
 
