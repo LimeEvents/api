@@ -72,6 +72,7 @@ type ChargeOrderResponse {
 input RefundOrderInput {
   clientMutationId: ID!
   id: ID!
+  """ Number of tickets to refund. Defaults to whole order """
   tickets: Int
 }
 type RefundOrderResponse {
@@ -111,11 +112,16 @@ type Order implements Node {
   eventId: ID!
   tickets: Int!
 
+  """ Price per ticket """
+  price: Currency!
+  """ Price of all tickets """
   amount: Currency!
+  """ Fee paid """
   fee: Currency!
+  """ Sales tax """
   taxes: Currency!
-
-  refunded: Boolean!
+  """ Amount refunded """
+  refunded: Int!
   paid: Boolean!
 
   fingerprint: ID

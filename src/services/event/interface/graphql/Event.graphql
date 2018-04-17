@@ -33,6 +33,9 @@ type Event implements Node {
   id: ID!
   name: String!
   image: Url!
+  video: Url
+  caption: String
+  description: String
   feeDistribution: FeeDistribution!
   locationId: ID!
   performerIds: [ ID! ]!
