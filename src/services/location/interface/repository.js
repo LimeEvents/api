@@ -37,7 +37,7 @@ const LOCATIONS = {
   }
 }
 
-module.exports = {
+exports.repository = (tenantId) => ({
   async get (id) {
     return LOCATIONS[id]
   },
@@ -47,4 +47,4 @@ module.exports = {
   async save (events) {
     throw new Error('Not implemented')
   }
-}
+})

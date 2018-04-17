@@ -1,6 +1,6 @@
-const domain = require('../domain')
+const domain = require('./domain')
 
-module.exports = (repo) => ({
+exports.application = (repo, services) => ({
   async get (viewer, id) {
     const location = await repo.get(id)
     return domain.get(viewer, { location })

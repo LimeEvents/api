@@ -1,0 +1,148 @@
+scalar DateTime
+scalar Url
+
+type Query {
+  node(id: ID!): Node
+  location(id: ID!): Location @cacheControl(maxAge: 500)
+  locations(first: Int, last: Int, before: String, after: String): LocationConnection @cacheControl(maxAge: 500)
+  # stream(first: Int, last: Int, before: String, after: String): LocationLogConnection
+}
+
+# type Mutation {
+#   openLocation(input: OpenLocationInput!): OpenLocationResponse
+#   updateLocation(input: UpdateLocationInput!): UpdateLocationResponse
+#   closeLocation(input: CloseLocationInput!): CloseLocationResponse
+# }
+
+# input OpenLocationInput {
+#   clientMutationId: ID!
+#   name: String!
+#   caption: String
+#   description: String
+#   images: [ Url ]
+#   address: AddressInput!
+# }
+# type OpenLocationResponse {
+#   clientMutationId: ID!
+#   location: Location!
+# }
+
+# input UpdateLocationInput {
+#   clientMutationId: ID!
+#   name: String!
+#   caption: String
+#   description: String
+#   images: [ Url! ]
+#   address: AddressInput!
+# }
+# type UpdateLocationResponse {
+#   clientMutationId: ID!
+#   location: Location!
+# }
+
+# input CloseLocationInput {
+#   clientMutationId: ID!
+#   id: ID!
+# }
+# type CloseLocationResponse {
+#   clientMutationId: ID!
+#   location: Location!
+# }
+
+# input AddressInput {
+#   address1: String!
+#   address2: String
+#   address3: String
+#   locality: String!
+#   postalCode: String!
+#   region: String!
+#   country: String!
+#   timezone: String
+#   latitude: Float
+#   longitude: Float
+# }
+
+
+type Address {
+  address1: String!
+  address2: String
+  address3: String
+  locality: String!
+  postalCode: String!
+  region: String!
+  country: String!
+  timezone: String
+  latitude: Float
+  longitude: Float
+}
+
+type LocationConnection implements Connection {
+  pageInfo: PageInfo!
+  edges: [ LocationEdge! ]!
+}
+
+type LocationEdge implements Edge {
+  cursor: String!
+  node: Location!
+}
+
+type Location implements Node @cacheControl(maxAge: 500) {
+  id: ID!
+  name: String!
+  caption: String
+  description: String
+  images: [ Url ]
+  address: Address!
+  capacity: Int!
+  # history(first: Int, last: Int, before: String, after: String): LocationLogConnection
+}
+
+# type LocationLogConnection implements Connection {
+#   pageInfo: PageInfo!
+#   edges: [ LocationLogEdge! ]!
+# }
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+# type LocationLogEdge implements Edge {
+#   cursor: String!
+#   node: Location!
+# }
+
+# type LocationLog implements Log & Node {
+#   id: ID!
+#   type: LocationLogType
+#   location: Location
+#   hash: String!
+# }
+
+interface Node {
+  id: ID!
+}
+
+interface Connection {
+  pageInfo: PageInfo!
+  edges: [ Edge! ]!
+}
+
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+
+interface Log {
+  id: ID!
+  hash: String!
+}
+
+# enum LocationLogType {
+#   LocationOpened
+#   LocationUpdated
+#   LocationClosed
+# }
+
