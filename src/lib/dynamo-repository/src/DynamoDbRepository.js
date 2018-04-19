@@ -1,9 +1,14 @@
 const AWS = require('aws-sdk')
-const ESRepository = require('../ESRepository')
-const { Readable, Writable } = require('./stream')
+const { Repository } = require('@vivintsolar/event-source-repository')
+const { Readable, Writable } = require('./DynamoDbStream')
 
-module.exports = class DynamoRepository extends ESRepository {
-  constructor (name, reducer = (src, evt) => src) {
+exports.Repository = class DynamoRepository extends Repository {
+  constructor ({
+    name,
+    reducer = (src, evt) => src,
+    emitter,
+    tenantId = 'default'
+  }) {
     super(name, reducer)
     this.db = new AWS.DynamoDB.DocumentClient({
       apiVersion: '2012-08-10',

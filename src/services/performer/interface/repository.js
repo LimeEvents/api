@@ -1,5 +1,4 @@
-const Repo = require('../../../lib/mongo/repository')
-const emitter = require('../../../lib/emitter')
+const { Repository } = require('@vivintsolar/mongo-repository')
 
 const reducer = (performer = {}, event = {}) => {
   const entity = Object.assign({
@@ -8,7 +7,7 @@ const reducer = (performer = {}, event = {}) => {
   }, performer)
   return {
     PerformerRegistered () {
-      entity.id = event.meta.id
+      entity.id = event.id
       entity.name = event.name
       entity.description = event.description
       entity.caption = event.caption
@@ -17,7 +16,7 @@ const reducer = (performer = {}, event = {}) => {
       return entity
     },
     PerformerRemoved () {
-      return { id: event.meta.id, removed: true }
+      return { id: event.id, removed: true }
     },
     PerformerUpdated () {
       entity.name = event.name
@@ -26,6 +25,6 @@ const reducer = (performer = {}, event = {}) => {
       entity.images = event.images || []
       entity.videos = event.videos || []
     }
-  }[event.meta.type]()
+  }[event._type]()
 }
-exports.repository = (tenantId) => new Repo('performer_source', reducer, emitter, tenantId)
+exports.repository = (tenantId) => new Repository({ name: 'performer', reducer, tenantId })

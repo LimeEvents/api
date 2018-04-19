@@ -12,10 +12,10 @@ exports.Readable = class SourceWrapper extends Readable {
   }
 
   formatQuery (query) {
-    const base = { 'meta.timestamp': { $gte: query.start, $lte: query.end } }
+    const base = { '_timestamp': { $gte: query.start, $lte: query.end } }
     return Object.entries(query)
       .reduce((prev, [ key, value ]) => {
-        if (key === 'id') key = 'meta.id'
+        if (key === 'id') key = 'id'
         if (Array.isArray(value)) value = { $in: value }
         if (!RESTRICTED_KEYS.includes(key)) prev[key] = value
         return prev

@@ -1,6 +1,6 @@
 const assert = require('assert')
 const uuid = require('uuid')
-const toEvent = require('../../../../../lib/BaseEvent')
+const { Event } = require('@vivintsolar/repository')
 
 module.exports = {
   get (viewer, { performer }) {
@@ -11,10 +11,10 @@ module.exports = {
   },
   register (viewer, { performer }) {
     assert(viewer, 'Unauthenticated')
-    assert(viewer.roles.includes('admin'), 'Unauthorized')
+    assert(any(viewer.roles, ['admin', 'system', 'administrator']), 'Unauthorized')
     if (!performer.id) performer = { id: uuid.v4(), ...performer }
     return [
-      toEvent('PerformerRegistered', performer)
+      new Event('PerformerRegistered', performer)
     ]
   },
   update (viewer, { performer, update }) {
@@ -23,4 +23,8 @@ module.exports = {
   remove (viewer, { performer }) {
 
   }
+}
+
+function any (roles, necessary) {
+  return necessary.some(role => roles.includes(role))
 }

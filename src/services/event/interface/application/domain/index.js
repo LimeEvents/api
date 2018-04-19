@@ -1,6 +1,6 @@
 const assert = require('assert')
 const uuid = require('uuid/v4')
-const toEvent = require('../../../../../lib/BaseEvent')
+const { Event } = require('@vivintsolar/repository')
 
 // Query
 exports.get = (viewer, { event }) => {
@@ -17,7 +17,7 @@ exports.create = (viewer, { event }) => {
   if (!viewer) throw new Error('Unauthorized')
   if (!event.id) event = { id: uuid(), ...event }
   return [
-    toEvent('EventCreated', event)
+    new Event('EventCreated', event)
   ]
 }
 
@@ -26,7 +26,7 @@ exports.cancel = (viewer, { event }) => {
   assert(event, 'Cannot cancel a non-existent event')
   assert(!event.cancelled, 'Cannot cancel a cancelled event')
   return [
-    toEvent('EventCancelled', event)
+    new Event('EventCancelled', event)
   ]
 }
 
@@ -39,6 +39,6 @@ exports.reschedule = (viewer, { event, start, end, doorsOpen }) => {
   assert(!doorsOpen || doorsOpen < start, 'Doors cannot open after show begins')
 
   return [
-    toEvent('EventRescheduled', { id: event.id, start, end, doorsOpen })
+    new Event('EventRescheduled', { id: event.id, start, end, doorsOpen })
   ]
 }

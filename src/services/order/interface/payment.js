@@ -1,7 +1,7 @@
 const assert = require('assert')
 const Stripe = require('stripe')
 const uuid = require('uuid/v4')
-const toEvent = require('../../../lib/BaseEvent')
+const { Event } = require('@vivintsolar/repository')
 
 module.exports = class Payment {
   constructor () {
@@ -31,14 +31,14 @@ module.exports = class Payment {
         description
       })
       return [
-        toEvent('OrderChargeSucceeded', {
+        new Event('OrderChargeSucceeded', {
           id: order.id,
           chargeId
         })
       ]
     } catch (ex) {
       return [
-        toEvent('OrderChargeFailed', {
+        new Event('OrderChargeFailed', {
           id: order.id
         })
       ]
@@ -51,7 +51,7 @@ module.exports = class Payment {
     try {
       const { id } = await this.stripe.charges.refund(order.chargeId)
       return [
-        toEvent('OrderRefundSucceeded', {
+        new Event('OrderRefundSucceeded', {
           id: order.id,
           chargeId: id
         })
@@ -59,7 +59,7 @@ module.exports = class Payment {
     } catch (ex) {
       console.error(ex)
       return [
-        toEvent('OrderRefundFailed', {
+        new Event('OrderRefundFailed', {
           id: order.id
         })
       ]

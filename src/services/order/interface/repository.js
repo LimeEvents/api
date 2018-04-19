@@ -1,5 +1,4 @@
-const emitter = require('../../../lib/emitter')
-const Repo = require('../../../lib/mongo/repository')
+const { Repository } = require('@vivintsolar/mongo-repository')
 
 const FIFTEEN_MINUTES = 1000 * 60 * 15
 
@@ -16,18 +15,18 @@ const reducer = (src, event) => {
     OrderCreated () {
       return {
         ...entity,
-        id: event.meta.id,
+        id: event.id,
         eventId: event.eventId,
         tickets: event.tickets,
         email: event.email,
-        created: event.meta.timestamp,
-        expired: FIFTEEN_MINUTES + event.meta.timestamp
+        created: event._timestamp,
+        expired: FIFTEEN_MINUTES + event._timestamp
       }
     },
     OrderCharged () {
       return {
         ...entity,
-        id: event.meta.id,
+        id: event.id,
         fee: event.fee,
         taxes: event.taxes,
         amount: event.amount,
@@ -37,7 +36,7 @@ const reducer = (src, event) => {
     OrderChargeSucceeded () {
       return {
         ...entity,
-        id: event.meta.id,
+        id: event.id,
         chargeId: event.chargeId,
         paid: true
       }
@@ -45,7 +44,7 @@ const reducer = (src, event) => {
     OrderChargeFailed () {
       return {
         ...entity,
-        id: event.meta.id,
+        id: event.id,
         paid: false
       }
     },
@@ -100,11 +99,11 @@ const reducer = (src, event) => {
     // ChargeFailed () {
 
     // }
-  }[event.meta.type]
+  }[event._type]
 
   if (typeof fn === 'function') return fn()
-  console.warn(`Invalid event type: "${event.meta.type}"`)
+  console.warn(`Invalid event type: "${event._type}"`)
   return src
 }
 
-exports.repository = (tenantId) => new Repo('order_source', reducer, emitter, tenantId)
+exports.repository = (tenantId) => new Repository({ name: 'order', reducer, tenantId })

@@ -159,7 +159,7 @@ exports.application = (repo, services) => {
       const event = await services.event.get(viewer, order.eventId)
       const events = domain.charge(viewer, { order, event, id, name, email, source })
 
-      const { amount, taxes, fee } = events.find(({ meta: { type } }) => type === 'OrderCharged') || {}
+      const { amount, taxes, fee } = events.find(({ _type }) => _type === 'OrderCharged') || {}
 
       const chargeEvents = await services.payment.charge(viewer, { order, amount, taxes, fee, event, name, email, source })
 

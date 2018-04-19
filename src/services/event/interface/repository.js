@@ -1,5 +1,4 @@
-const emitter = require('../../../lib/emitter')
-const Repo = require('../../../lib/mongo/repository')
+const { Repository } = require('@vivintsolar/mongo-repository')
 
 const reducer = (src = {}, event) => {
   const entity = Object.assign({
@@ -7,11 +6,11 @@ const reducer = (src = {}, event) => {
   }, src)
   const fn = {
     EventCancelled () {
-      entity.cancelled = event.meta.timestamp
+      entity.cancelled = event._timestamp
       return entity
     },
     EventCreated () {
-      entity.id = event.meta.id
+      entity.id = event.id
       entity.name = event.name
       entity.image = event.image
       entity.locationId = event.locationId
@@ -31,9 +30,9 @@ const reducer = (src = {}, event) => {
       entity.doorsOpen = event.doorsOpen
       return entity
     }
-  }[event.meta.type]
+  }[event._type]
   if (typeof fn === 'function') return fn()
-  console.warn(`Invalid event type: "${event.meta.type}"`)
+  console.warn(`Invalid event type: "${event._type}"`)
   return src
 }
-exports.repository = (tenantId) => new Repo('event_source', reducer, emitter, tenantId)
+exports.repository = (tenantId) => new Repository({ name: 'event_source', reducer, tenantId })

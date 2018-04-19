@@ -1,4 +1,4 @@
-const { SchemaLink } = require('lime-utils')
+const { SchemaLink } = require('@vivintsolar/graphql-stitch-utils')
 const { schema } = require('./schema')
 const { repository } = require('./repository')
 const { application } = require('./application')

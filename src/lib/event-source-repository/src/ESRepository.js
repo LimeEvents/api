@@ -3,12 +3,12 @@ const { promisify } = require('util')
 const { Transform } = require('stream')
 const toArray = require('stream-to-array')
 const onEnd = promisify(require('end-of-stream'))
-const Repository = require('./Repository')
+const { Repository } = require('@vivintsolar/repository')
 
 const _map = Symbol('_map')
 const _reduction = Symbol('_reduction')
 
-module.exports = class ESRepository extends Repository {
+exports.Repository = class ESRepository extends Repository {
   constructor (name, reducer = (src, evt) => src, emitter) {
     super(emitter)
     this.name = name
@@ -22,7 +22,7 @@ module.exports = class ESRepository extends Repository {
     events.map(event => stream.write(event))
     stream.end()
     await onEnd(stream)
-    return { id: events[0].meta.id }
+    return { id: events[0].id }
   }
 
   async find (params = {}) {
@@ -33,8 +33,8 @@ module.exports = class ESRepository extends Repository {
           objectMode: true,
           transform (chunk, encoding, callback) {
             if (!this[_map]) this[_map] = {}
-            const obj = Object.assign({}, this[_map][chunk.meta.id] || {})
-            this[_map][chunk.meta.id] = _reducer(obj, chunk)
+            const obj = Object.assign({}, this[_map][chunk.id] || {})
+            this[_map][chunk.id] = _reducer(obj, chunk)
             callback()
           },
           flush (callback) {

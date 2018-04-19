@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4')
 const assert = require('assert')
-const toEvent = require('../../../../../lib/BaseEvent')
+const { Event } = require('@vivintsolar/repository')
 
 module.exports = {
   get (viewer, { order }) {
@@ -20,7 +20,7 @@ module.exports = {
     assert(tickets > 0, 'Must reserve at least one ticket')
 
     return [
-      toEvent('OrderCreated', {
+      new Event('OrderCreated', {
         id,
         eventId,
         tickets
@@ -34,7 +34,7 @@ module.exports = {
     assert(!order.refunded, 'Willcall cannot be reassigned to refunded orders')
 
     return [
-      toEvent('OrderReassigned', {
+      new Event('OrderReassigned', {
         id: order.id,
         name
       })
@@ -46,7 +46,7 @@ module.exports = {
     return this
       .create(viewer, { inventory, tickets, eventId })
       .concat([
-        toEvent('OrderTransferred', {
+        new Event('OrderTransferred', {
           id: order.id,
           eventId,
           tickets: order.tickets - tickets
@@ -64,7 +64,7 @@ module.exports = {
     const fee = Math.ceil((order.tickets * 0.5) + (amount * 0.03))
     const total = amount + taxes
     return [
-      toEvent('OrderCharged', {
+      new Event('OrderCharged', {
         id: order.id,
         name,
         email,
@@ -80,7 +80,7 @@ module.exports = {
     assert(!order.refunded, 'Order has already been refunded')
 
     return [
-      toEvent('OrderRefunded', {
+      new Event('OrderRefunded', {
         id: order.id
       })
     ]

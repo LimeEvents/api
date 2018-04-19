@@ -4,7 +4,7 @@ const EventEmitter = require('events')
 const Dataloader = require('dataloader')
 const QuickLru = require('quick-lru')
 
-module.exports = class Repository {
+exports.Repository = class Repository {
   constructor (emitter = new EventEmitter()) {
     this.emitter = emitter
     assert(typeof this.get === 'function', '`get` must be a function')
@@ -22,7 +22,7 @@ module.exports = class Repository {
       const results = await _save(events)
       events.forEach((event) => this.emitter.emit(event.type, event))
       // Invalidate the cache, something changed
-      this.dataloader.clear(events[0].meta.id)
+      this.dataloader.clear(events[0].id)
       return results
     }
   }

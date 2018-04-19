@@ -1,0 +1,16 @@
+{
+  "name": "@vivintsolar/mongo-repository",
+  "version": "1.0.0",
+  "description": "Event-sourcing repository for MongoDB",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vivintsolar/event-source-repository": "file:../event-source-repository",
+    "monk": "^6.0.5"
+  }
+}

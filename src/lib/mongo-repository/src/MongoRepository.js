@@ -1,14 +1,22 @@
+const assert = require('assert')
 const Monk = require('monk')
-const ESRepository = require('../ESRepository')
-const { Readable, Writable } = require('./stream')
+const { Repository } = require('@vivintsolar/event-source-repository')
+const { Readable, Writable } = require('./MongoStream')
 const RESTRICTED_KEYS = ['start', 'end']
 
-module.exports = class MongoRepository extends ESRepository {
-  constructor (name, reducer = (src, evt) => src, emitter) {
+exports.Repository = class MongoRepository extends Repository {
+  constructor ({
+    name,
+    reducer = (src, evt) => src,
+    emitter,
+    tenantId = 'default',
+    url = process.env.MONGODB_URL
+  }) {
     super(name, reducer, emitter)
-    this.db = new Monk(process.env.MONGODB_URL)
-    this.source = this.db.get(name, { castIds: false })
-    this.view = this.db.get(name.replace(/_source$/, ''), { castIds: false })
+    assert(url, 'MongoDB connection URL is required. Either pass `url` or set environment variable `MONGODB_URL`')
+    this.db = new Monk(url)
+    this.source = this.db.get(`${name}_source`, { castIds: false })
+    this.view = this.db.get(`${name}_view`, { castIds: false })
   }
 
   async save (events) {
