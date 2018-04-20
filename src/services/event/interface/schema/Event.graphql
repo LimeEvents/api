@@ -19,12 +19,12 @@ input EventFilter {
   performerId: ID
 }
 
-type EventConnection implements Connection {
+type EventConnection {
   pageInfo: PageInfo!
   edges: [ EventEdge! ]!
 }
 
-type EventEdge implements Edge {
+type EventEdge {
   cursor: String!
   node: Event!
 }
@@ -49,7 +49,7 @@ type Event implements Node {
   history(first: Int, last: Int, before: String, after: String): EventLogConnection
 }
 
-type EventLogConnection implements Connection {
+type EventLogConnection {
   pageInfo: PageInfo!
   edges: [ EventLogEdge! ]!
 }
@@ -61,7 +61,7 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-type EventLogEdge implements Edge {
+type EventLogEdge {
   cursor: String!
   node: Event!
 }
@@ -75,16 +75,6 @@ type EventLog implements Log & Node {
 
 interface Node {
   id: ID!
-}
-
-interface Connection {
-  pageInfo: PageInfo!
-  edges: [ Edge! ]!
-}
-
-interface Edge {
-  cursor: String!
-  node: Node!
 }
 
 interface Log {

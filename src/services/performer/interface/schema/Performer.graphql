@@ -52,12 +52,12 @@ type RemovePerformerResponse {
   performer: Performer!
 }
 
-type PerformerConnection implements Connection {
+type PerformerConnection {
   pageInfo: PageInfo!
   edges: [ PerformerEdge! ]!
 }
 
-type PerformerEdge implements Edge {
+type PerformerEdge {
   cursor: String!
   node: Performer!
 }
@@ -72,7 +72,7 @@ type Performer implements Node {
   history(first: Int, last: Int, before: String, after: String): LogConnection
 }
 
-type LogConnection implements Connection {
+type LogConnection {
   pageInfo: PageInfo!
   edges: [ PerformerLogEdge! ]!
 }
@@ -84,7 +84,7 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-type PerformerLogEdge implements Edge {
+type PerformerLogEdge {
   cursor: String!
   node: Performer!
 }
@@ -98,16 +98,6 @@ type PerformerLog implements Log & Node {
 
 interface Node {
   id: ID!
-}
-
-interface Connection {
-  pageInfo: PageInfo!
-  edges: [ Edge! ]!
-}
-
-interface Edge {
-  cursor: String!
-  node: Node!
 }
 
 interface Log {

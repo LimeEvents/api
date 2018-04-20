@@ -76,12 +76,12 @@ type Address {
   longitude: Float
 }
 
-type LocationConnection implements Connection {
+type LocationConnection {
   pageInfo: PageInfo!
   edges: [ LocationEdge! ]!
 }
 
-type LocationEdge implements Edge {
+type LocationEdge {
   cursor: String!
   node: Location!
 }
@@ -97,7 +97,7 @@ type Location implements Node @cacheControl(maxAge: 500) {
   # history(first: Int, last: Int, before: String, after: String): LocationLogConnection
 }
 
-# type LocationLogConnection implements Connection {
+# type LocationLogConnection {
 #   pageInfo: PageInfo!
 #   edges: [ LocationLogEdge! ]!
 # }
@@ -109,7 +109,7 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-# type LocationLogEdge implements Edge {
+# type LocationLogEdge {
 #   cursor: String!
 #   node: Location!
 # }
@@ -123,16 +123,6 @@ type PageInfo {
 
 interface Node {
   id: ID!
-}
-
-interface Connection {
-  pageInfo: PageInfo!
-  edges: [ Edge! ]!
-}
-
-interface Edge {
-  cursor: String!
-  node: Node!
 }
 
 interface Log {

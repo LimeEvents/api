@@ -143,17 +143,17 @@ type Inventory {
   history(first: Int, last: Int, before: String, after: String): OrderLogConnection
 }
 
-type OrderConnection implements Connection {
+type OrderConnection {
   edges: [ OrderEdge! ]!
   pageInfo: PageInfo!
 }
 
-type OrderEdge implements Edge {
+type OrderEdge {
   cursor: String!
   node: Order!
 }
 
-type OrderLogConnection implements Connection {
+type OrderLogConnection {
   pageInfo: PageInfo!
   edges: [ OrderLogEdge! ]!
 }
@@ -165,7 +165,7 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-type OrderLogEdge implements Edge {
+type OrderLogEdge {
   cursor: String!
   node: Node!
 }
@@ -179,16 +179,6 @@ type OrderLog implements Log & Node {
 
 interface Node {
   id: ID!
-}
-
-interface Connection {
-  pageInfo: PageInfo!
-  edges: [ Edge! ]!
-}
-
-interface Edge {
-  cursor: String!
-  node: Node!
 }
 
 interface Log {
