@@ -1,3 +1,4 @@
+const memo = require('lodash.memoize')
 const { Repository } = require('@vivintsolar/mongo-repository')
 
 const FIFTEEN_MINUTES = 1000 * 60 * 15
@@ -106,4 +107,4 @@ const reducer = (src, event) => {
   return src
 }
 
-exports.repository = (tenantId) => new Repository({ name: 'order', reducer, tenantId })
+exports.repository = memo((tenantId) => new Repository({ name: 'order', reducer, tenantId }))

@@ -1,3 +1,4 @@
+const memo = require('lodash.memoize')
 const { Repository } = require('@vivintsolar/mongo-repository')
 
 const reducer = (src = {}, event) => {
@@ -35,4 +36,4 @@ const reducer = (src = {}, event) => {
   console.warn(`Invalid event type: "${event._type}"`)
   return src
 }
-exports.repository = (tenantId) => new Repository({ name: 'event_source', reducer, tenantId })
+exports.repository = memo((tenantId) => new Repository({ name: 'event_source', reducer, tenantId }))

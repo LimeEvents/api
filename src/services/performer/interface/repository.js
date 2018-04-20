@@ -1,3 +1,4 @@
+const memo = require('lodash.memoize')
 const { Repository } = require('@vivintsolar/mongo-repository')
 
 const reducer = (performer = {}, event = {}) => {
@@ -27,4 +28,4 @@ const reducer = (performer = {}, event = {}) => {
     }
   }[event._type]()
 }
-exports.repository = (tenantId) => new Repository({ name: 'performer', reducer, tenantId })
+exports.repository = memo((tenantId) => new Repository({ name: 'performer', reducer, tenantId }))

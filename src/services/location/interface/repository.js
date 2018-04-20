@@ -1,3 +1,5 @@
+const memo = require('lodash.memoize')
+
 const LOCATIONS = {
   'downtown-slc': {
     id: 'downtown-slc',
@@ -37,7 +39,7 @@ const LOCATIONS = {
   }
 }
 
-exports.repository = (tenantId) => ({
+exports.repository = memo((tenantId) => ({
   async get (id) {
     return LOCATIONS[id]
   },
@@ -47,4 +49,4 @@ exports.repository = (tenantId) => ({
   async save (events) {
     throw new Error('Not implemented')
   }
-})
+}))

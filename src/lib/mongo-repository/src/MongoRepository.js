@@ -3,6 +3,9 @@ const Monk = require('monk')
 const { Repository } = require('@vivintsolar/event-source-repository')
 const { Readable, Writable } = require('./MongoStream')
 const RESTRICTED_KEYS = ['start', 'end']
+const memo = require('lodash.memoize')
+
+const connect = memo((url) => new Monk(url))
 
 exports.Repository = class MongoRepository extends Repository {
   constructor ({
@@ -14,7 +17,7 @@ exports.Repository = class MongoRepository extends Repository {
   }) {
     super(name, reducer, emitter)
     assert(url, 'MongoDB connection URL is required. Either pass `url` or set environment variable `MONGODB_URL`')
-    this.db = new Monk(url)
+    this.db = connect(url)
     this.source = this.db.get(`${name}_source`, { castIds: false })
     this.view = this.db.get(`${name}_view`, { castIds: false })
   }
