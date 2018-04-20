@@ -29,6 +29,7 @@
     "microrouter": "^3.1.1"
   },
   "dependencies": {
+    "@vivintsolar/graphql-repository": "file:src/lib/graphql-repository",
     "@vivintsolar/graphql-stitch-utils": "file:src/lib/graphql-stitch-utils",
     "@vivintsolar/mongo-repository": "file:src/lib/mongo-repository",
     "@vivintsolar/repository": "file:src/lib/repository",
