@@ -1,10 +1,10 @@
 const faker = require('faker')
-const { Binding } = require('@vivintsolar/graphql-stitch-utils')
+const { Repository } = require('@vivintsolar/graphql-repository')
 const gql = require('graphql-tag')
 const { link } = require('./index')
 const uuid = require('uuid/v4')
 
-const PERFORMER_FRAGMENT = gql`
+const PERFORMER_FRAGMENT = `
   fragment PerformerFragment on Performer {
     id
     name
@@ -49,7 +49,7 @@ async function registerPerformer (request) {
 
 exports.setupPerformer = async function createFakePerformers () {
   if (process.env.NODE_ENV === 'production') throw new Error('Cannot run fake data script on production')
-  const service = new Binding({ name: 'performer', link: await link() })
+  const service = new Repository({ get: 'performer', find: 'performers', link: await link() })
   const request = service.request.bind(service)
 
   const performers = await Promise.all(

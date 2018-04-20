@@ -1,5 +1,5 @@
 const memo = require('lodash.memoize')
-const { Binding } = require('@vivintsolar/graphql-stitch-utils')
+const { Repository } = require('@vivintsolar/graphql-repository')
 const { mergeSchemas, introspectSchema, makeRemoteExecutableSchema } = require('graphql-tools')
 
 const performer = require('./services/performer')
@@ -19,7 +19,7 @@ exports.loadSchema = memo(async function () {
           key,
           schema,
           extensions,
-          binding: new Binding({ name: key, link: _link })
+          binding: new Repository({ get: key, find: `${key}s`, link: _link })
         }
       })
   )

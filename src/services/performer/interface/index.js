@@ -1,6 +1,6 @@
 const AssertionError = require('assert').AssertionError
 const { onError } = require('apollo-link-error')
-const { SchemaLink } = require('@vivintsolar/graphql-stitch-utils')
+const { SchemaLink } = require('apollo-link-schema')
 const { schema } = require('./schema')
 const { repository } = require('./repository')
 const { application } = require('./application')

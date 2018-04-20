@@ -30,11 +30,11 @@
   },
   "dependencies": {
     "@vivintsolar/graphql-repository": "file:src/lib/graphql-repository",
-    "@vivintsolar/graphql-stitch-utils": "file:src/lib/graphql-stitch-utils",
     "@vivintsolar/mongo-repository": "file:src/lib/mongo-repository",
     "@vivintsolar/repository": "file:src/lib/repository",
     "apollo-engine": "^1.0.4",
     "apollo-link-error": "^1.0.9",
+    "apollo-link-schema": "^1.1.0",
     "apollo-server-micro": "^1.3.2",
     "graphql": "^0.13.1",
     "graphql-custom-types": "^1.3.0",
