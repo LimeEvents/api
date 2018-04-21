@@ -26,8 +26,12 @@ exports.Repository = class MongoRepository extends Repository {
     const { id } = await super.save(events)
     // Update view for quick list lookups
     const entity = await this.get(id)
-    entity._id = id
-    await this.view.update({ _id: id }, entity, { upsert: true })
+    if (entity) {
+      entity._id = id
+      await this.view.update({ _id: id }, entity, { upsert: true })
+    } else {
+      await this.view.remove({ _id: id })
+    }
 
     return { id }
   }

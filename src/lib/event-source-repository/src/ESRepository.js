@@ -54,7 +54,7 @@ exports.Repository = class ESRepository extends Repository {
         .read({ id, start, end })
         .pipe(reduce(this.reducer))
     )
-    return object
+    return object || null
   }
 }
 
