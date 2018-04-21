@@ -6,7 +6,6 @@ const { parse } = require('graphql')
 const memo = require('lodash.memoize')
 
 const memoParse = memo(parse)
-const DEFAULT_SELECTION = memoParse('{ id }')
 const DEFAULT_FIND = async () => { throw new Error('Not implemented') }
 
 exports.Repository = class Repository {
@@ -21,14 +20,17 @@ exports.Repository = class Repository {
     const _find = this.find.bind(this)
 
     // TODO: Potentially add optional redis cache for quick lookups
-    this.get = async (id, selectionSet = DEFAULT_SELECTION) => {
+    this.get = async (id, selectionSet) => {
       assert(id, 'Must provide an ID to load entity')
       const results = await _get(id)
+      if (!selectionSet) return results
+      if (typeof selectionSet === 'string') selectionSet = memoParse(selectionSet)
       return filter(selectionSet, results)
     }
 
-    this.find = async (params = {}, selectionSet = DEFAULT_SELECTION) => {
+    this.find = async (params = {}, selectionSet) => {
       const results = await _find(params)
+      if (!selectionSet) return results
       if (typeof selectionSet === 'string') selectionSet = memoParse(selectionSet)
       return results.map(item => filter(selectionSet, item))
     }
