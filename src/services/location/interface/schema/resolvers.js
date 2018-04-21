@@ -7,21 +7,28 @@ exports.resolvers = {
     }
   },
   Query: {
-    async node (source, args, { viewer, application }, info) {
-      const { id } = fromGlobalId(args.id)
-      const location = await application.get(viewer, id)
-      return { ...location, id: toGlobalId('Location', id) }
-    },
-    async location (source, { id }, { viewer, application }) {
-      const location = await application.get(viewer, id)
-      return { ...location, id: toGlobalId('Location', id) }
-    },
+    node: refetchLocation(),
+    location: refetchLocation(),
     async locations (source, args, { viewer, application }) {
       const { edges, pageInfo } = await connectionFromPromisedArray(application.find(viewer), args)
       return {
-        edges: edges.map(({ node, cursor }) => ({ node: { ...node, id: toGlobalId('Location', node.id) }, cursor })),
-        pageInfo
+        pageInfo,
+        edges: edges.map(({ node, cursor }) => {
+          return {
+            cursor,
+            node: { ...node, id: toGlobalId('Location', node.id) }
+          }
+        })
       }
     }
+  }
+}
+
+function refetchLocation (field = 'id') {
+  return async (source, args, { viewer, application }) => {
+    const id = fromGlobalId(args[field] || source[field]).id
+
+    const location = await application.get(viewer, id)
+    return { ...location, id }
   }
 }

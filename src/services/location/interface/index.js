@@ -10,10 +10,23 @@ exports.extensions = {
   schema: `
     extend type Location {
       events(first: Int, last: Int, before: String, after: String): EventConnection!
+      orders(first: Int, last: Int, before: String, after: String): OrderConnection!
     }
   `,
   resolvers: (mergeInfo) => ({
     Location: {
+      orders: {
+        fragment: 'fragment LocationOrdersFragment on Location { id }',
+        resolve ({ id }, args, context, info) {
+          return mergeInfo.delegate(
+            'query',
+            'orders',
+            { filter: { locationId: id }, ...args },
+            context,
+            info
+          )
+        }
+      },
       events: {
         fragment: 'fragment LocationEventsFragment on Location { id }',
         resolve ({ id }, args, context, info) {

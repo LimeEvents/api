@@ -1,67 +1,10 @@
-scalar DateTime
 scalar Url
 
 type Query {
   node(id: ID!): Node
-  location(id: ID!): Location @cacheControl(maxAge: 500)
-  locations(first: Int, last: Int, before: String, after: String): LocationConnection @cacheControl(maxAge: 500)
-  # stream(first: Int, last: Int, before: String, after: String): LocationLogConnection
+  location(id: ID!): Location
+  locations(first: Int, last: Int, before: String, after: String): LocationConnection!
 }
-
-# type Mutation {
-#   openLocation(input: OpenLocationInput!): OpenLocationResponse
-#   updateLocation(input: UpdateLocationInput!): UpdateLocationResponse
-#   closeLocation(input: CloseLocationInput!): CloseLocationResponse
-# }
-
-# input OpenLocationInput {
-#   clientMutationId: ID!
-#   name: String!
-#   caption: String
-#   description: String
-#   images: [ Url ]
-#   address: AddressInput!
-# }
-# type OpenLocationResponse {
-#   clientMutationId: ID!
-#   location: Location!
-# }
-
-# input UpdateLocationInput {
-#   clientMutationId: ID!
-#   name: String!
-#   caption: String
-#   description: String
-#   images: [ Url! ]
-#   address: AddressInput!
-# }
-# type UpdateLocationResponse {
-#   clientMutationId: ID!
-#   location: Location!
-# }
-
-# input CloseLocationInput {
-#   clientMutationId: ID!
-#   id: ID!
-# }
-# type CloseLocationResponse {
-#   clientMutationId: ID!
-#   location: Location!
-# }
-
-# input AddressInput {
-#   address1: String!
-#   address2: String
-#   address3: String
-#   locality: String!
-#   postalCode: String!
-#   region: String!
-#   country: String!
-#   timezone: String
-#   latitude: Float
-#   longitude: Float
-# }
-
 
 type Address {
   address1: String!
@@ -86,21 +29,16 @@ type LocationEdge {
   node: Location!
 }
 
-type Location implements Node @cacheControl(maxAge: 500) {
+type Location implements Node {
   id: ID!
   name: String!
+  slug: String!
   caption: String
   description: String
-  images: [ Url ]
+  images: [ Url ]!
   address: Address!
   capacity: Int!
-  # history(first: Int, last: Int, before: String, after: String): LocationLogConnection
 }
-
-# type LocationLogConnection {
-#   pageInfo: PageInfo!
-#   edges: [ LocationLogEdge! ]!
-# }
 
 type PageInfo {
   startCursor: String
@@ -109,30 +47,6 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-# type LocationLogEdge {
-#   cursor: String!
-#   node: Location!
-# }
-
-# type LocationLog implements Log & Node {
-#   id: ID!
-#   type: LocationLogType
-#   location: Location
-#   hash: String!
-# }
-
 interface Node {
   id: ID!
 }
-
-interface Log {
-  id: ID!
-  hash: String!
-}
-
-# enum LocationLogType {
-#   LocationOpened
-#   LocationUpdated
-#   LocationClosed
-# }
-
