@@ -1,45 +1,68 @@
-const { connectionFromPromisedArray } = require('graphql-relay')
+const slugify = require('slug')
+const { connectionFromArray, fromGlobalId, toGlobalId } = require('graphql-relay')
 
-module.exports = {
-  Query: {
-    performer: refetchPerformer,
-    performers (source, args, { viewer, application }) {
-      if (args.first) args.first = Math.min(args.first, 50)
-      if (args.last) args.last = Math.min(args.last, 50)
-      return connectionFromPromisedArray(
-        application.find(viewer, args),
-        args
-      )
+exports.resolvers = {
+  Node: {
+    __resolveType ({ id }) {
+      return fromGlobalId(id).type
     }
+  },
+  Query: {
+    node: refetchPerformer(),
+    performer: refetchPerformer(),
+    performers: findPerformers
   },
   Mutation: {
     async registerPerformer (source, { input }, { viewer, application }) {
-      const results = await application.register(viewer, input)
-      results.clientMutationId = input.clientMutationId
-      return results
+      const { id } = await application.register(viewer, input)
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Performer', id) }
     },
     async updatePerformer (source, { input }, { viewer, application }) {
-      const results = await application.update(viewer, input)
-      results.clientMutationId = input.clientMutationId
-      return results
+      const { id } = await application.update(viewer, input)
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Performer', id) }
     },
-    async removePerformer (source, { id, clientMutationId }, { viewer, application }) {
-      const results = await application.remove(viewer, id)
-      results.clientMutationId = clientMutationId
-      return results
+    async removePerformer (source, { input }, { viewer, application }) {
+      const { id } = await application.remove(viewer, input.id)
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Performer', id) }
     }
   },
   RegisterPerformerResponse: {
-    performer: refetchPerformer
+    performer: refetchPerformer()
   },
   UpdatePerformerResponse: {
-    performer: refetchPerformer
+    performer: refetchPerformer()
   },
   RemovePerformerResponse: {
-    performer: refetchPerformer
+    performers: findPerformers
+  },
+  Performer: {
+    slug ({ slug, name }) {
+      return slug || slugify(name).toLowerCase()
+    }
   }
 }
 
-function refetchPerformer (source, args, { viewer, application }) {
-  return application.get(viewer, args.id || source.id)
+function refetchPerformer (field = 'id') {
+  return async (source, args, { viewer, application }) => {
+    const id = fromGlobalId(args[field] || source[field]).id
+    const performer = await application.get(viewer, id)
+    return { ...performer, id: toGlobalId('Performer', id) }
+  }
+}
+
+async function findPerformers (source, args, { viewer, application }) {
+  if (args.first) args.first = Math.min(args.first, 50)
+  if (args.last) args.last = Math.min(args.last, 50)
+  const performers = await application.find(viewer, args)
+  const { edges, pageInfo } = connectionFromArray(performers, args)
+
+  return {
+    pageInfo,
+    edges: edges.map(({ node, cursor }) => {
+      return {
+        cursor,
+        node: { ...node, id: toGlobalId('Performer', node.id) }
+      }
+    })
+  }
 }

@@ -4,7 +4,6 @@ type Query {
   node(id: ID!): Node
   performer(id: ID!): Performer
   performers(filter: PerformerFilter, first: Int, last: Int, before: String, after: String): PerformerConnection
-  stream(id: ID, first: Int, last: Int, before: String, after: String): LogConnection
 }
 
 type Mutation {
@@ -13,14 +12,26 @@ type Mutation {
   removePerformer(input: RemovePerformerInput!): RemovePerformerResponse
 }
 
+type Performer implements Node {
+  id: ID!
+  slug: String!
+  name: String!
+  caption: String
+  description: String
+  images: [ Url! ]!
+  videos: [ Url! ]!
+}
+
 input PerformerFilter {
   id: [ ID! ]
 }
 
+""" Register a new performer to be assigned to Events """
 input RegisterPerformerInput {
   clientMutationId: ID!
   id: ID
   name: String!
+  slug: String
   caption: String
   description: String
   images: [ Url! ]
@@ -30,10 +41,12 @@ type RegisterPerformerResponse {
   clientMutationId: ID!
   performer: Performer!
 }
+
+""" Update an existing performer """
 input UpdatePerformerInput {
   clientMutationId: ID!
   id: ID!
-  name: String!
+  name: String
   caption: String
   description: String
   images: [ Url! ]
@@ -43,13 +56,15 @@ type UpdatePerformerResponse {
   clientMutationId: ID!
   performer: Performer!
 }
+
+""" Remove a performer from the system """
 input RemovePerformerInput {
   clientMutationId: ID!
   id: ID!
 }
 type RemovePerformerResponse {
   clientMutationId: ID!
-  performer: Performer!
+  performers(filter: PerformerFilter, first: Int, last: Int, before: String, after: String): PerformerConnection
 }
 
 type PerformerConnection {
@@ -62,21 +77,6 @@ type PerformerEdge {
   node: Performer!
 }
 
-type Performer implements Node {
-  id: ID!
-  name: String!
-  caption: String
-  description: String
-  images: [ Url! ]!
-  videos: [ Url! ]!
-  history(first: Int, last: Int, before: String, after: String): LogConnection
-}
-
-type LogConnection {
-  pageInfo: PageInfo!
-  edges: [ PerformerLogEdge! ]!
-}
-
 type PageInfo {
   startCursor: String
   endCursor: String
@@ -84,29 +84,6 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-type PerformerLogEdge {
-  cursor: String!
-  node: Performer!
-}
-
-type PerformerLog implements Log & Node {
-  id: ID!
-  type: PerformerLogType
-  performer: Performer
-  hash: String!
-}
-
 interface Node {
   id: ID!
-}
-
-interface Log {
-  id: ID!
-  hash: String!
-}
-
-enum PerformerLogType {
-  PerformerRegistered
-  PerformerUpdated
-  PerformerRemoved
 }

@@ -43,6 +43,7 @@
     "graphql-tools": "^3.0.0-alpha.14",
     "lodash.memoize": "^4.1.2",
     "micro": "^9.1.0",
+    "slug": "^0.9.1",
     "stripe": "^5.6.1",
     "uuid": "^3.2.1"
   }

@@ -41,7 +41,7 @@ async function registerPerformer (request) {
     clientMutationId: uuid(),
     name: `${faker.name.firstName()} ${faker.name.lastName()}`, // String!
     caption: faker.lorem.sentence(), // String
-    description: faker.lorem.paragraph, // String
+    description: faker.lorem.paragraph(), // String
     images: [faker.image.people()], // [ Url! ]
     videos: [faker.image.people()] // [ Url! ]
   }})
