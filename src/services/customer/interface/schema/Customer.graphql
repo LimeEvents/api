@@ -1,0 +1,86 @@
+type Query {
+  id: ID!
+  node(id: ID!): Node
+  customer(id: ID!): Customer
+  customers(filter: CustomerFilter, first: Int, last: Int, before: String, after: String): CustomerConnection!
+}
+
+type Mutation {
+  createCustomer(input: CreateCustomerInput!): CreateCustomerResponse
+}
+
+input CustomerFilter {
+  eventId: ID
+}
+
+input CreateCustomerInput {
+  clientMutationId: ID!
+  contact: ContactInput
+  address: AddressInput
+}
+
+type CreateCustomerResponse {
+  clientMutationId: ID!
+  customer: Customer!
+}
+
+input AddressInput {
+  address1: String!
+  address2: String
+  address3: String
+  locality: String!
+  region: String!
+  postalCode: String!
+  country: String = USA
+}
+
+type Address {
+  address1: String!
+  address2: String
+  address3: String
+  locality: String!
+  region: String!
+  postalCode: String!
+  country: String!
+}
+
+interface Node {
+  id: ID!
+}
+
+type Customer implements Node {
+  id: ID!
+  contact: Contact
+  address: Address
+}
+
+input ContactInput {
+  givenName: String
+  familyName: String
+  email: String
+  phone: String
+}
+
+type Contact {
+  givenName: String
+  familyName: String
+  email: String
+  phone: String
+}
+
+type CustomerConnection {
+  edges: [CustomerEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CustomerEdge {
+  cursor: String!
+  node: Customer!
+}
+
+type PageInfo {
+  startCursor: String!
+  endCursor: String!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}

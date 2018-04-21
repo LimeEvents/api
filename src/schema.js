@@ -6,8 +6,9 @@ const performer = require('./services/performer')
 const event = require('./services/event')
 const location = require('./services/location')
 const order = require('./services/order')
+const customer = require('./services/customer')
 
-const SERVICES = { performer, order, location, event }
+const SERVICES = { performer, order, location, event, customer }
 
 exports.loadSchema = memo(async function () {
   const list = await Promise.all(
