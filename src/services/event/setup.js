@@ -36,7 +36,6 @@ exports.setupEvent = async function createFakeEvents () {
   if (process.env.NODE_ENV === 'production') throw new Error('Cannot run fake data script on production')
   const service = new Repository({ get: 'event', link: await eventService() })
   const number = Math.ceil(Math.random() * 1000)
-  console.log(number)
   const results = await Promise.all(
     new Array(number).fill(null).map(async () => {
       const start = Date.now() + (Math.ceil(Math.random() * 365) * 1000 * 60 * 60 * 24)
@@ -52,12 +51,10 @@ exports.setupEvent = async function createFakeEvents () {
         minimumAge: Math.random() > 0.5 ? 21 : 7, // Int
         notes: [] // [ String! ]
       }
-      // console.log(input)
       const event = await service.request(CREATE_EVENT_MUTATION, { input })
       return event
     })
   )
-  console.log(results.length)
   // const results = await eventApplication.find(VIEWER)
   // console.info(`Created ${results.length} events`)
   service.close()
@@ -65,7 +62,6 @@ exports.setupEvent = async function createFakeEvents () {
 }
 
 exports.setupEvent()
-  .then(console.log.bind(console))
   .catch(console.error.bind(console))
 
 async function getRandomLocationId () {

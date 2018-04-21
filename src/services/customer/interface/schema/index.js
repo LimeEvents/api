@@ -15,6 +15,5 @@ exports.schema = memo(async function () {
     typeDefs: [ sdl ],
     resolvers
   })
-  console.log('schema', schema)
   return schema
 })
