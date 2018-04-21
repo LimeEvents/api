@@ -16,10 +16,10 @@ exports.application = (repo) => ({
       domain.register(viewer, { performer })
     )
   },
-  async update (viewer, update) {
-    const performer = await repo.get(update.id)
+  async update (viewer, updates) {
+    const performer = await repo.get(updates.id)
     return repo.save(
-      domain.update(viewer, { performer, update })
+      domain.update(viewer, { performer, updates })
     )
   },
   async remove (viewer, id) {
@@ -27,6 +27,5 @@ exports.application = (repo) => ({
     return repo.save(
       domain.remove(viewer, { performer })
     )
-  },
-  emitter: repo.emitter
+  }
 })

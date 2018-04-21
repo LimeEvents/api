@@ -18,11 +18,11 @@ exports.resolvers = {
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Performer', id) }
     },
     async updatePerformer (source, { input }, { viewer, application }) {
-      const { id } = await application.update(viewer, input)
+      const { id } = await application.update(viewer, { ...input, id: fromGlobalId(input.id).id })
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Performer', id) }
     },
     async removePerformer (source, { input }, { viewer, application }) {
-      const { id } = await application.remove(viewer, input.id)
+      const { id } = await application.remove(viewer, fromGlobalId(input.id).id)
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Performer', id) }
     }
   },
