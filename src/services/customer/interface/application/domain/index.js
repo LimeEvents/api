@@ -8,7 +8,7 @@ exports.get = (viewer, { customer }) => {
   return customer
 }
 exports.find = (viewer, { customers }) => {
-  return customers.map((customer) => exports.get(viewer, customer))
+  return customers.map((customer) => exports.get(viewer, { customer }))
 }
 exports.create = (viewer, { address, contact }) => {
   return [

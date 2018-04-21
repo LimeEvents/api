@@ -5,7 +5,6 @@ type Query {
   node(id: ID!): Node
   event(id: ID!): Event
   events(filter: EventFilter, first: Int, last: Int, before: String, after: String): EventConnection
-  stream(id: ID, first: Int, last: Int, before: String, after: String): EventLogConnection
 }
 
 type Mutation {
@@ -31,27 +30,28 @@ type EventEdge {
 
 type Event implements Node {
   id: ID!
+
+  locationId: ID!
+
+  performerIds: [ ID! ]!
   name: String!
   image: Url!
   video: Url
   caption: String
   description: String
-  feeDistribution: FeeDistribution!
-  locationId: ID!
-  performerIds: [ ID! ]!
+
+  doorsOpen: DateTime!
   start: DateTime!
   end: DateTime!
   cancelled: DateTime
-  price: Float!
-  ageRange: String
-  minimumAge: Int
-  notes: [ String! ]
-  history(first: Int, last: Int, before: String, after: String): EventLogConnection
-}
 
-type EventLogConnection {
-  pageInfo: PageInfo!
-  edges: [ EventLogEdge! ]!
+  price: Int!
+  feeDistribution: FeeDistribution!
+
+  contentRating: ContentRating
+  minimumAge: Int
+
+  notes: [ String! ]
 }
 
 type PageInfo {
@@ -61,31 +61,8 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-type EventLogEdge {
-  cursor: String!
-  node: Event!
-}
-
-type EventLog implements Log & Node {
-  id: ID!
-  type: EventLogType
-  event: Event
-  hash: String!
-}
-
 interface Node {
   id: ID!
-}
-
-interface Log {
-  id: ID!
-  hash: String!
-}
-
-enum EventLogType {
-  EventCreated
-  EventCancelled
-  EventRescheduled
 }
 
 enum FeeDistribution {
@@ -94,17 +71,29 @@ enum FeeDistribution {
   Split
 }
 
+enum ContentRating {
+  G
+  PG
+  PG13
+  R
+}
+
 input CreateEventInput {
   clientMutationId: ID!
-  name: String!
-  image: Url
+
   locationId: ID!
-  performerIds: [ ID! ]
+  capacity: Int
+
+  performerIds: [ ID! ]!
+  slug: String
+
   start: DateTime!
+  doorsOpen: DateTime
   end: DateTime
-  price: Float!
-  capacity: Int!
-  ageRange: String
+
+  price: Int!
+
+  contentRating: ContentRating
   minimumAge: Int
   feeDistribution: FeeDistribution = "Location"
   notes: [ String! ]

@@ -14,13 +14,6 @@ exports.resolvers = {
         pageInfo,
         edges: edges.map(({ node }) => ({ node: { ...node, id: toGlobalId('Event', node.id) } }))
       }
-    },
-    stream (source, args, { viewer, application }, info) {
-      if (args.first) args.first = Math.min(args.first, 50)
-      if (args.last) args.last = Math.min(args.last, 50)
-      return connectionFromPromisedArray(
-        application.list(viewer, args)
-      )
     }
   },
   Mutation: {
