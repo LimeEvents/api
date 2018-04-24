@@ -11,30 +11,32 @@ exports.extensions = {
       orders(first: Int, last: Int, before: String, after: String): OrderConnection!
     }
   `,
-  resolvers: (mergeInfo) => ({
+  resolvers: ({ order, event }) => ({
     Location: {
       orders: {
         fragment: 'fragment LocationOrdersFragment on Location { id }',
         resolve ({ id }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'orders',
-            { filter: { locationId: id }, ...args },
+          return info.mergeInfo.delegateToSchema({
+            schema: order,
+            operation: 'query',
+            fieldName: 'orders',
+            args: { filter: { locationId: id }, ...args },
             context,
             info
-          )
+          })
         }
       },
       events: {
         fragment: 'fragment LocationEventsFragment on Location { id }',
         resolve ({ id }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'events',
-            { filter: { locationId: id }, ...args },
+          return info.mergeInfo.delegateToSchema({
+            schema: event,
+            operation: 'query',
+            fieldName: 'events',
+            args: { filter: { locationId: id }, ...args },
             context,
             info
-          )
+          })
         }
       }
     }

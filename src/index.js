@@ -37,15 +37,16 @@ async function schemaFromLink (link) {
 
 function combineLinks (list) {
   const schemas = list
-    .reduce((prev, { schema, extensions }) => {
-      if (extensions.schema) prev.push(extensions.schema)
-      return [schema].concat(prev)
-    }, [])
+    .reduce((prev, { key, schema, extensions }) => {
+      if (extensions.schema) prev[`${key}_ext`] = extensions.schema
+      prev[key] = schema
+      return prev
+    }, {})
 
   const resolvers = list.reduce((prev, { extensions }) => {
-    if (extensions.resolvers) prev.push(extensions.resolvers)
+    if (extensions.resolvers) return { ...prev, ...extensions.resolvers(schemas) }
     return prev
-  }, [])
+  }, {})
 
   return {
     services: list.reduce((prev, { key, binding }) => {
@@ -53,10 +54,8 @@ function combineLinks (list) {
       return prev
     }, {}),
     schema: mergeSchemas({
-      schemas,
-      resolvers (mergeInfo) {
-        return resolvers.reduce((prev, curr) => ({ ...prev, ...curr(mergeInfo) }), {})
-      }
+      schemas: Object.values(schemas),
+      resolvers
     })
   }
 }

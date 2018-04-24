@@ -13,54 +13,58 @@ exports.extensions = {
       orders(first: Int, last: Int, before: String, after: String): OrderConnection!
     }
   `,
-  resolvers: (mergeInfo) => ({
+  resolvers: ({ order, location, performer }) => ({
     Event: {
       orders: {
         fragment: 'fragment EventOrdersFragment on Event { id }',
         resolve ({ id }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'orders',
-            { filter: { eventId: id }, ...args },
+          return info.mergeInfo.delegateToSchema({
+            schema: order,
+            operation: 'query',
+            fieldName: 'orders',
+            args: { filter: { eventId: id }, ...args },
             context,
             info
-          )
+          })
         }
       },
       inventory: {
         fragment: 'fragment EventInventoryFragment on Event { id }',
         resolve ({ id }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'inventory',
-            { eventId: id },
+          return info.mergeInfo.delegateToSchema({
+            schema: order,
+            operation: 'query',
+            fieldName: 'inventory',
+            args: { eventId: id },
             context,
             info
-          )
+          })
         }
       },
       location: {
         fragment: 'fragment EventLocationFragment on Event { locationId }',
         resolve ({ locationId }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'location',
-            { id: locationId },
+          return info.mergeInfo.delegateToSchema({
+            schema: location,
+            operation: 'query',
+            fieldName: 'location',
+            args: { id: locationId },
             context,
             info
-          )
+          })
         }
       },
       performers: {
         fragment: 'fragment EventPerformersFragment on Event { performerIds }',
         resolve ({ performerIds }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'performers',
-            { filter: { in: performerIds }, ...args },
+          return info.mergeInfo.delegateToSchema({
+            schema: performer,
+            operation: 'query',
+            fieldName: 'performers',
+            args: { filter: { id: performerIds }, ...args },
             context,
             info
-          )
+          })
         }
       }
     }

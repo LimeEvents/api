@@ -10,18 +10,18 @@ exports.extensions = {
       event: Event!
     }
   `,
-  resolvers: (mergeInfo) => ({
+  resolvers: ({ event }) => ({
     Order: {
       event: {
         fragment: 'fragment OrderEventFragment on Order { eventId }',
         resolve ({ eventId }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'event',
-            { id: eventId },
+          return info.mergeInfo.delegateToSchema({
+            operation: 'query',
+            fieldName: 'event',
+            args: { id: eventId },
             context,
             info
-          )
+          })
         }
       }
     }

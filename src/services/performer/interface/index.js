@@ -10,18 +10,19 @@ exports.extensions = {
       events(first: Int, last: Int, before: String, after: String): EventConnection!
     }
   `,
-  resolvers: (mergeInfo) => ({
+  resolvers: ({ event }) => ({
     Performer: {
       events: {
         fragment: 'fragment PerformerEventsFragment on Performer { id }',
         resolve ({ id }, args, context, info) {
-          return mergeInfo.delegate(
-            'query',
-            'events',
-            { filter: { performerId: id }, ...args },
+          return info.mergeInfo.delegateToSchema({
+            schema: event,
+            operation: 'query',
+            fieldName: 'events',
+            args: { filter: { performerId: id } },
             context,
             info
-          )
+          })
         }
       }
     }
