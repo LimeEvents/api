@@ -29,6 +29,6 @@ function refetchLocation (field = 'id') {
     const id = fromGlobalId(args[field] || source[field]).id
 
     const location = await application.get(viewer, id)
-    return { ...location, id }
+    return { ...location, id: toGlobalId('Location', id) }
   }
 }
