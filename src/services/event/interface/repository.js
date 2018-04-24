@@ -13,6 +13,7 @@ const reducer = (src = {}, event) => {
     EventCreated () {
       entity.id = event.id
       entity.locationId = event.locationId
+      entity.inventory = { capacity: event.capacity || 0 }
 
       entity.performerIds = event.performerIds
       entity.name = event.name
