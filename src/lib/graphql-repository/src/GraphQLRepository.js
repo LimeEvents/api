@@ -31,7 +31,7 @@ exports.Repository = class GraphQLRepository {
   }
 
   async get (id, selectionSet) {
-    selectionSet = await this.getFullQuery()
+    if (!selectionSet) selectionSet = await this.getFullQuery()
     const query = `
       query Get_${this.getName}($id: ID!) {
         ${this.getName}(id: $id) ${selectionSet}
@@ -41,7 +41,8 @@ exports.Repository = class GraphQLRepository {
     return results[this.getName]
   }
 
-  async find (params, selectionSet = '{ id }') {
+  async find (params, selectionSet) {
+    if (!selectionSet) selectionSet = await this.getFullQuery()
     const results = []
     let cursor
     while (true) {
