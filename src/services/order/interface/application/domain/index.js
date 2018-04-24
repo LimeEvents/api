@@ -13,17 +13,104 @@ module.exports = {
 
     return orders
   },
-  create (viewer, { inventory, eventId, tickets }) {
+
+  getStatistics (viewer, { orders, startDate, endDate }) {
+    return orders
+      .reduce((totals, { eventId: orderEventId, paid, refunded, tickets, amount, fee, taxes }) => {
+        if (!paid) return totals
+        totals.gross += amount
+        totals.taxes += taxes
+        if (refunded) {
+          totals.refundedAmount += amount
+          totals.refunded += tickets
+        }
+        totals.net += amount - taxes - fee
+        totals.ticketsSold += tickets
+        totals.orders += 1
+        totals.fees += fee
+        return totals
+      }, {
+        gross: 0,
+        net: 0,
+        taxes: 0,
+        refundedAmount: 0,
+        refunded: 0,
+        ticketsSold: 0,
+        orders: 0,
+        fees: 0,
+        startDate,
+        endDate
+      })
+  },
+
+  getWillcallList (viewer, { orders }) {
+    const list = orders
+      .reduce((list, { id, willcall, tickets }) => {
+        list[id] = {
+          tickets,
+          names: willcall
+        }
+        return list
+      }, {})
+
+    return list
+  },
+
+  getInventory (viewer, { orders, capacity }) {
+    const [ sold, reserved ] = orders
+      .filter(({ refunded, paid, created, expired }) => {
+        if (refunded) return false
+        if (paid) return true
+        if (expired < Date.now()) return false
+        return true
+      })
+      .reduce((totals, { id, tickets, paid }) => {
+        if (paid) totals[0] += tickets
+        else totals[1] += tickets
+        return totals
+      }, [0, 0])
+
+    return {
+      sold,
+      available: capacity - reserved - sold,
+      capacity,
+      reserved
+    }
+  },
+  create (viewer, { inventory, event, location, tickets }) {
     const id = uuid()
     assert(inventory, 'Invalid event')
     assert(inventory.available >= tickets, 'Not enough available seats. Please try again.')
     assert(tickets > 0, 'Must reserve at least one ticket')
 
+    const {
+      id: eventId,
+      price,
+      feeDistribution,
+      performerIds
+    } = event
+
+    const subtotal = tickets * price
+    const taxes = Math.ceil(subtotal * 0.0675)
+    // Fee: 3% + $0.50/ticket
+    const fee = Math.ceil((tickets * 0.5) + (subtotal * 0.03))
+    let total = subtotal + taxes
+    if (feeDistribution === 'Customer') {
+      total += fee
+    }
+
     return [
       new Event('OrderCreated', {
         id,
         eventId,
-        tickets
+        performerIds,
+        locationId: location.id,
+        tickets,
+        price,
+        fee,
+        subtotal,
+        total,
+        taxes
       })
     ]
   },
@@ -68,6 +155,7 @@ module.exports = {
         id: order.id,
         name,
         email,
+        source,
         amount: total,
         taxes,
         fee,
@@ -75,13 +163,21 @@ module.exports = {
       })
     ]
   },
-  refund (viewer, { order }) {
+  refund (viewer, { order, event, tickets }) {
     assert(order.paid, 'Order cannot be refunded until it has been paid')
     assert(!order.refunded, 'Order has already been refunded')
+    assert(order.tickets >= tickets, `Cannot refund ${tickets}. Order only has ${order.tickets}`)
+
+    let amount = event.price * tickets
+    amount += Math.ceil(amount * 0.0675)
+    amount += calculateFee(tickets, event.price)
 
     return [
       new Event('OrderRefunded', {
-        id: order.id
+        id: order.id,
+        chargeId: order.chargeId,
+        tickets,
+        amount
       })
     ]
   }
@@ -90,4 +186,10 @@ module.exports = {
 function authenticated (viewer) {
   assert(typeof viewer === 'object', 'Viewer is malformed')
   assert(Array.isArray(viewer.roles), 'Viewer is missing roles')
+}
+
+function calculateFee (tickets, price) {
+  const amount = tickets * price
+  // Fee: 3% + $0.50/ticket
+  return Math.ceil((tickets * 0.5) + (amount * 0.03))
 }

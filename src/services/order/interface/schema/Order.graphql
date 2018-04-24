@@ -112,27 +112,29 @@ type Order implements Node {
   eventId: ID!
   tickets: Int!
 
-  """ Price per ticket """
-  price: Currency!
   """ Price of all tickets """
-  amount: Currency!
+  subtotal: Currency!
+  """ Amount refunded """
+  refunded: Currency!
   """ Fee paid """
   fee: Currency!
   """ Sales tax """
   taxes: Currency!
-  """ Amount refunded """
-  refunded: Int!
+  """ Total charged to card """
+  total: Currency!
+
   paid: Boolean!
 
   fingerprint: ID
   willcall: [ String! ]!
-  billing: Billing
+
   created: DateTime!
+  updated: DateTime!
 }
 
-type Billing {
-  name: String!
-  postalCode: String!
+type OrderItem {
+  eventId: ID!
+  quantity: Int!
 }
 
 type Inventory {
@@ -140,7 +142,6 @@ type Inventory {
   sold: Int!
   reserved: Int!
   capacity: Int!
-  history(first: Int, last: Int, before: String, after: String): OrderLogConnection
 }
 
 type OrderConnection {
@@ -153,11 +154,6 @@ type OrderEdge {
   node: Order!
 }
 
-type OrderLogConnection {
-  pageInfo: PageInfo!
-  edges: [ OrderLogEdge! ]!
-}
-
 type PageInfo {
   startCursor: String
   endCursor: String
@@ -165,31 +161,6 @@ type PageInfo {
   hasPreviousPage: Boolean
 }
 
-type OrderLogEdge {
-  cursor: String!
-  node: Node!
-}
-
-type OrderLog implements Log & Node {
-  id: ID!
-  type: OrderLogType
-  event: Inventory
-  hash: String!
-}
-
 interface Node {
   id: ID!
-}
-
-interface Log {
-  id: ID!
-  hash: String!
-}
-
-enum OrderLogType {
-  # TicketsReserved
-  OrderCreated
-  OrderRefunded
-  OrderReassigned
-  OrderTransferred
 }

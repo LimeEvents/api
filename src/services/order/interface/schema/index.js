@@ -1,10 +1,10 @@
 const fs = require('fs')
+const memo = require('lodash.memoize')
 const path = require('path')
 const { makeExecutableSchema } = require('graphql-tools')
 const { promisify } = require('util')
-const memo = require('lodash.memoize')
 
-const resolvers = require('./resolvers')
+const { resolvers } = require('./resolvers')
 
 const readFile = promisify(fs.readFile)
 
