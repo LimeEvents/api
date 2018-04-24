@@ -1,3 +1,4 @@
+require('dotenv').load()
 // const faker = require('faker')
 const { Repository } = require('@vivintsolar/graphql-repository')
 const gql = require('graphql-tag')

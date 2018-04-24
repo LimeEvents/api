@@ -1,3 +1,4 @@
+require('dotenv').load()
 const faker = require('faker')
 const uuid = require('uuid/v4')
 
