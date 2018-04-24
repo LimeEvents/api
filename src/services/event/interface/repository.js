@@ -12,17 +12,23 @@ const reducer = (src = {}, event) => {
     },
     EventCreated () {
       entity.id = event.id
+      entity.locationId = event.locationId
+
+      entity.performerIds = event.performerIds
       entity.name = event.name
       entity.image = event.image
-      entity.locationId = event.locationId
-      entity.performerIds = event.performerIds
+      entity.video = event.video
+      entity.caption = event.caption
+      entity.description = event.description
+
+      entity.doorsOpen = event.doorsOpen
       entity.start = event.start
       entity.end = event.end
       entity.price = event.price
       entity.available = event.available
-      entity.ageRange = event.ageRange
-      entity.minimumAge = event.minimumAge
-      entity.notes = event.notes
+      entity.contentRating = event.contentRating
+      entity.minimumAge = event.minimumAge || 0
+      entity.notes = event.notes || []
       return entity
     },
     EventRescheduled () {
@@ -36,4 +42,4 @@ const reducer = (src = {}, event) => {
   console.warn(`Invalid event type: "${event._type}"`)
   return src
 }
-exports.repository = memo((tenantId) => new Repository({ name: 'event_source', reducer, tenantId }))
+exports.repository = memo((tenantId) => new Repository({ name: 'event', reducer, tenantId }))

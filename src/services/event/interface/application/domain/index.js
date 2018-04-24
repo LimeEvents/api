@@ -2,8 +2,12 @@ const assert = require('assert')
 const uuid = require('uuid/v4')
 const { Event } = require('@vivintsolar/repository')
 
+const THIRTY = 1000 * 60 * 30
+const NINETY = THIRTY * 3
+
 // Query
 exports.get = (viewer, { event }) => {
+  assert(event, 'Event does not exist.')
   return event
 }
 exports.find = (viewer, { events = [] }) => {
@@ -14,31 +18,55 @@ exports.find = (viewer, { events = [] }) => {
 
 // Mutation
 exports.create = (viewer, { event }) => {
-  if (!viewer) throw new Error('Unauthorized')
+  assert(viewer, 'Unauthenticated')
+  roles(viewer, ['administrator', 'system'])
   if (!event.id) event = { id: uuid(), ...event }
+
+  if (!event.end) {
+    event.end = event.start + NINETY
+  }
+  if (!event.doorsOpen) {
+    event.doorsOpen = event.start - THIRTY
+  }
+  assert(event.start > Date.now(), 'Event cannot start in the past.')
+  assert(event.start < event.end, 'End date cannot be before start date')
+  assert(event.doorsOpen < event.start, 'Doors cannot open after the show starts')
+
   return [
     new Event('EventCreated', event)
   ]
 }
 
 exports.cancel = (viewer, { event }) => {
-  if (!viewer) throw new Error('Unauthorized')
+  assert(viewer, 'Unauthenticated')
+  roles(viewer, ['administrator', 'system'])
   assert(event, 'Cannot cancel a non-existent event')
   assert(!event.cancelled, 'Cannot cancel a cancelled event')
   return [
-    new Event('EventCancelled', event)
+    new Event('EventCancelled', { id: event.id })
   ]
 }
 
 exports.reschedule = (viewer, { event, start, end, doorsOpen }) => {
-  if (!viewer) throw new Error('Unauthorized')
-  const now = Date.now()
+  assert(viewer, 'Unauthenticated')
+  roles(viewer, ['administrator', 'system'])
+  assert(event, 'Cannot reschedule event. Event does not exist.')
+  if (!end) {
+    end = event.end - event.start + start
+  }
+  if (!doorsOpen) {
+    doorsOpen = event.start - event.doorsOpen - start
+  }
+  assert(start > Date.now(), 'Cannot reschedule event in the past.')
+  assert(start < end, 'End date cannot be before start date')
+  assert(doorsOpen < start, 'Doors cannot open after the show starts')
   assert(!event.cancelled, 'Cannot reschedule a cancelled event')
-  assert(now > start, 'Cannot schedule an event in the past')
-  assert(!end || start < end, 'End time cannot be before start time')
-  assert(!doorsOpen || doorsOpen < start, 'Doors cannot open after show begins')
 
   return [
     new Event('EventRescheduled', { id: event.id, start, end, doorsOpen })
   ]
+}
+
+function roles ({ roles }, any) {
+  return any.some((role) => roles.includes(role))
 }

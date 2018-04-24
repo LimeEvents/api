@@ -1,4 +1,4 @@
-const { fromGlobalId, toGlobalId, connectionFromPromisedArray } = require('graphql-relay')
+const { fromGlobalId, toGlobalId, connectionFromArray } = require('graphql-relay')
 
 exports.resolvers = {
   Node: {
@@ -7,49 +7,53 @@ exports.resolvers = {
     }
   },
   Query: {
-    event: refetchEvent,
+    node: refetchEvent(),
+    event: refetchEvent(),
     async events (source, args, { viewer, application }, info) {
       if (args.first) args.first = Math.min(args.first, 50)
       if (args.last) args.last = Math.min(args.last, 50)
-      const { pageInfo, edges } = await connectionFromPromisedArray(
-        application.find(viewer, args),
-        args
-      )
+      const events = await application.find(viewer, args)
+      const { pageInfo, edges } = connectionFromArray(events, args)
       return {
         pageInfo,
-        edges: edges.map(({ node }) => ({ node: { ...node, id: toGlobalId('Event', node.id) } }))
+        edges: edges.map(
+          ({ node, cursor }) => ({
+            cursor,
+            node: { ...node, id: toGlobalId('Event', node.id) }
+          })
+        )
       }
     }
   },
   Mutation: {
     async createEvent (source, { input }, { viewer, application }, info) {
-      const results = await application.create(viewer, input)
-      results.clientMutationId = input.clientMutationId
-      return results
+      const { id } = await application.create(viewer, input)
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
     },
     async cancelEvent (source, { input }, { viewer, application }, info) {
-      const results = await application.cancel(viewer, { ...input, id: fromGlobalId(input.id).id })
-      results.clientMutationId = input.clientMutationId
-      return results
+      const { id } = await application.cancel(viewer, { ...input, id: fromGlobalId(input.id).id })
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
     },
     async rescheduleEvent (source, { input }, { viewer, application }, info) {
-      const results = await application.reschedule(viewer, { ...input, id: fromGlobalId(input.id).id })
-      results.clientMutationId = input.clientMutationId
-      return results
+      const { id } = await application.reschedule(viewer, { ...input, id: fromGlobalId(input.id).id })
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
     }
   },
   CreateEventResponse: {
-    event: refetchEvent
+    event: refetchEvent()
   },
   CancelEventResponse: {
-    event: refetchEvent
+    event: refetchEvent()
   },
   RescheduleEventResponse: {
-    event: refetchEvent
+    event: refetchEvent()
   }
 }
 
-async function refetchEvent (source, args, { viewer, application }, info) {
-  const event = await application.get(viewer, args.id || source.id)
-  return { ...event, id: toGlobalId('Event', event.id) }
+function refetchEvent (field = 'id') {
+  return async (source, args, { viewer, application }, info) => {
+    const id = fromGlobalId(args[field] || source[field]).id
+    const event = await application.get(viewer, id)
+    return { ...event, id: toGlobalId('Event', id) }
+  }
 }

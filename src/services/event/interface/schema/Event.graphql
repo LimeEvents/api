@@ -4,7 +4,7 @@ scalar Url
 type Query {
   node(id: ID!): Node
   event(id: ID!): Event
-  events(filter: EventFilter, first: Int, last: Int, before: String, after: String): EventConnection
+  events(filter: EventFilter, first: Int, last: Int, before: String, after: String): EventConnection!
 }
 
 type Mutation {
@@ -55,10 +55,10 @@ type Event implements Node {
 }
 
 type PageInfo {
-  startCursor: String
-  endCursor: String
-  hasNextPage: Boolean
-  hasPreviousPage: Boolean
+  startCursor: String!
+  endCursor: String!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
 }
 
 interface Node {
@@ -68,7 +68,6 @@ interface Node {
 enum FeeDistribution {
   Customer
   Location
-  Split
 }
 
 enum ContentRating {
@@ -85,7 +84,9 @@ input CreateEventInput {
   capacity: Int
 
   performerIds: [ ID! ]!
+  name: String!
   slug: String
+  image: Url!
 
   start: DateTime!
   doorsOpen: DateTime
