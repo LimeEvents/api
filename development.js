@@ -4,7 +4,7 @@ const { microGraphiql, microGraphql } = require('apollo-server-micro')
 const { onError } = require('apollo-link-error')
 const { router, get, post } = require('microrouter')
 
-const { combineLinks, loadLinks } = require('./src')
+const { combineLinks, loadLinks, schemaFromLink } = require('./src')
 
 require('dotenv').load()
 
@@ -15,17 +15,18 @@ const ADMIN_VIEWER = {
 
 const loadSchema = memo(async function () {
   const list = await loadLinks()
-  return combineLinks(
-    list.map(item => {
+  const enhancedList = await Promise.all(
+    list.map(async item => {
       item.link = enhanceStacktrace(item.link)
+      item.schema = await schemaFromLink(item.link)
       return item
     })
   )
+  return combineLinks(enhancedList)
 })
 
 function enhanceStacktrace (link) {
-  const errorLink = onError((things) => {
-    const { response, graphQLErrors } = things
+  const errorLink = onError(({ response, graphQLErrors }) => {
     if (graphQLErrors) {
       const errors = [].concat(...graphQLErrors.map(formatError))
       errors.forEach((error) => console.error(error.stack.join('\n    ')))
