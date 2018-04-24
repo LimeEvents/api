@@ -36,6 +36,16 @@ exports.Repository = class MongoRepository extends Repository {
     return { id }
   }
 
+  async rebuildIndex () {
+    const ids = await this.source.distinct('id')
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i]
+      const entity = await this.get(id)
+      await this.view.findOneAndUpdate({ _id: id }, entity)
+    }
+    console.info('Successfully rebuilt index')
+  }
+
   async find (query = {}) {
     const base = {}
     query = Object.entries(query)
