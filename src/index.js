@@ -61,6 +61,7 @@ function combineLinks (list) {
 }
 
 exports.loadLinks = loadLinks
+exports.schemaFromLink = schemaFromLink
 exports.combineLinks = combineLinks
 exports.loadSchema = memo(async function () {
   const list = await loadLinks()
