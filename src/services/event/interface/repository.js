@@ -3,7 +3,7 @@ const { Repository } = require('@vivintsolar/mongo-repository')
 
 const reducer = (src = {}, event) => {
   const entity = Object.assign({
-    feeDistribution: 'Location'
+    feeDistribution: 100
   }, src)
   const fn = {
     EventCancelled () {

@@ -46,7 +46,7 @@ type Event implements Node {
   cancelled: DateTime
 
   price: Int!
-  feeDistribution: FeeDistribution!
+  feeDistribution: Int!
 
   contentRating: ContentRating
   minimumAge: Int
@@ -63,11 +63,6 @@ type PageInfo {
 
 interface Node {
   id: ID!
-}
-
-enum FeeDistribution {
-  Customer
-  Location
 }
 
 enum ContentRating {
@@ -96,7 +91,7 @@ input CreateEventInput {
 
   contentRating: ContentRating
   minimumAge: Int
-  feeDistribution: FeeDistribution = "Location"
+  feeDistribution: Int!
   notes: [ String! ]
 }
 

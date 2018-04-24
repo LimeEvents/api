@@ -5,6 +5,10 @@ const Stripe = require('stripe')
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY)
 
+const CONNECT_ACCOUNT = {
+  stripe_account: 'acct_1BoMxxIvz2YcN687'
+}
+
 const FIFTEEN_MINUTES = 1000 * 60 * 15
 const DEFAULT_REDUCER = src => src
 
@@ -16,13 +20,18 @@ const reducers = {
       eventId: event.eventId,
       locationId: event.locationId,
       performerIds: event.performerIds,
+
       tickets: event.tickets,
-      created: event._timestamp,
+
       expired: FIFTEEN_MINUTES + event._timestamp,
+
+      customerFee: event.customerFee,
+      locationFee: event.locationFee,
       fee: event.fee,
-      taxes: event.taxes,
+      salesTax: event.salesTax,
       subtotal: event.subtotal,
-      total: event.total
+      total: event.total,
+      created: event._timestamp
     }
   },
   OrderCharged (entity, event) {
@@ -30,7 +39,7 @@ const reducers = {
       ...entity,
       id: event.id,
       fee: event.fee,
-      taxes: event.taxes,
+      salesTax: event.salesTax,
       email: event.email,
       amount: event.amount,
       willcall: entity.willcall.concat(event.name)
@@ -54,7 +63,7 @@ const reducers = {
   OrderRefunded (entity, event) {
     return {
       ...entity,
-      refundAmount: entity.amount
+      refundAmount: event.amount
     }
   },
   OrderRefundSucceeded (entity, event) {
@@ -79,13 +88,15 @@ const reducers = {
 
 const reducer = (src, event) => {
   const entity = Object.assign({
-    refunded: false,
-    paid: false,
-    fee: 0,
-    taxes: 0,
-    amount: 0,
+    price: 0,
+    tickets: 0,
+    subtotal: 0,
+    customerFee: 0,
+    locationFee: 0,
+    salesTax: 0,
     total: 0,
-    active: false,
+    amountPaid: 0,
+    amountRefunded: 0,
     willcall: []
   }, src)
   const fn = reducers[event._type] || DEFAULT_REDUCER
@@ -101,11 +112,12 @@ const StripeAntiCorruption = (stripe) => ({
       const { id: chargeId } = await stripe.charges.create({
         source,
         amount,
+        application_fee: event.fee,
         metadata: { paymentId: id },
         currency: 'USD',
         receipt_email: email,
         statement_descriptor: 'Vivint Solar'
-      })
+      }, CONNECT_ACCOUNT)
       return [
         event,
         new Event('OrderChargeSucceeded', {
@@ -127,7 +139,7 @@ const StripeAntiCorruption = (stripe) => ({
   async OrderRefunded (event) {
     const { id, chargeId, amount } = event
     try {
-      await stripe.charges.refund(event.chargeId, { amount })
+      await stripe.charges.refund(event.chargeId, { amount }, CONNECT_ACCOUNT)
       return [
         event,
         new Event('OrderRefundSucceeded', {

@@ -16,15 +16,15 @@ module.exports = {
 
   getStatistics (viewer, { orders, startDate, endDate }) {
     return orders
-      .reduce((totals, { eventId: orderEventId, paid, refunded, tickets, amount, fee, taxes }) => {
+      .reduce((totals, { eventId: orderEventId, paid, refunded, tickets, amount, fee, salesTax }) => {
         if (!paid) return totals
         totals.gross += amount
-        totals.taxes += taxes
+        totals.salesTax += salesTax
         if (refunded) {
           totals.refundedAmount += amount
           totals.refunded += tickets
         }
-        totals.net += amount - taxes - fee
+        totals.net += amount - salesTax - fee
         totals.ticketsSold += tickets
         totals.orders += 1
         totals.fees += fee
@@ -32,7 +32,7 @@ module.exports = {
       }, {
         gross: 0,
         net: 0,
-        taxes: 0,
+        salesTax: 0,
         refundedAmount: 0,
         refunded: 0,
         ticketsSold: 0,
@@ -91,13 +91,13 @@ module.exports = {
     } = event
 
     const subtotal = tickets * price
-    const taxes = Math.ceil(subtotal * 0.0675)
-    // Fee: 3% + $0.50/ticket
-    const fee = Math.ceil((tickets * 0.5) + (subtotal * 0.03))
-    let total = subtotal + taxes
-    if (feeDistribution === 'Customer') {
-      total += fee
-    }
+    const salesTax = Math.ceil(subtotal * 0.0675)
+    const fee = calculateFee(tickets, price)
+
+    const locationFee = Math.ceil(fee * feeDistribution / 100)
+    const customerFee = fee - locationFee
+
+    const total = subtotal + salesTax + customerFee
 
     return [
       new Event('OrderCreated', {
@@ -107,10 +107,12 @@ module.exports = {
         locationId: location.id,
         tickets,
         price,
-        fee,
         subtotal,
-        total,
-        taxes
+        salesTax,
+        fee: locationFee + customerFee,
+        locationFee,
+        customerFee,
+        total
       })
     ]
   },
@@ -145,11 +147,7 @@ module.exports = {
     assert(!order.refunded, 'Order has been refunded. Create a new order.')
     assert(order.expired > Date.now(), 'Order reservation has expired. Please create a new order')
 
-    const amount = order.tickets * event.price
-    const taxes = Math.ceil(amount * 0.0675)
-    // Fee: 3% + $0.50/ticket
-    const fee = Math.ceil((order.tickets * 0.5) + (amount * 0.03))
-    const total = amount + taxes
+    const { total, fee } = order
     return [
       new Event('OrderCharged', {
         id: order.id,
@@ -157,7 +155,6 @@ module.exports = {
         email,
         source,
         amount: total,
-        taxes,
         fee,
         total
       })

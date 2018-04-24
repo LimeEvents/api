@@ -2,11 +2,11 @@ scalar DateTime
 scalar Currency
 
 type Query {
+  node(id: ID!): Node
   order(id: ID!): Order
   orders(filter: OrderFilter, first: Int, last: Int, before: String, after: String): OrderConnection!
   orderStatistics(startDate: Int!, endDate: Int!, performerId: ID, locationId: ID, eventId: ID): OrderStatistic!
   inventory(eventId: ID!): Inventory
-  stream(id: ID, first: Int, last: Int, before: String, after: String): OrderLogConnection
 }
 
 input OrderFilter {
@@ -32,7 +32,7 @@ type OrderStatistic {
   """ Amount collected in fees """
   fees: Currency!
   """ Amount colllected for taxes """
-  taxes: Currency!
+  salesTax: Currency!
 }
 
 type Mutation {
@@ -42,17 +42,19 @@ type Mutation {
   transferOrder(input: TransferOrderInput!): TransferOrderResponse
   reassignOrder(input: ReassignOrderInput!): ReassignOrderResponse
 }
+
+""" Create order """
 input CreateOrderInput {
   clientMutationId: ID!
-  id: ID
   eventId: ID!
   tickets: Int!
 }
 type CreateOrderResponse {
   clientMutationId: ID!
   order: Order!
-  inventory: Inventory!
 }
+
+""" Pay for the order """
 input ChargeOrderInput {
   clientMutationId: ID!
   """ Order ID created from reserving tickets """
@@ -67,8 +69,9 @@ input ChargeOrderInput {
 type ChargeOrderResponse {
   clientMutationId: ID!
   order: Order!
-  inventory: Inventory!
 }
+
+""" Refund (or partially refund) a customers payment """
 input RefundOrderInput {
   clientMutationId: ID!
   id: ID!
@@ -80,6 +83,8 @@ type RefundOrderResponse {
   order: Order!
   inventory: Inventory!
 }
+
+""" Transfer tickets to another event """
 input TransferOrderInput {
   clientMutationId: ID!
   """ Order ID """
@@ -96,6 +101,8 @@ type TransferOrderResponse {
   sourceInventory: Inventory!
   destinationInventory: Inventory!
 }
+
+""" Let other people pick up tickets at willcall """
 input ReassignOrderInput {
   clientMutationId: ID!
   id: ID!
@@ -110,31 +117,36 @@ type ReassignOrderResponse {
 type Order implements Node {
   id: ID!
   eventId: ID!
+
+  """ Price of tickets when they were added to the order """
+  price: Currency!
+
+  """ Number of tickets on this order """
   tickets: Int!
 
   """ Price of all tickets """
   subtotal: Currency!
-  """ Amount refunded """
-  refunded: Currency!
+
   """ Fee paid """
-  fee: Currency!
+  customerFee: Currency!
+  locationFee: Currency!
+
   """ Sales tax """
-  taxes: Currency!
+  salesTax: Currency!
+
   """ Total charged to card """
   total: Currency!
 
-  paid: Boolean!
+  """ Amount paid by the customer """
+  amountPaid: Currency!
+  """ Amount refunded to the customer """
+  amountRefunded: Currency!
 
   fingerprint: ID
   willcall: [ String! ]!
 
   created: DateTime!
   updated: DateTime!
-}
-
-type OrderItem {
-  eventId: ID!
-  quantity: Int!
 }
 
 type Inventory {
