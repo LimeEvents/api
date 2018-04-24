@@ -1,6 +1,11 @@
-const { connectionFromPromisedArray } = require('graphql-relay')
+const { fromGlobalId, connectionFromPromisedArray } = require('graphql-relay')
 
 module.exports = {
+  Node: {
+    __resolveType ({ id }) {
+      return fromGlobalId(id).type
+    }
+  },
   Query: {
     order: refetchResolver(),
     inventory (source, { eventId }, { viewer, application }) {

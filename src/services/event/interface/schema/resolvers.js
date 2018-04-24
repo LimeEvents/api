@@ -1,6 +1,11 @@
 const { fromGlobalId, toGlobalId, connectionFromPromisedArray } = require('graphql-relay')
 
 exports.resolvers = {
+  Node: {
+    __resolveType ({ id }) {
+      return fromGlobalId(id).type
+    }
+  },
   Query: {
     event: refetchEvent,
     async events (source, args, { viewer, application }, info) {
