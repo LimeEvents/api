@@ -1,30 +1,22 @@
-const { router, get, post } = require('microrouter')
-const { microGraphql, microGraphiql } = require('apollo-server-micro')
-const { ApolloEngine } = require('apollo-engine')
-const micro = require('micro')
+const { microGraphql } = require('apollo-server-micro')
 
-const schema = require('./src/schema')
+const { loadSchema } = require('./services')
 
-module.exports = router(
-  get('/*', microGraphiql({ schema, endpointURL: '/graphql' })),
-  post('/graphql', microGraphql((req) => ({
+const ADMIN_VIEWER = {
+  roles: ['administrator'],
+  tenantId: 'vslr'
+}
+
+let handler = microGraphql(async (req) => {
+  const { schema, services } = await loadSchema()
+  return {
     schema,
-    context: { viewer: { roles: ['admin'] } },
-    tracing: true,
-    cacheControl: true
-  })))
-)
-
-const httpServer = micro(module.exports)
-
-const engine = new ApolloEngine({
-  apiKey: process.env.APOLLO_ENGINE_KEY,
-  origins: [{
-    supportsBatch: true
-  }]
+    context: {
+      viewer: ADMIN_VIEWER,
+      services
+    },
+    debug: false
+  }
 })
 
-engine.listen({
-  port: process.env.PORT,
-  httpServer
-})
+module.exports = handler
