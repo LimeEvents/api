@@ -53,6 +53,11 @@ function refetchPerformer (field = 'id') {
 async function findPerformers (source, args, { viewer, application }) {
   if (args.first) args.first = Math.min(args.first, 50)
   if (args.last) args.last = Math.min(args.last, 50)
+  if (args.filter) {
+    if (args.filter.id) {
+      args.filter.id = args.filter.id.map((id) => fromGlobalId(id).id)
+    }
+  }
   const performers = await application.find(viewer, args)
   const { edges, pageInfo } = connectionFromArray(performers, args)
 
