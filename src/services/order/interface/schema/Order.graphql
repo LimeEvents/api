@@ -6,7 +6,75 @@ type Query {
   order(id: ID!): Order
   orders(filter: OrderFilter, first: Int, last: Int, before: String, after: String): OrderConnection!
   orderStatistics(startDate: Int!, endDate: Int!, performerId: ID, locationId: ID, eventId: ID): OrderStatistic!
+
+  """ Number of orders in a time period """
+  orderMetrics(filter: MetricFilter! first: Int, last: Int, before: String, after: String): OrderMetricConnection!
   inventory(eventId: ID!): Inventory
+}
+
+input MetricFilter {
+  """ If the values of the field should be combined """
+  aggregate: OrderMetricAggregateField
+  """ Field name to count value occurrances """
+  count: OrderMetricCountField
+  """ Required for 'count' queries """
+  value: String
+
+  """ Interval to break into buckets """
+  interval: MetricInterval = week
+  """ Date to start counting backward in intervals """
+  start: DateTime
+}
+
+enum OrderMetricAggregateField {
+  price
+  tickets
+  subtotal
+  customerFee
+  locationFee
+  salesTax
+  total
+  amountPaid
+  amountRefunded
+}
+
+enum OrderMetricCountField {
+  type
+  eventId
+  fingerprint
+}
+
+enum MetricInterval {
+  year
+  quarter
+  month
+  week
+  day
+  hour
+  minute
+  second
+}
+
+type OrderMetricConnection {
+  edges: [ OrderMetricEdge! ]!
+  pageInfo: PageInfo
+}
+
+type OrderMetricEdge {
+  cursor: String!
+  node: OrderMetric!
+}
+
+type OrderMetric {
+  type: MetricType!
+  field: String!
+  value: Int!
+  timestamp: DateTime!
+}
+
+enum MetricType {
+  aggregate
+  count
 }
 
 input OrderFilter {

@@ -48,17 +48,17 @@ exports.Repository = class ESRepository extends Repository {
     return list
   }
 
-  async get (id, start = 0, end = Date.now()) {
+  async get (id) {
     const [ object ] = await toArray(
       this
-        .read({ id, start, end })
+        .read({ id })
         .pipe(reduce(this.reducer))
     )
     return object || null
   }
 }
 
-function reduce (fn, init) {
+function reduce (fn, init = {}) {
   return new Transform({
     objectMode: true,
     transform (chunk, encoding, callback) {

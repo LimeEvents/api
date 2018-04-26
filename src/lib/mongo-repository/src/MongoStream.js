@@ -12,7 +12,7 @@ exports.Readable = class SourceWrapper extends Readable {
   }
 
   formatQuery (query) {
-    const base = { '_timestamp': { $gte: query.start, $lte: query.end } }
+    const base = {}
     return Object.entries(query)
       .reduce((prev, [ key, value ]) => {
         if (key === 'id') key = 'id'

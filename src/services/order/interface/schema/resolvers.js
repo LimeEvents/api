@@ -1,5 +1,8 @@
 const { fromGlobalId, connectionFromArray, toGlobalId } = require('graphql-relay')
 
+const orderGlobalId = addGlobalId.bind(this, 'Order')
+const metricGlobalId = addGlobalId.bind(this, 'OrderMetric')
+
 exports.resolvers = {
   Node: {
     __resolveType ({ id }) {
@@ -17,17 +20,19 @@ exports.resolvers = {
     async orders (source, args, { viewer, application }, info) {
       if (args.first) args.first = Math.min(args.first, 50)
       if (args.last) args.last = Math.min(args.last, 50)
+
       const orders = await application.find(viewer, args)
-      const { pageInfo, edges } = connectionFromArray(orders, args)
-      return {
-        pageInfo,
-        edges: edges.map(({ node, cursor }) => {
-          return {
-            cursor,
-            node: { ...node, id: toGlobalId('Order', node.id) }
-          }
-        })
-      }
+      return connectionFromArray(
+        orders.map(orderGlobalId),
+        args
+      )
+    },
+    async orderMetrics (source, args, { viewer, application }) {
+      const metrics = await application.getMetrics(viewer, args)
+      return connectionFromArray(
+        metrics.map(metricGlobalId),
+        args
+      )
     }
   },
   Mutation: {
@@ -95,4 +100,8 @@ function refetchResolver (field = 'id') {
     const order = await application.get(viewer, id)
     return { ...order, id: toGlobalId('Order', id) }
   }
+}
+
+function addGlobalId (type, entity) {
+  return { ...entity, id: toGlobalId(type, entity.id) }
 }

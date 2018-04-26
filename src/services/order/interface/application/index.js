@@ -12,6 +12,18 @@ exports.application = (repo, services) => ({
     let orders = await repo.find(filter)
     return domain.find(viewer, { orders })
   },
+  async getMetrics (viewer, args) {
+    const { aggregate, count, value } = args.filter
+    let metrics = null
+    assert(aggregate || count, 'Must include either "aggregate" or "count" field')
+    if (aggregate) {
+      metrics = repo.aggregate(aggregate, args)
+    } else if (count) {
+      assert(value, 'Order metric count queries require a "value" field')
+      metrics = repo.count(count, value, args)
+    }
+    return domain.getMetrics(viewer, { metrics })
+  },
   async getStatistics (viewer, { eventId, performerId, locationId, startDate, endDate }) {
     let orders = await this.find(viewer, { eventId, performerId, locationId })
 

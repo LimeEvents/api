@@ -1,4 +1,5 @@
 const memo = require('lodash.memoize')
+const moment = require('moment')
 const { Event } = require('@vivintsolar/repository')
 const { Repository } = require('@vivintsolar/mongo-repository')
 const Stripe = require('stripe')
@@ -87,6 +88,7 @@ const reducers = {
 }
 
 const reducer = (src, event) => {
+  if (!src) return src
   const entity = Object.assign({
     price: 0,
     tickets: 0,
@@ -101,7 +103,7 @@ const reducer = (src, event) => {
   }, src)
   const fn = reducers[event._type] || DEFAULT_REDUCER
   const results = fn(entity, event)
-  results.updated = event._timestamp
+  if (results) results.updated = event._timestamp
   return results
 }
 
@@ -166,6 +168,48 @@ class StripeRepository extends Repository {
     super({ name: 'order', reducer, tenantId })
   }
 
+  async aggregate (field, args) {
+    const {
+      start = Date.now(),
+      first = 1,
+      filter: { interval = 'week' }
+    } = args
+    const end = moment(start).endOf(interval).subtract(first, interval).unix() * 1000
+    const buckets = createBuckets(start, first, interval)
+    if (buckets.length < 2) buckets.unshift(0)
+    const results = await this.view.aggregate([
+      {
+        $match: {
+          created: { $gte: end, $lte: start }
+        }
+      },
+      {
+        $bucket: {
+          groupBy: '$created',
+          boundaries: buckets,
+          default: 'Other',
+
+          output: {
+            value: { $sum: `$${field}` },
+            ids: { $push: '$id' }
+          }
+        }
+      }
+    ])
+
+    return buckets.map((timestamp) => {
+      const value = results.find(({ _id }) => {
+        return _id === timestamp
+      })
+      return {
+        value: value && value.value || 0,
+        type: 'aggregate',
+        field,
+        timestamp
+      }
+    })
+  }
+
   async save (events) {
     const results = await events.reduce(async (_events, event) => {
       const events = await _events
@@ -175,6 +219,14 @@ class StripeRepository extends Repository {
     }, [])
     return super.save(results)
   }
+}
+
+function createBuckets (start, count = 1, interval = 'week') {
+  start = moment(start)
+  return new Array(count)
+    .fill(null)
+    .map((_, idx) => start.clone().subtract(idx, interval).startOf(interval).unix() * 1000)
+    .reverse()
 }
 
 exports.repository = memo((tenantId) => new StripeRepository(tenantId))
