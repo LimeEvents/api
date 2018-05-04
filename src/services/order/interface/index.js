@@ -1,7 +1,7 @@
 const { SchemaLink } = require('apollo-link-schema')
 const { schema } = require('./schema')
-const { repository } = require('./repository')
-const { application } = require('./application')
+const { repository } = require('./interface/repository')
+const { application } = require('./interface/application')
 const memo = require('lodash.memoize')
 
 exports.extensions = {

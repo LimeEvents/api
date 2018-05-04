@@ -61,15 +61,15 @@ exports.resolvers = {
       })
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Order', id) }
     },
+    // async cancelOrder (source, { input }, { viewer, application }) {
+    //   const { id } = await application.cancel(viewer, input.id)
+    //   return { clientMutationId: input.clientMutationId, id: toGlobalId('Order', id) }
+    // },
     async reassignOrder (source, { input }, { viewer, application }) {
       const { id } = await application.reassign(viewer, {
         ...input,
         id: fromGlobalId(input.id).id
       })
-      return { clientMutationId: input.clientMutationId, id: toGlobalId('Order', id) }
-    },
-    async cancelOrder (source, { input }, { viewer, application }) {
-      const { id } = await application.cancel(viewer, input.id)
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Order', id) }
     }
   },
@@ -86,10 +86,10 @@ exports.resolvers = {
     sourceOrder: refetchResolver('sourceOrderId'),
     destinationOrder: refetchResolver('destinationOrderId')
   },
+  // CancelOrderResponse: {
+  //   order: refetchResolver()
+  // },
   ReassignOrderResponse: {
-    order: refetchResolver()
-  },
-  CancelOrderResponse: {
     order: refetchResolver()
   }
 }

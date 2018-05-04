@@ -38,7 +38,7 @@ async function schemaFromLink (link) {
 function combineLinks (list) {
   const schemas = list
     .reduce((prev, { key, schema, extensions }) => {
-      if (extensions.schema) prev[`${key}_ext`] = extensions.schema
+      if (extensions.schema || extensions.definition) prev[`${key}_ext`] = extensions.schema || extensions.definition
       prev[key] = schema
       return prev
     }, {})
