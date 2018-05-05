@@ -1,75 +1,62 @@
-const memo = require('lodash.memoize')
+const Monk = require('monk')
 const moment = require('moment')
-const { Event } = require('@vivintsolar/repository')
-const { Repository } = require('@vivintsolar/mongo-repository')
-const Stripe = require('stripe')
-const { reducer } = require('./write')
+const memo = require('lodash.memoize')
+const { reducer: getOrder } = require('../application/get')
+const Dataloader = require('dataloader')
 
-const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY)
+const REDUCERS = [getOrder]
 
-const CONNECT_ACCOUNT = {
-  stripe_account: 'acct_1BoMxxIvz2YcN687'
-}
+const connect = memo((url) => new Monk(url))
 
-const StripeAntiCorruption = (stripe) => ({
-  async OrderCharged (event) {
-    const { source, amount, id, email } = event
-    try {
-      const { id: chargeId } = await stripe.charges.create({
-        source,
-        amount,
-        application_fee: event.fee,
-        metadata: { paymentId: id },
-        currency: 'USD',
-        receipt_email: email,
-        statement_descriptor: 'Vivint Solar'
-      }, CONNECT_ACCOUNT)
-      return [
-        event,
-        new Event('OrderChargeSucceeded', {
-          id,
-          chargeId
-        })
-      ]
-    } catch (ex) {
-      console.error(ex)
-      return [
-        event,
-        new Event('OrderChargeFailed', {
-          id,
-          reason: ex.message
-        })
-      ]
-    }
-  },
-  async OrderRefunded (event) {
-    const { id, chargeId, amount } = event
-    try {
-      await stripe.charges.refund(event.chargeId, { amount }, CONNECT_ACCOUNT)
-      return [
-        event,
-        new Event('OrderRefundSucceeded', {
-          id,
-          chargeId,
-          amount
-        })
-      ]
-    } catch (ex) {
-      console.error(ex)
-      return [
-        event,
-        new Event('OrderRefundFailed', {
-          id,
-          reason: ex.message
-        })
-      ]
-    }
-  }
+const _view = Symbol('_view')
+const _cache = Symbol('_cache')
+const INIT = Object.freeze({
+  price: 0,
+  tickets: 0,
+  subtotal: 0,
+  customerFee: 0,
+  locationFee: 0,
+  salesTax: 0,
+  total: 0,
+  amountPaid: 0,
+  amountRefunded: 0,
+  willcall: []
 })
 
-class StripeRepository extends Repository {
-  constructor (tenantId) {
-    super({ name: 'order', reducer, tenantId })
+const update = (db) => (fn) => async (event) => {
+  const entity = await db.findOne({ id: event.id })
+  const order = fn(entity || INIT, event)
+  await db.update({ id: event.id }, order, { upsert: true })
+  return order
+}
+
+class ReadRepository {
+  constructor (tenantId, emitter) {
+    this[_view] = connect(process.env.MONGODB_URL).get('order_view', { castIds: false })
+
+    this[_cache] = new Dataloader(async (ids) => {
+      const results = await this[_view].find({ id: { $in: ids } })
+      const map = results.reduce((prev, curr) => {
+        prev[curr.id] = curr
+        return prev
+      }, {})
+      return ids.map((id) => map[id] || null)
+    })
+    const orderUpdate = update(this[_view])
+    REDUCERS.forEach((reducer) => {
+      Object.entries(reducer)
+        .forEach(([ key, value ]) => {
+          const fn = orderUpdate(value)
+          emitter.on(key, (event) => {
+            this[_cache].clear(event.id).prime(event.id, fn(event))
+          })
+        })
+    })
+  }
+
+  async get (id) {
+    const order = await this[_cache].load(id)
+    return order || null
   }
 
   async aggregate (field, args) {
@@ -81,7 +68,7 @@ class StripeRepository extends Repository {
     const end = moment(start).endOf(interval).subtract(first, interval).unix() * 1000
     const buckets = createBuckets(start, first, interval)
     if (buckets.length < 2) buckets.unshift(0)
-    const results = await this.view.aggregate([
+    const results = await this[_view].aggregate([
       {
         $match: {
           created: { $gte: end, $lte: start }
@@ -117,16 +104,6 @@ class StripeRepository extends Repository {
       }
     })
   }
-
-  async save (events) {
-    const results = await events.reduce(async (_events, event) => {
-      const events = await _events
-      const fn = StripeAntiCorruption(stripe)[event._type] || (async (event) => [event])
-      events.push(...await fn(event))
-      return events
-    }, [])
-    return super.save(results)
-  }
 }
 
 function createBuckets (start, count = 1, interval = 'week') {
@@ -136,5 +113,4 @@ function createBuckets (start, count = 1, interval = 'week') {
     .map((_, idx) => start.clone().subtract(idx, interval).startOf(interval).unix() * 1000)
     .reverse()
 }
-
-exports.repository = memo((tenantId) => new StripeRepository(tenantId))
+exports.repository = (tenantId, emitter) => new ReadRepository(tenantId, emitter)

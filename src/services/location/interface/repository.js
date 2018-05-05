@@ -12,7 +12,7 @@ const LOCATIONS = [{
     region: 'UT',
     country: 'USA'
   },
-  googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=194 South 400 West Salt Lake City UT 84101 US',
+  googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=194%20South%20400%20West%20Salt%20Lake%20City%20UT%2084101%20US',
   capacity: 300
 },
 {
@@ -27,7 +27,7 @@ const LOCATIONS = [{
     region: 'UT',
     country: 'USA'
   },
-  googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=269 25th St Ogden UT 84401 US',
+  googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=269%2025th%20St%20Ogden%20UT%2084401%20US',
   capacity: 170
 },
 {
@@ -42,7 +42,7 @@ const LOCATIONS = [{
     region: 'UT',
     country: 'USA'
   },
-  googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=3763 West Center Park Drive West Jordan UT 84084 US',
+  googleMapsUrl: 'http://www.google.com/maps?f=q&hl=en&ie=UTF8&z=15&om=1&iwloc=addr&q=3763%20West%20Center%20Park%20Drive%20West%20Jordan%20UT%2084084%20US',
   capacity: 300
 }]
 

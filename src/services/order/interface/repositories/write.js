@@ -1,5 +1,4 @@
 const memo = require('lodash.memoize')
-const moment = require('moment')
 const { Event } = require('@vivintsolar/repository')
 const { Repository } = require('@vivintsolar/mongo-repository')
 const Stripe = require('stripe')
@@ -109,52 +108,6 @@ class StripeRepository extends Repository {
     super({ name: 'order', reducer, tenantId })
   }
 
-  async aggregate (field, args) {
-    const {
-      start = Date.now(),
-      first = 1,
-      filter: { interval = 'week' }
-    } = args
-    const end = moment(start).endOf(interval).subtract(first, interval).unix() * 1000
-    const buckets = createBuckets(start, first, interval)
-    if (buckets.length < 2) buckets.unshift(0)
-    const results = await this.view.aggregate([
-      {
-        $match: {
-          created: { $gte: end, $lte: start }
-        }
-      },
-      {
-        $bucket: {
-          groupBy: '$created',
-          boundaries: buckets,
-          default: 'Other',
-
-          output: {
-            value: { $sum: `$${field}` },
-            ids: { $push: '$id' }
-          }
-        }
-      }
-    ])
-
-    return buckets.map((timestamp) => {
-      const _value = results.find(({ _id }) => {
-        return _id === timestamp
-      })
-      let value = 0
-      if (_value) {
-        value = _value.value
-      }
-      return {
-        value,
-        type: 'aggregate',
-        field,
-        timestamp
-      }
-    })
-  }
-
   async save (events) {
     const results = await events.reduce(async (_events, event) => {
       const events = await _events
@@ -164,14 +117,6 @@ class StripeRepository extends Repository {
     }, [])
     return super.save(results)
   }
-}
-
-function createBuckets (start, count = 1, interval = 'week') {
-  start = moment(start)
-  return new Array(count)
-    .fill(null)
-    .map((_, idx) => start.clone().subtract(idx, interval).startOf(interval).unix() * 1000)
-    .reverse()
 }
 
 exports.repository = memo((tenantId) => new StripeRepository(tenantId))

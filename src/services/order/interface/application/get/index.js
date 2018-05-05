@@ -12,8 +12,35 @@ const application = (repo, services) => async (viewer, id) => {
   return domain(viewer, { order })
 }
 
+const FIFTEEN_MINUTES = 1000 * 60 * 15
+
+const reducer = {
+  OrderCreated (entity, event) {
+    return {
+      ...entity,
+      id: event.id,
+      eventId: event.eventId,
+      locationId: event.locationId,
+      performerIds: event.performerIds,
+
+      tickets: event.tickets,
+
+      expired: FIFTEEN_MINUTES + event._timestamp,
+
+      customerFee: event.customerFee,
+      locationFee: event.locationFee,
+      fee: event.fee,
+      salesTax: event.salesTax,
+      subtotal: event.subtotal,
+      total: event.total,
+      created: event._timestamp
+    }
+  }
+}
+
 exports.domain = domain
 exports.application = application
+exports.reducer = reducer
 
 function authenticated (viewer) {
   assert(typeof viewer === 'object', 'Viewer is malformed')
