@@ -104,8 +104,9 @@ const StripeAntiCorruption = (stripe) => ({
 })
 
 class StripeRepository extends Repository {
-  constructor (tenantId) {
+  constructor (tenantId, emitter) {
     super({ name: 'order', reducer, tenantId })
+    this.emitter = emitter
   }
 
   async save (events) {
@@ -115,8 +116,10 @@ class StripeRepository extends Repository {
       events.push(...await fn(event))
       return events
     }, [])
-    return super.save(results)
+    const final = await super.save(results)
+    results.forEach((event) => this.emitter.emit(event._type, event))
+    return final
   }
 }
 
-exports.repository = memo((tenantId) => new StripeRepository(tenantId))
+exports.repository = memo((tenantId, emitter) => new StripeRepository(tenantId, emitter))

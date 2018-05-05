@@ -10,11 +10,15 @@ const customer = require('./services/customer')
 
 const SERVICES = { performer, order, location, event, customer }
 
+const EventEmitter = require('events')
+
+const emitter = new EventEmitter()
+
 async function loadLinks (services = SERVICES) {
   const list = await Promise.all(
     Object.entries(services)
       .map(async ([ key, { link, extensions } ]) => {
-        const _link = await (typeof link === 'function' ? link() : link)
+        const _link = await (typeof link === 'function' ? link(emitter) : link)
         const schema = await schemaFromLink(_link)
         return {
           key,

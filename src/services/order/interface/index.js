@@ -7,9 +7,8 @@ const { repository: event } = require('./repositories/event')
 const { repository: location } = require('./repositories/location')
 const { application } = require('./application')
 
-const emitter = new EventEmitter()
 exports.extensions = extensions
-exports.link = link((tenantId) => application({
+exports.link = (emitter = new EventEmitter()) => link((tenantId) => application({
   read: read(tenantId, emitter),
   write: write(tenantId, emitter),
   location: location(tenantId, emitter),

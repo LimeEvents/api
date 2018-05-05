@@ -59,6 +59,10 @@ class ReadRepository {
     return order || null
   }
 
+  async find (params) {
+    return this[_view].find(params)
+  }
+
   async aggregate (field, args) {
     const {
       start = Date.now(),
