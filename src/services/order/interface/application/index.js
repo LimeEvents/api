@@ -1,15 +1,15 @@
 const assert = require('assert')
 const domain = require('./domain')
 
-exports.application = (repo, services) => ({
+exports.application = ({ read, write, ...services }) => ({
   async get (viewer, id) {
     assert(typeof id === 'string', `Invalid ID '${id}' passed to 'order.application'`)
-    const order = await repo.get(id)
+    const order = await read.get(id)
     return domain.get(viewer, { order })
   },
   async find (viewer, params = {}) {
     const filter = params.filter || {}
-    let orders = await repo.find(filter)
+    let orders = await read.find(filter)
     return domain.find(viewer, { orders })
   },
   async getMetrics (viewer, args) {
@@ -17,10 +17,10 @@ exports.application = (repo, services) => ({
     let metrics = null
     assert(aggregate || count, 'Must include either "aggregate" or "count" field')
     if (aggregate) {
-      metrics = repo.aggregate(aggregate, args)
+      metrics = write.aggregate(aggregate, args)
     } else if (count) {
       assert(value, 'Order metric count queries require a "value" field')
-      metrics = repo.count(count, value, args)
+      metrics = write.count(count, value, args)
     }
     return domain.getMetrics(viewer, { metrics })
   },
@@ -43,20 +43,20 @@ exports.application = (repo, services) => ({
     const inventory = await this.getInventory(viewer, eventId)
     const event = await services.event.get(eventId, '{ price locationId id feeDistribution performerIds }')
     const location = await services.location.get(event.locationId, '{ id address { postalCode } }')
-    return repo.save(
+    return write.save(
       domain.create(viewer, { inventory, eventId, tickets, event, location })
     )
   },
   async reassign (viewer, { id, to, from, amount }) {
-    const order = await repo.get(id)
-    return repo.save(
+    const order = await write.get(id)
+    return write.save(
       domain.reassign(viewer, { to, from, order, amount })
     )
   },
   async transfer (viewer, { id, tickets, eventId }) {
-    const order = await repo.get(id)
+    const order = await write.get(id)
     const inventory = await this.getInventory(viewer, eventId)
-    const { id: destinationOrderId } = await repo.save(
+    const { id: destinationOrderId } = await write.save(
       domain.transfer(viewer, { order, inventory, eventId, tickets })
     )
     return {
@@ -67,17 +67,17 @@ exports.application = (repo, services) => ({
     }
   },
   async charge (viewer, { id, name, email, source }) {
-    const order = await repo.get(id)
+    const order = await write.get(id)
     const event = await services.event.get(order.eventId, '{ price }')
 
-    return repo.save(
+    return write.save(
       domain.charge(viewer, { order, event, id, name, email, source })
     )
   },
   async refund (viewer, { id, tickets }) {
-    const order = await repo.get(id)
+    const order = await write.get(id)
     const event = await services.event.get(order.eventId, '{ price }')
-    return repo.save(
+    return write.save(
       domain.refund(viewer, { order, tickets, event })
     )
   }

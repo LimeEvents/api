@@ -14,7 +14,7 @@ async function loadLinks (services = SERVICES) {
   const list = await Promise.all(
     Object.entries(services)
       .map(async ([ key, { link, extensions } ]) => {
-        const _link = await link()
+        const _link = await (typeof link === 'function' ? link() : link)
         const schema = await schemaFromLink(_link)
         return {
           key,
@@ -38,13 +38,13 @@ async function schemaFromLink (link) {
 function combineLinks (list) {
   const schemas = list
     .reduce((prev, { key, schema, extensions }) => {
-      if (extensions.schema || extensions.definition) prev[`${key}_ext`] = extensions.schema || extensions.definition
+      if (extensions && (extensions.schema || extensions.definition)) prev[`${key}_ext`] = extensions.schema || extensions.definition
       prev[key] = schema
       return prev
     }, {})
 
   const resolvers = list.reduce((prev, { extensions }) => {
-    if (extensions.resolvers) return { ...prev, ...extensions.resolvers(schemas) }
+    if (extensions && extensions.resolvers) return { ...prev, ...extensions.resolvers(schemas) }
     return prev
   }, {})
 
