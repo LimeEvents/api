@@ -3,13 +3,50 @@ const moment = require('moment')
 const { Event } = require('@vivintsolar/repository')
 const { Repository } = require('@vivintsolar/mongo-repository')
 const Stripe = require('stripe')
-const { reducer } = require('../reducer')
+
+const { reducer: charge } = require('../application/charge')
+const { reducer: create } = require('../application/create')
+const { reducer: reassign } = require('../application/reassign')
+const { reducer: refund } = require('../application/refund')
+const { reducer: transfer } = require('../application/transfer')
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY)
 
 const CONNECT_ACCOUNT = {
   stripe_account: 'acct_1BoMxxIvz2YcN687'
 }
+
+const DEFAULT_REDUCER = src => src
+
+const reducers = {
+  ...charge,
+  ...create,
+  ...reassign,
+  ...refund,
+  ...transfer
+}
+
+const reducer = (src, event) => {
+  if (!src) return src
+  const entity = Object.assign({
+    price: 0,
+    tickets: 0,
+    subtotal: 0,
+    customerFee: 0,
+    locationFee: 0,
+    salesTax: 0,
+    total: 0,
+    amountPaid: 0,
+    amountRefunded: 0,
+    willcall: []
+  }, src)
+  const fn = reducers[event._type] || DEFAULT_REDUCER
+  const results = fn(entity, event)
+  if (results) results.updated = event._timestamp
+  return results
+}
+
+exports.reducer = reducer
 
 const StripeAntiCorruption = (stripe) => ({
   async OrderCharged (event) {

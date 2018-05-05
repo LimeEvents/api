@@ -43,7 +43,7 @@ const domain = (viewer, { inventory, event, location, tickets }) => {
   ]
 }
 
-exports.application = (repo, services) => async (viewer, { eventId, tickets }) => {
+const application = (repo, services) => async (viewer, { eventId, tickets }) => {
   const inventory = await services.getInventory(viewer, eventId)
   const event = await services.event.get(viewer, eventId, '{ price locationId id feeDistribution performerIds }')
   const location = await services.location.get(viewer, event.locationId, '{ id address { postalCode } }')
@@ -52,8 +52,38 @@ exports.application = (repo, services) => async (viewer, { eventId, tickets }) =
   )
 }
 
+const FIFTEEN_MINUTES = 1000 * 60 * 15
+
+const reducer = {
+  OrderCreated (entity, event) {
+    return {
+      ...entity,
+      id: event.id,
+      eventId: event.eventId,
+      locationId: event.locationId,
+      performerIds: event.performerIds,
+
+      tickets: event.tickets,
+
+      expired: FIFTEEN_MINUTES + event._timestamp,
+
+      customerFee: event.customerFee,
+      locationFee: event.locationFee,
+      fee: event.fee,
+      salesTax: event.salesTax,
+      subtotal: event.subtotal,
+      total: event.total,
+      created: event._timestamp
+    }
+  }
+}
+
 function calculateFee (tickets, price) {
   const amount = tickets * price
   // Fee: 3% + $0.50/ticket
   return Math.ceil((tickets * 0.5) + (amount * 0.03))
 }
+
+exports.application = application
+exports.domain = domain
+exports.reducer = reducer

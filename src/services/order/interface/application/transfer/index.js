@@ -30,5 +30,15 @@ const application = ({ read, write, ...services }) => async (viewer, { id, ticke
   }
 }
 
+const reducer = {
+  OrderTransferred (entity, event) {
+    return {
+      ...entity,
+      tickets: event.tickets
+    }
+  }
+}
+
 exports.application = application
 exports.domain = domain
+exports.reducer = reducer

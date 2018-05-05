@@ -23,5 +23,9 @@ const application = ({ read, write, ...services }) => async (viewer, { id, to, f
   )
 }
 
+const reducer = {
+}
+
 exports.application = application
 exports.domain = domain
+exports.reducer = reducer

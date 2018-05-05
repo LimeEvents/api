@@ -30,5 +30,35 @@ const application = (repo, services) => async (viewer, { id, name, email, source
   )
 }
 
+const reducer = {
+  OrderCharged (entity, event) {
+    return {
+      ...entity,
+      id: event.id,
+      fee: event.fee,
+      salesTax: event.salesTax,
+      email: event.email,
+      amount: event.amount,
+      willcall: entity.willcall.concat(event.name)
+    }
+  },
+  OrderChargeSucceeded (entity, event) {
+    return {
+      ...entity,
+      id: event.id,
+      chargeId: event.chargeId,
+      paid: true
+    }
+  },
+  OrderChargeFailed (entity, event) {
+    return {
+      ...entity,
+      id: event.id,
+      paid: false
+    }
+  }
+}
+
 exports.application = application
 exports.domain = domain
+exports.reducer = reducer

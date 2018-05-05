@@ -29,8 +29,30 @@ const application = ({ read, write, ...services }) => async (viewer, { id, ticke
   )
 }
 
+const reducer = {
+  OrderRefunded (entity, event) {
+    return {
+      ...entity,
+      refundAmount: event.amount
+    }
+  },
+  OrderRefundSucceeded (entity, event) {
+    return {
+      ...entity,
+      refunded: true
+    }
+  },
+  OrderRefundFailed (entity, event) {
+    return {
+      ...entity,
+      refunded: false
+    }
+  }
+}
+
 exports.application = application
 exports.domain = domain
+exports.reducer = reducer
 
 function calculateFee (tickets, price) {
   const amount = tickets * price

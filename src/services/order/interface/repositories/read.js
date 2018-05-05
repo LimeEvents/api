@@ -3,7 +3,7 @@ const moment = require('moment')
 const { Event } = require('@vivintsolar/repository')
 const { Repository } = require('@vivintsolar/mongo-repository')
 const Stripe = require('stripe')
-const { reducer } = require('../reducer')
+const { reducer } = require('./write')
 
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY)
 
