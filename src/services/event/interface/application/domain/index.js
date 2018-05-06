@@ -5,13 +5,6 @@ const { Event } = require('@vivintsolar/repository')
 const THIRTY = 1000 * 60 * 30
 const NINETY = THIRTY * 3
 
-// Query
-exports.find = (viewer, { events = [] }) => {
-  return events
-    .map(event => this.get(viewer, { event }))
-    .filter(Boolean)
-}
-
 // Mutation
 exports.create = (viewer, { event }) => {
   assert(viewer, 'Unauthenticated')
