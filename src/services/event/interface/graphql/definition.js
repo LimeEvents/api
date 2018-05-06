@@ -51,10 +51,19 @@ exports.definition = gql`
     price: Int!
     feeDistribution: Int!
 
+    inventory: Inventory
+
     contentRating: ContentRating
     minimumAge: Int
 
     notes: [ String! ]
+  }
+
+  type Inventory {
+    available: Int!
+    sold: Int!
+    reserved: Int!
+    capacity: Int!
   }
 
   type PageInfo {

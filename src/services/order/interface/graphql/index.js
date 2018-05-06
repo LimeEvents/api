@@ -2,7 +2,7 @@ const { SchemaLink } = require('apollo-link-schema')
 const memo = require('lodash.memoize')
 
 const { schema } = require('./schema')
-const { extensions } = require('./extensions')
+const extensions = require('./extensions')
 
 exports.extensions = extensions
 exports.link = memo(async function (application) {

@@ -11,9 +11,6 @@ exports.resolvers = {
   },
   Query: {
     order: refetchResolver(),
-    inventory (source, { eventId }, { viewer, application }) {
-      return application.getInventory(viewer, eventId)
-    },
     orderStatistics (source, args, { viewer, application }, info) {
       return application.getStatistics(viewer, args)
     },

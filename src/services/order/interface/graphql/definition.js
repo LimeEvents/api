@@ -12,7 +12,6 @@ exports.definition = gql`
 
     """ Number of orders in a time period """
     orderMetrics(filter: MetricFilter! first: Int, last: Int, before: String, after: String): OrderMetricConnection!
-    inventory(eventId: ID!): Inventory
   }
 
   input MetricFilter {
@@ -152,7 +151,6 @@ exports.definition = gql`
   type RefundOrderResponse {
     clientMutationId: ID!
     order: Order!
-    inventory: Inventory!
   }
 
   """ Transfer tickets to another event """
@@ -169,8 +167,6 @@ exports.definition = gql`
     clientMutationId: ID!
     sourceOrder: Order!
     destinationOrder: Order!
-    sourceInventory: Inventory!
-    destinationInventory: Inventory!
   }
 
   """ Let other people pick up tickets at willcall """
@@ -218,13 +214,6 @@ exports.definition = gql`
 
     created: DateTime!
     updated: DateTime!
-  }
-
-  type Inventory {
-    available: Int!
-    sold: Int!
-    reserved: Int!
-    capacity: Int!
   }
 
   type OrderConnection {
