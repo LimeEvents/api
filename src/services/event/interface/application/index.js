@@ -1,8 +1,8 @@
 const domain = require('./domain')
 
-exports.application = (repo) => ({
+exports.application = ({ read, write, ...services }) => ({
   async get (viewer, id) {
-    const event = await repo.get(id)
+    const event = await read.get(id)
     return domain.get(viewer, { event })
   },
   async find (viewer, query = {}) {
@@ -11,7 +11,7 @@ exports.application = (repo) => ({
       filter.performerIds = filter.performerId
       filter.performerId = undefined
     }
-    let events = await repo.find(filter)
+    let events = await read.find(filter)
     return domain.find(viewer, { events })
   },
   async findCurrent (viewer, query = {}) {
@@ -22,20 +22,20 @@ exports.application = (repo) => ({
     })
   },
   async create (viewer, event) {
-    return repo.save(
+    return write.save(
       domain.create(viewer, { event })
     )
   },
   async cancel (viewer, { id }) {
-    const event = await repo.get(id)
+    const event = await write.get(id)
 
-    return repo.save(
+    return write.save(
       domain.cancel(viewer, { event })
     )
   },
   async reschedule (viewer, { id, start, end, doorsOpen }) {
-    const event = await repo.get(id)
-    return repo.save(
+    const event = await write.get(id)
+    return write.save(
       domain.reschedule(viewer, { event, start, end, doorsOpen })
     )
   }
