@@ -1,30 +1,5 @@
 const assert = require('assert')
-const uuid = require('uuid/v4')
 const { Event } = require('@vivintsolar/repository')
-
-const THIRTY = 1000 * 60 * 30
-const NINETY = THIRTY * 3
-
-// Mutation
-exports.create = (viewer, { event }) => {
-  assert(viewer, 'Unauthenticated')
-  roles(viewer, ['administrator', 'system'])
-  if (!event.id) event = { id: uuid(), ...event }
-
-  if (!event.end) {
-    event.end = event.start + NINETY
-  }
-  if (!event.doorsOpen) {
-    event.doorsOpen = event.start - THIRTY
-  }
-  assert(event.start > Date.now(), 'Event cannot start in the past.')
-  assert(event.start < event.end, 'End date cannot be before start date')
-  assert(event.doorsOpen < event.start, 'Doors cannot open after the show starts')
-
-  return [
-    new Event('EventCreated', event)
-  ]
-}
 
 exports.cancel = (viewer, { event }) => {
   assert(viewer, 'Unauthenticated')

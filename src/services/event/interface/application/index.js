@@ -1,5 +1,6 @@
 const { application: get } = require('./get')
 const { application: find } = require('./find')
+const { application: create } = require('./create')
 const domain = require('./domain')
 
 exports.application = ({ read, write, ...services }) => ({
@@ -12,11 +13,7 @@ exports.application = ({ read, write, ...services }) => ({
       cancelled: null
     })
   },
-  async create (viewer, event) {
-    return write.save(
-      domain.create(viewer, { event })
-    )
-  },
+  create: create(write, services),
   async cancel (viewer, { id }) {
     const event = await write.get(id)
 

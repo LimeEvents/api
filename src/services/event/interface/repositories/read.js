@@ -83,7 +83,7 @@ class EventReadRepository {
     emitter.on('OrderCreated', async ({ eventId, tickets }) => {
       eventId = fromGlobalId(eventId).id
       const event = await this[_view].findOne({ id: eventId })
-      if (!event.inventory.reserved) event.inventory.reserved = 0
+      event.inventory.available -= tickets
       event.inventory.reserved += tickets
       this[_cache].clear(eventId).prime(eventId, update(this[_view], eventId, event))
     })
@@ -91,15 +91,6 @@ class EventReadRepository {
 
   async get (id) {
     const event = await this[_view].findOne({ id })
-    if (event) {
-      event.inventory = {
-        capacity: 0,
-        available: 0,
-        sold: 0,
-        reserved: 0,
-        ...(event.inventory || {})
-      }
-    }
     return event || null
   }
 
