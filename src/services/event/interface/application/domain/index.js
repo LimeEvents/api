@@ -6,10 +6,6 @@ const THIRTY = 1000 * 60 * 30
 const NINETY = THIRTY * 3
 
 // Query
-exports.get = (viewer, { event }) => {
-  assert(event, 'Event does not exist.')
-  return event
-}
 exports.find = (viewer, { events = [] }) => {
   return events
     .map(event => this.get(viewer, { event }))

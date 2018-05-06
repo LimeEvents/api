@@ -1,10 +1,8 @@
+const { application: get } = require('./get')
 const domain = require('./domain')
 
 exports.application = ({ read, write, ...services }) => ({
-  async get (viewer, id) {
-    const event = await read.get(id)
-    return domain.get(viewer, { event })
-  },
+  get: get(read, services),
   async find (viewer, query = {}) {
     const filter = query.filter || {}
     if (filter.performerId) {
