@@ -48,36 +48,6 @@ const reducer = (src, event) => {
 exports.reducer = reducer
 
 const StripeAntiCorruption = (stripe) => ({
-  async OrderCharged (event) {
-    const { source, amount, id, email } = event
-    try {
-      const { id: chargeId } = await stripe.charges.create({
-        source,
-        amount,
-        application_fee: event.fee,
-        metadata: { paymentId: id },
-        currency: 'USD',
-        receipt_email: email,
-        statement_descriptor: 'Vivint Solar'
-      }, CONNECT_ACCOUNT)
-      return [
-        event,
-        new Event('OrderChargeSucceeded', {
-          id,
-          chargeId
-        })
-      ]
-    } catch (ex) {
-      console.error(ex)
-      return [
-        event,
-        new Event('OrderChargeFailed', {
-          id,
-          reason: ex.message
-        })
-      ]
-    }
-  },
   async OrderRefunded (event) {
     const { id, chargeId, amount } = event
     try {
@@ -107,6 +77,34 @@ class StripeRepository extends Repository {
   constructor (tenantId, emitter) {
     super({ name: 'order', reducer, tenantId })
     this.emitter = emitter
+  }
+
+  async charge (viewer, { order, event, source, name, email, id }) {
+    try {
+      const { id: chargeId } = await stripe.charges.create({
+        source,
+        amount: order.total,
+        application_fee: event.fee,
+        metadata: { paymentId: id },
+        currency: 'USD',
+        receipt_email: email || viewer.email,
+        statement_descriptor: 'Wiseguys Comedy'
+      }, CONNECT_ACCOUNT)
+      return this.save([{
+        _type: 'OrderChargeSucceeded',
+        _timestamp: Date.now(),
+        id,
+        chargeId
+      }])
+    } catch (ex) {
+      console.error(ex)
+      return [{
+        _type: 'OrderChargeFailed',
+        _timestamp: Date.now(),
+        id,
+        reason: ex.message
+      }]
+    }
   }
 
   async save (events) {

@@ -91,6 +91,15 @@ class EventReadRepository {
 
   async get (id) {
     const event = await this[_view].findOne({ id })
+    if (event) {
+      event.inventory = {
+        capacity: 0,
+        available: 0,
+        sold: 0,
+        reserved: 0,
+        ...(event.inventory || {})
+      }
+    }
     return event || null
   }
 

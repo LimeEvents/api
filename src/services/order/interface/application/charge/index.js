@@ -25,9 +25,10 @@ const application = (repo, services) => async (viewer, { id, name, email, source
   const order = await repo.get(id)
   const event = await services.event.get(viewer, order.eventId, '{ price }')
 
-  return repo.save(
+  await repo.save(
     domain(viewer, { order, event, id, name, email, source })
   )
+  return repo.charge(viewer, { order, event, id, name, email, source })
 }
 
 const reducer = {

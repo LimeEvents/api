@@ -1,10 +1,10 @@
 const assert = require('assert')
 const uuid = require('uuid/v4')
 
-const domain = (viewer, { inventory, event, location, tickets }) => {
+const domain = (viewer, { event, location, tickets }) => {
   const id = uuid()
-  assert(inventory, 'Invalid event')
-  assert(inventory.available >= tickets, 'Not enough available seats. Please try again.')
+  assert(event.inventory, 'Invalid event')
+  assert(event.inventory.available >= tickets, 'Not enough available seats. Please try again.')
   assert(tickets > 0, 'Must reserve at least one ticket')
 
   const {
@@ -44,11 +44,10 @@ const domain = (viewer, { inventory, event, location, tickets }) => {
 }
 
 const application = (repo, services) => async (viewer, { eventId, tickets }) => {
-  const inventory = await services.getInventory(viewer, eventId)
-  const event = await services.event.get(viewer, eventId, '{ price locationId id feeDistribution performerIds }')
+  const event = await services.event.get(viewer, eventId, '{ price locationId id feeDistribution performerIds inventory { available } }')
   const location = await services.location.get(viewer, event.locationId, '{ id address { postalCode } }')
   return repo.save(
-    domain(viewer, { inventory, eventId, tickets, event, location })
+    domain(viewer, { tickets, event, location })
   )
 }
 
@@ -62,6 +61,13 @@ const reducer = {
       eventId: event.eventId,
       locationId: event.locationId,
       performerIds: event.performerIds,
+
+      inventory: {
+        capacity: event.capacity || 0,
+        sold: event.sold || 0,
+        available: event.available || 0,
+        reserved: event.reserved || 0
+      },
 
       tickets: event.tickets,
 
