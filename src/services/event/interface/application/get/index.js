@@ -24,7 +24,7 @@ const reducer = {
       available: event.available || 0,
       sold: event.sold || 0
     }
-
+    entity.externalIds = event.externalIds || []
     entity.performerIds = event.performerIds
     entity.name = event.name
     entity.image = event.image

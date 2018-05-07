@@ -19,6 +19,7 @@ exports.definition = gql`
   input EventFilter {
     locationId: ID
     performerId: ID
+    externalId: ID
   }
 
   type EventConnection {
@@ -52,6 +53,8 @@ exports.definition = gql`
     feeDistribution: Int!
 
     inventory: Inventory
+
+    externalIds: [ ID! ]!
 
     contentRating: ContentRating
     minimumAge: Int
@@ -100,6 +103,8 @@ exports.definition = gql`
     end: DateTime
 
     price: Int!
+
+    externalIds: [ ID! ]
 
     contentRating: ContentRating
     minimumAge: Int

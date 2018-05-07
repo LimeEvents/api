@@ -87,6 +87,35 @@ class EventReadRepository {
       event.inventory.reserved += tickets
       this[_cache].clear(eventId).prime(eventId, update(this[_view], eventId, event))
     })
+
+    emitter.on('EventCreated', async (event) => {
+      const entity = await this[_view].findOne({ id: event.id })
+      entity.id = event.id
+      entity.locationId = event.locationId
+      entity.inventory = {
+        capacity: event.capacity || 0,
+        reserved: event.reserved || 0,
+        available: event.available || 0,
+        sold: event.sold || 0
+      }
+      entity.externalIds = event.externalIds || []
+      entity.performerIds = event.performerIds
+      entity.name = event.name
+      entity.image = event.image
+      entity.video = event.video
+      entity.caption = event.caption
+      entity.description = event.description
+
+      entity.doorsOpen = event.doorsOpen
+      entity.start = event.start
+      entity.end = event.end
+      entity.price = event.price
+      entity.available = event.available
+      entity.contentRating = event.contentRating
+      entity.minimumAge = event.minimumAge || 0
+      entity.notes = event.notes || []
+      this[_cache].clear(event.id).prime(event.id, update(this[_view], event.id, entity))
+    })
   }
 
   async get (id) {
@@ -96,6 +125,16 @@ class EventReadRepository {
 
   async find (params) {
     const events = await this[_view].find(params)
+    return events || []
+  }
+
+  async findByPerformerId (id) {
+    const events = await this[_view].find({ performerIds: id })
+    return events || []
+  }
+
+  async findByExternalId (id) {
+    const events = await this[_view].find({ externalIds: id })
     return events || []
   }
 }

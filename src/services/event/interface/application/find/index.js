@@ -8,11 +8,14 @@ const domain = (viewer, { events = [] }) => {
 
 const application = (repo, services) => async (viewer, query = {}) => {
   const filter = query.filter || {}
+  let events = []
   if (filter.performerId) {
-    filter.performerIds = filter.performerId
-    filter.performerId = undefined
+    events = await repo.findByPerformerId(filter.performerId)
+  } else if (filter.externalId) {
+    events = await repo.findByExternalId(filter.externalId)
+  } else {
+    events = await repo.find(filter)
   }
-  let events = await repo.find(filter)
   return domain(viewer, { events })
 }
 

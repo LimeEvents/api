@@ -22,6 +22,7 @@ const reducer = (src = {}, event) => {
       entity.video = event.video
       entity.caption = event.caption
       entity.description = event.description
+      entity.externalIds = event.externalIds || []
 
       entity.doorsOpen = event.doorsOpen
       entity.start = event.start
@@ -44,4 +45,17 @@ const reducer = (src = {}, event) => {
   console.warn(`Invalid event type: "${event._type}"`)
   return src
 }
-exports.repository = memo((tenantId) => new Repository({ name: 'event', reducer, tenantId }))
+
+class EventWriteRepository extends Repository {
+  constructor (tenantId, emitter) {
+    super({ name: 'event', reducer, tenantId })
+    this.emitter = emitter
+  }
+
+  async save (events) {
+    const results = await super.save(events)
+    events.forEach((event) => this.emitter.emit(event._type, event))
+    return results
+  }
+}
+exports.repository = memo((tenantId, emitter) => new EventWriteRepository(tenantId, emitter))
