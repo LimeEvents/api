@@ -7,23 +7,29 @@ const get = require('lodash.get')
 const sanitize = require('sanitize-html')
 const { fromGlobalId } = require('graphql-relay')
 
+const locations = {
+  'downtown-slc': 'TG9jYXRpb246Yjc5NWY2YzUtMWJlYS00MzlhLTg4N2QtODc3ZDM3ZGJhZDM1',
+  'ogden': 'TG9jYXRpb246MDY5YTQ4NmUtYzA0NS00NjgyLWJmNWQtNjgzNzMyZjI3ZDhm',
+  'jordan-landing': 'TG9jYXRpb246MzY1YmIyNTMtYjUwYy00NTA1LTg3NGYtNjY0ZTA0MzUxYjAx'
+}
+
 function getEvent (id) {
   const { type: venueID, id: eventID } = fromGlobalId(id)
   return parser(`${TICKET_BISCUIT_URL}/${venueID}/Events/Series/${eventID}`)
     .then(($) => {
-      const imageUrl = $('.event-image img')
+      const image = $('.event-image img')
         .attr('src')
         .replace(/300\/450\/Png/gi, '600/0')
         .replace('https://d1wo5tgrc6dsg6.cloudfront.net/images/', 'https://wiseguyscomedy.imgix.net/')
         .replace('https://d2ykm7e3p913e.cloudfront.net/', 'https://wiseguyscomedy.imgix.net/')
 
-      const videoUrl = $('.event-media-container .event-media iframe').attr('src')
+      const video = $('.event-media-container .event-media iframe').attr('src')
 
-      const title = $('.event-title-container.page-title').text().trim()
-      const showtimes = getShowtimes($)
+      const name = $('.event-title-container.page-title').text().trim()
+      const { start, url } = getShowtimes($)
       const description = sanitize($('.attraction-summary-container').html().trim())
-      let summary = sanitize($('.event-headline-container').html().trim())
-      if (!summary) summary = description
+      let caption = sanitize($('.event-headline-container').html().trim())
+      if (!caption) caption = description
       const venue = {
         name: $('.venue-info-name').text().trim(),
         city: $('.venue-info-location meta[itemprop="addressLocality"]').attr('content'),
@@ -33,24 +39,21 @@ function getEvent (id) {
         googleMapsUrl: $('.venue-info-directions a').attr('href')
       }
       const slug = getLocationSlug(venue.name)
-
+      console.log('names!!', shortName(name), slug, venue.name)
       return {
         id,
-        title: shortName(title),
+        name: shortName(name),
         price: findPrice($),
-        isSpecialEvent: isSpecialEvent(title, sanitize($('.genre-item').html())),
-        isSoldOut: isSoldOut(showtimes),
-        imageUrl,
-        videoUrl,
+        isSpecialEvent: isSpecialEvent(name, sanitize($('.genre-item').html())),
+        isSoldOut: !url,
+        image,
+        video,
         description,
-        venue,
-        rating: getRating(sanitize($('.genre-item').html())),
-        showtimes,
-        summary: goodPlaceToStop(summary, 100),
-        range: parseRange(showtimes.map((showtime) => showtime.datetime)),
-        location: getLocation(slug),
-        locationSlug: slug,
-        validFrom: moment(showtimes[0].datetime).subtract(1, 'month').toISOString()
+        start,
+        url,
+        contentRating: getRating(sanitize($('.genre-item').html())),
+        caption: goodPlaceToStop(caption, 100),
+        locationId: locations[slug]
       }
     })
 }
@@ -99,7 +102,7 @@ function findPrice ($) {
         return false
       }
       const price = parseFloat(match[1], 10)
-      if (price < 100) return `$${Math.ceil(price)}`
+      if (price < 100) return Math.ceil(price) * 100
       return false
     })
     .find(Boolean) || ''
@@ -130,36 +133,15 @@ function findSentence (target, str, lastIdx) {
 }
 
 function getShowtimes ($) {
-  const showtimes = $('#linked-events section').map(function (idx) {
-    const datetime = $(this).find('article .section-1 p').map(function (_idx) {
-      return $(this).text().trim()
-    }).get().join(' ')
-
-    const date = moment(datetime, TICKET_BISCUIT_DATE_FORMAT)
-
-    return formatShowtime($(this).find('.buy-ticket-link').attr('href'), date)
-  })
-    .get()
-    .filter((showtime) => showtime.datetime !== 'Invalid Date')
-
   const mainDate = moment($('.event-date-container span').map(function (idx) {
     return $(this).text().trim()
   }).get().filter((_, idx) => {
     return idx !== 1
   }).join(' '), TICKET_BISCUIT_DATE_FORMAT)
 
-  showtimes.push(formatShowtime($('.eventdetails-ticket-availability-wrapper a.buy-ticket-link').attr('href'), mainDate))
-
-  return sortByDate(showtimes, 'datetime')
-}
-
-function formatShowtime (url = '', date) {
   return {
-    url: url.replace('https://public.ticketbiscuit.com/', '/'),
-    date: date.format('ddd, MMM D, YYYY'),
-    time: date.format('h:mm A'),
-    datetime: date.toISOString(),
-    endDate: date.add(1, 'hour').add(30, 'minutes').toISOString()
+    url: $('.eventdetails-ticket-availability-wrapper a.buy-ticket-link').attr('href'),
+    start: mainDate.toDate().getTime()
   }
 }
 

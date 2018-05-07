@@ -98,6 +98,7 @@ class EventReadRepository {
         available: event.available || 0,
         sold: event.sold || 0
       }
+      entity.url = event.url || `https://www.wiseguyscomedy.com/tickets/${event.id}`
       entity.externalIds = event.externalIds || []
       entity.performerIds = event.performerIds
       entity.name = event.name

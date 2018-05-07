@@ -58,7 +58,6 @@ exports.setupEvent = async function createFakeEvents () {
         minimumAge: Math.random() > 0.5 ? 21 : 7, // Int
         notes: [] // [ String! ]
       }
-      console.log(input)
       const event = await service.request(CREATE_EVENT_MUTATION, { input })
       return event
     })

@@ -8,6 +8,8 @@ const location = require('./services/location')
 const order = require('./services/order')
 const customer = require('./services/customer')
 
+require('./cron')
+
 const SERVICES = { performer, order, location, event, customer }
 
 const EventEmitter = require('events')

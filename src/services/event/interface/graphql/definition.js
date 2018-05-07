@@ -49,6 +49,9 @@ exports.definition = gql`
     end: DateTime!
     cancelled: DateTime
 
+    url: Url!
+    acceptDiscounts: Boolean!
+
     price: Int!
     feeDistribution: Int!
 
@@ -95,8 +98,15 @@ exports.definition = gql`
 
     performerIds: [ ID! ]!
     name: String!
+    caption: String
+    description: String
     slug: String
     image: Url!
+    video: Url
+    """ Ticket URL """
+    url: Url
+
+    acceptDiscounts: Boolean
 
     start: DateTime!
     doorsOpen: DateTime

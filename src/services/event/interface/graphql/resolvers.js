@@ -12,6 +12,9 @@ exports.resolvers = {
     async events (source, args, { viewer, application }, info) {
       if (args.first) args.first = Math.min(args.first, 50)
       if (args.last) args.last = Math.min(args.last, 50)
+      if (!args.first && !args.last) {
+        args.first = 50
+      }
       const events = await application.find(viewer, args)
       const { pageInfo, edges } = connectionFromArray(events, args)
       return {

@@ -3,7 +3,7 @@ const memo = require('lodash.memoize')
 const LOCATIONS = [{
   id: 'b795f6c5-1bea-439a-887d-877d37dbad35',
   slug: 'downtown-slc',
-  name: 'Wiseguys at the Gateway',
+  name: 'Salt Lake',
   images: [],
   address: {
     address1: '194 South 400 West',
@@ -16,9 +16,9 @@ const LOCATIONS = [{
   capacity: 300
 },
 {
-  id: 'b795f6c5-1bea-439a-887d-877d37dbad35',
+  id: '069a486e-c045-4682-bf5d-683732f27d8f',
   slug: 'ogden',
-  name: 'Wiseguys Comedy Club Ogden',
+  name: 'Ogden',
   images: [],
   address: {
     address1: '269 25th St',
@@ -33,7 +33,7 @@ const LOCATIONS = [{
 {
   id: '365bb253-b50c-4505-874f-664e04351b01',
   slug: 'jordan-landing',
-  name: 'Wiseguys Jordan Landing',
+  name: 'Jordan Landing',
   images: [],
   address: {
     address1: '3763 West Center Park Drive',

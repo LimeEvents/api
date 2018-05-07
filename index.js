@@ -1,22 +1,26 @@
-const { microGraphql } = require('apollo-server-micro')
+const { microGraphql, microGraphiql } = require('apollo-server-micro')
+const { router, get, post } = require('microrouter')
 
-const { loadSchema } = require('./services')
+const { loadSchema } = require('./src')
 
 const ADMIN_VIEWER = {
   roles: ['administrator'],
   tenantId: 'vslr'
 }
 
-let handler = microGraphql(async (req) => {
-  const { schema, services } = await loadSchema()
-  return {
-    schema,
-    context: {
-      viewer: ADMIN_VIEWER,
-      services
-    },
-    debug: false
-  }
-})
+let handler = router(
+  get('/', microGraphiql({ endpointURL: '/' })),
+  post('/', microGraphql(async (req) => {
+    const { schema, services } = await loadSchema()
+    return {
+      schema,
+      context: {
+        viewer: ADMIN_VIEWER,
+        services
+      },
+      debug: false
+    }
+  }))
+)
 
 module.exports = handler

@@ -2,6 +2,7 @@ const assert = require('assert')
 
 const domain = (viewer, { event }) => {
   assert(event, 'Event does not exist.')
+  if (!event.externalIds) event.externalIds = []
   return event
 }
 
@@ -24,6 +25,7 @@ const reducer = {
       available: event.available || 0,
       sold: event.sold || 0
     }
+    entity.url = event.url || `https://www.wiseguyscomedy.com/tickets/${event.id}`
     entity.externalIds = event.externalIds || []
     entity.performerIds = event.performerIds
     entity.name = event.name

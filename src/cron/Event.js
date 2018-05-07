@@ -18,7 +18,7 @@ const ONE_HOUR = 60 * 60 * 1000
 
 const IS_DEV = process.env.NODE_ENV === 'development'
 
-const CACHE_KEY = 'cached-events.json'
+const CACHE_KEY = 'tmp/cached-events.json'
 
 function get (id) {
   return memFind()
@@ -29,8 +29,10 @@ const cache = {}
 
 if (IS_DEV) {
   try {
-    cache['events'] = Promise.resolve(require(`../${CACHE_KEY}`))
-  } catch (ex) { /* Cache miss */ }
+    cache['events'] = Promise.resolve(require(`../../${CACHE_KEY}`))
+  } catch (ex) {
+    // throw ex
+  }
 }
 
 const memFind = mem('events', find, IS_DEV ? ONE_HOUR : FIVE_MINUTES)
@@ -96,31 +98,6 @@ function findHeroEvents (len = 10) {
           const desc = sanitize(event.description, { allowedTags: [], allowedAttributes: [] })
           return Object.assign({}, event, { summary: Spider.goodPlaceToStop(desc, 300) })
         })
-      // return Bluebird.reduce(events, (heroes, event) => {
-      //   if (heroes.length > len) {
-      //     return heroes
-      //   }
-      //   // https://static.ticketbiscuit.com/images/90998/600/0
-      //   // http://wiseguyscomedy.imgix.net/90999/600/0?w=260&h=260&fit=crop&crop=entropy
-      //   console.log(event.imageUrl)
-      //   const url = event.imageUrl
-      //     .replace('http://wiseguyscomedy.imgix.net', 'https://d1wo5tgrc6dsg6.cloudfront.net/images');
-      //   return request({
-      //     url,
-      //     method: 'GET',
-      //     responseType: 'arraybuffer',
-      //   })
-      //     .then((res) => res.data)
-      //     .then((img) => {
-      //       const { height, width } = sizeOf(img)
-
-      //       if (height >= 400 || width >= 400) {
-      //         heroes.push(event)
-      //       }
-
-      //       return heroes
-      //     })
-      // }, [])
     })
 }
 

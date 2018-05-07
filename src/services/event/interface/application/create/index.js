@@ -4,7 +4,7 @@ const uuid = require('uuid/v4')
 const THIRTY = 1000 * 60 * 30
 const NINETY = THIRTY * 3
 
-const domain = (viewer, { event, location }) => {
+const domain = (viewer, { event, location, now }) => {
   assert(viewer, 'Unauthenticated')
   roles(viewer, ['administrator', 'system'])
   if (!event.id) event = { id: uuid(), ...event }
@@ -15,7 +15,7 @@ const domain = (viewer, { event, location }) => {
   if (!event.doorsOpen) {
     event.doorsOpen = event.start - THIRTY
   }
-  assert(event.start > Date.now(), 'Event cannot start in the past.')
+  assert(event.start > now, 'Event cannot start in the past.')
   assert(event.start < event.end, 'End date cannot be before start date')
   assert(event.doorsOpen < event.start, 'Doors cannot open after the show starts')
 
@@ -40,7 +40,7 @@ const domain = (viewer, { event, location }) => {
 const application = (repo, services) => async (viewer, event) => {
   const location = await services.location.get(viewer, event.locationId, '{ capacity }')
   return repo.save(
-    domain(viewer, { event, location })
+    domain(viewer, { event, location, now: Date.now() })
   )
 }
 

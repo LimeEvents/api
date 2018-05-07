@@ -23,6 +23,7 @@ const reducer = (src = {}, event) => {
       entity.caption = event.caption
       entity.description = event.description
       entity.externalIds = event.externalIds || []
+      entity.url = event.url || `https://www.wiseguyscomedy.com/tickets/${event.id}`
 
       entity.doorsOpen = event.doorsOpen
       entity.start = event.start

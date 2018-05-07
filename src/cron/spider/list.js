@@ -1,11 +1,7 @@
-'use strict'
-
-const get = require('lodash.get')
-const Bluebird = require('bluebird')
 const { parser } = require('./parser')
 const { getEvent } = require('./item')
 const { TICKET_BISCUIT_URL } = require('./constants')
-const { fromGlobalId, toGlobalId } = require('graphql-relay')
+const { toGlobalId } = require('graphql-relay')
 
 function getEventID (url) {
   return /\d+$/.exec(url)[0]
@@ -20,7 +16,7 @@ function getNextPage ($) {
 }
 
 function getVenues (...venueIDs) {
-  return Bluebird.all(
+  return Promise.all(
     venueIDs.map(getVenue)
   ).then((results) => [].concat(...results))
 }
@@ -49,56 +45,19 @@ function getList (url) {
     })
 }
 
-function populateEvents (events) {
-  return Bluebird
-    .all(events.map(event => Bluebird.resolve(getEvent(event)).reflect()))
-    .filter((promise) => promise.isFulfilled())
-    .map((promise) => promise.value())
-}
-
-function filterUniqueEvents (events) {
-  const handled = []
-
-  return Bluebird.all(events)
-    .then((events) => {
-      return events.filter((event) => {
-        const { id } = fromGlobalId(event.id)
-        if (handled.includes(id)) {
-          return false
-        }
-
-        if (event.showtimes) {
-          const beenHandled = !!event.showtimes.find((showtime) => {
-            return handled.includes(`${event.title.toLowerCase().replace(/\W+/gi, '')}${showtime.datetime}`)
-          })
-          if (beenHandled) {
-            return false
-          }
-          event.showtimes.forEach((showtime) => {
-            if (showtime.url) {
-              handled.push(getEventID(showtime.url))
-            } else {
-              handled.push(`${event.title.toLowerCase().replace(/\W+/gi, '')}${showtime.datetime}`)
-            }
-          })
-        } else {
-          console.error('crap event', event)
-        }
-
-        return true
-      })
+async function populateEvents (events) {
+  const fulfilled = await Promise.all(
+    events.map(async event => {
+      try {
+        return await getEvent(event)
+      } catch (ex) {
+        return null
+      }
     })
-}
-
-function sortByDate (showtimes, path) {
-  return showtimes
-    .sort((a, b) => {
-      return new Date(get(a, path)).getTime() - new Date(get(b, path)).getTime()
-    })
+  )
+  return fulfilled.filter(Boolean)
 }
 
 exports.getVenue = getVenue
 exports.getVenues = getVenues
-exports.filterUniqueEvents = filterUniqueEvents
 exports.populateEvents = populateEvents
-exports.sortByDate = sortByDate
