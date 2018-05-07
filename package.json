@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
-    "start": "micro index.js",
+    "start": "micro -p ${PORT} index.js",
     "dev-server": "micro-dev -p ${PORT} -i tmp development.js",
     "debug": "NODE_ENV=development node --inspect=${PORT} node_modules/.bin/micro-dev --silent -p ${PORT} -i tmp development.js",
     "dev": "concurrently --names \"WEB,MONGO\" -c \"bgGreen.bold,bgBlue.bold\" \"micro-dev development.js\" \"mongod\" --kill-others-on-fail",
