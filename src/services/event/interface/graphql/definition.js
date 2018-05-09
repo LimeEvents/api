@@ -44,10 +44,10 @@ exports.definition = gql`
     caption: String
     description: String
 
-    doorsOpen: DateTime!
-    start: DateTime!
-    end: DateTime!
-    cancelled: DateTime
+    doorsOpen(format: String): DateTime!
+    start(format: String): DateTime!
+    end(format: String): DateTime!
+    cancelled(format: String): DateTime
 
     url: Url!
     acceptDiscounts: Boolean!

@@ -1,3 +1,4 @@
+const moment = require('moment')
 const { fromGlobalId, toGlobalId, connectionFromArray } = require('graphql-relay')
 
 exports.resolvers = {
@@ -40,6 +41,24 @@ exports.resolvers = {
     async rescheduleEvent (source, { input }, { viewer, application }, info) {
       const { id } = await application.reschedule(viewer, { ...input, id: fromGlobalId(input.id).id })
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
+    }
+  },
+  Event: {
+    doorsOpen ({ doorsOpen }, { format }) {
+      if (!format) return doorsOpen
+      return doorsOpen && moment(doorsOpen).format(format)
+    },
+    start ({ start }, { format }) {
+      if (!format) return start
+      return start && moment(start).format(format)
+    },
+    end ({ end }, { format }) {
+      if (!format) return end
+      return end && moment(end).format(format)
+    },
+    cancelled ({ cancelled }, { format }) {
+      if (!format) return cancelled
+      return cancelled && moment(cancelled).format(format)
     }
   },
   CreateEventResponse: {
