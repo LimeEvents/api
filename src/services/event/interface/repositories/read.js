@@ -117,6 +117,21 @@ class EventReadRepository {
       entity.notes = event.notes || []
       this[_cache].clear(event.id).prime(event.id, update(this[_view], event.id, entity))
     })
+    emitter.on('EventUpdated', async (event) => {
+      const entity = await this[_view].findOne({ id: event.id })
+      if (event.performerIds) entity.performerIds = event.performerIds
+      if (event.name) entity.name = event.name
+      if (event.caption) entity.caption = event.caption
+      if (event.description) entity.description = event.description
+      if (event.slug) entity.slug = event.slug
+      if (event.image) entity.image = event.image
+      if (event.video) entity.video = event.video
+      if (event.acceptDiscounts) entity.acceptDiscounts = event.acceptDiscounts
+      if (event.price) entity.price = event.price
+      if (event.contentRating) entity.contentRating = event.contentRating
+      if (event.minimumAge) entity.minimumAge = event.minimumAge
+      this[_cache].clear(event.id).prime(event.id, update(this[_view], event.id, entity))
+    })
   }
 
   async get (id) {

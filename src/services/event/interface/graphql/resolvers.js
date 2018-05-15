@@ -34,6 +34,10 @@ exports.resolvers = {
       const { id } = await application.create(viewer, input)
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
     },
+    async updateEvent (source, { input }, { viewer, application }, info) {
+      const { id } = await application.update(viewer, { ...input, id: fromGlobalId(input.id).id })
+      return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
+    },
     async cancelEvent (source, { input }, { viewer, application }, info) {
       const { id } = await application.cancel(viewer, { ...input, id: fromGlobalId(input.id).id })
       return { clientMutationId: input.clientMutationId, id: toGlobalId('Event', id) }
@@ -68,6 +72,9 @@ exports.resolvers = {
     event: refetchEvent()
   },
   RescheduleEventResponse: {
+    event: refetchEvent()
+  },
+  UpdateEventResponse: {
     event: refetchEvent()
   }
 }

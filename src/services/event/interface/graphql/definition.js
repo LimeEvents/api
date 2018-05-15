@@ -12,6 +12,7 @@ exports.definition = gql`
 
   type Mutation {
     createEvent(input: CreateEventInput!): CreateEventResponse
+    updateEvent(input: UpdateEventInput!): UpdateEventResponse
     cancelEvent(input: CancelEventInput!): CancelEventResponse
     rescheduleEvent(input: RescheduleEventInput!): RescheduleEventResponse
   }
@@ -123,6 +124,28 @@ exports.definition = gql`
   }
 
   type CreateEventResponse {
+    clientMutationId: ID!
+    event: Event!
+  }
+
+
+  input UpdateEventInput {
+    clientMutationId: ID!
+    id: ID!
+    performerIds: [ ID! ]
+    name: String
+    caption: String
+    description: String
+    slug: String
+    image: Url
+    video: Url
+    acceptDiscounts: Boolean
+    price: Int
+    contentRating: ContentRating
+    minimumAge: Int
+  }
+
+  type UpdateEventResponse {
     clientMutationId: ID!
     event: Event!
   }
