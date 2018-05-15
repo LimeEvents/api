@@ -1,8 +1,14 @@
 const faker = require('faker')
-const { Repository } = require('@vivintsolar/graphql-repository')
 const gql = require('graphql-tag')
-const { link } = require('./index')
 const uuid = require('uuid/v4')
+const { graphql, print } = require('graphql')
+const { loadSchema } = require('../index')
+const performers = require('./performers.json')
+
+async function request (query, variables) {
+  const { schema } = await loadSchema()
+  return graphql(schema, print(query), {}, { viewer: { roles: ['administrator'] } }, variables)
+}
 
 const PERFORMER_FRAGMENT = `
   fragment PerformerFragment on Performer {
@@ -36,28 +42,36 @@ const LIST_PERFORMERS_QUERY = gql`
   ${PERFORMER_FRAGMENT}
 `
 
-async function registerPerformer (request) {
-  return request(REGISTER_PERFORMER_QUERY, { input: {
+async function registerPerformer () {
+  const { name, image } = pickRandom(performers)[0]
+  const performer = await request(REGISTER_PERFORMER_QUERY, { input: {
     clientMutationId: uuid(),
-    name: `${faker.name.firstName()} ${faker.name.lastName()}`, // String!
+    name,
     caption: faker.lorem.sentence(), // String
     description: faker.lorem.paragraph(), // String
-    images: [faker.image.people()], // [ Url! ]
-    videos: [faker.image.people()] // [ Url! ]
+    images: [image]
   }})
+  return performer.data.registerPerformer.performer
 }
 
 exports.setupPerformer = async function createFakePerformers () {
   if (process.env.NODE_ENV === 'production') throw new Error('Cannot run fake data script on production')
-  const service = new Repository({ get: 'performer', find: 'performers', link: await link() })
-  const request = service.request.bind(service)
 
   const performers = await Promise.all(
-    new Array(Math.ceil(Math.random() * 1000)).fill(null).map(() => {
-      return registerPerformer(request)
+    new Array(Math.ceil(Math.random() * 100)).fill(null).map(() => {
+      return registerPerformer()
     })
   )
   console.info(`Created ${performers.length} performers`)
   const results = await request(LIST_PERFORMERS_QUERY)
+  return results
+}
+
+function pickRandom (arr, count = 1) {
+  const results = []
+  arr = results.concat(arr)
+  while (count--) {
+    results.push(...arr.splice(Math.floor(Math.random() * arr.length), 1))
+  }
   return results
 }
