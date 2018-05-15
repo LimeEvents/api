@@ -1,12 +1,11 @@
 exports.definition = `
   extend type Event {
     location: Location!
-    performers(first: Int, last: Int, before: String, after: String): PerformerConnection!
     orders(first: Int, last: Int, before: String, after: String): OrderConnection!
   }
 `
 
-exports.resolvers = ({ order, location, performer }) => ({
+exports.resolvers = ({ order, location }) => ({
   Event: {
     orders: {
       fragment: 'fragment EventOrdersFragment on Event { id }',
@@ -29,19 +28,6 @@ exports.resolvers = ({ order, location, performer }) => ({
           operation: 'query',
           fieldName: 'location',
           args: { id: locationId },
-          context,
-          info
-        })
-      }
-    },
-    performers: {
-      fragment: 'fragment EventPerformersFragment on Event { performerIds }',
-      resolve ({ performerIds }, args, context, info) {
-        return info.mergeInfo.delegateToSchema({
-          schema: performer,
-          operation: 'query',
-          fieldName: 'performers',
-          args: { filter: { id: performerIds }, ...args },
           context,
           info
         })

@@ -30,7 +30,6 @@ const connect = memo((url) => new Monk(url))
 //   sold: event.sold || 0
 // }
 
-//       entity.performerIds = event.performerIds
 //       entity.name = event.name
 //       entity.image = event.image
 //       entity.video = event.video
@@ -100,7 +99,6 @@ class EventReadRepository {
       }
       entity.url = event.url || `https://www.wiseguyscomedy.com/tickets/${event.id}`
       entity.externalIds = event.externalIds || []
-      entity.performerIds = event.performerIds
       entity.name = event.name
       entity.image = event.image
       entity.video = event.video
@@ -119,7 +117,6 @@ class EventReadRepository {
     })
     emitter.on('EventUpdated', async (event) => {
       const entity = await this[_view].findOne({ id: event.id })
-      if (event.performerIds) entity.performerIds = event.performerIds
       if (event.name) entity.name = event.name
       if (event.caption) entity.caption = event.caption
       if (event.description) entity.description = event.description
@@ -140,17 +137,15 @@ class EventReadRepository {
   }
 
   async find (params) {
-    const events = await this[_view].find(params)
-    return events || []
-  }
-
-  async findByPerformerId (id) {
-    const events = await this[_view].find({ performerIds: id })
+    const events = await this[_view].find({
+      ...params,
+      start: { $gte: Date.now() }
+    }, { sort: { start: 1 } })
     return events || []
   }
 
   async findByExternalId (id) {
-    const events = await this[_view].find({ externalIds: id })
+    const events = await this[_view].find({ externalIds: id, start: { $gte: Date.now() } }, { sort: { start: 1 } })
     return events || []
   }
 }

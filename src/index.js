@@ -2,15 +2,13 @@ const memo = require('lodash.memoize')
 const { Repository } = require('@vivintsolar/graphql-repository')
 const { mergeSchemas, introspectSchema, makeRemoteExecutableSchema } = require('graphql-tools')
 
-const performer = require('./services/performer')
 const event = require('./services/event')
 const location = require('./services/location')
 const order = require('./services/order')
-const customer = require('./services/customer')
 
 require('./cron')
 
-const SERVICES = { performer, order, location, event, customer }
+const SERVICES = { order, location, event }
 
 const EventEmitter = require('events')
 

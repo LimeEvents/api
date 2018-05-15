@@ -51,7 +51,6 @@ async function create (event) {
       description
       locationId
       externalIds
-      performerIds
       location {
         name
         id
@@ -84,7 +83,6 @@ exports.listEvents = async () => {
     delete event.isSoldOut
     // delete event.url
     event.feeDistribution = 100
-    event.performerIds = []
     event.clientMutationId = id
     if (event.contentRating === 'PG-13') event.contentRating = 'PG13'
     if (!event.contentRating) delete event.contentRating

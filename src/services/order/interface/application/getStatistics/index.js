@@ -27,8 +27,8 @@ const domain = (viewer, { orders, startDate, endDate }) => {
     })
 }
 
-const application = ({ read, write, ...services }) => async (viewer, { eventId, performerId, locationId, startDate, endDate }) => {
-  let orders = await this.find(viewer, { eventId, performerId, locationId })
+const application = ({ read, write, ...services }) => async (viewer, { eventId, locationId, startDate, endDate }) => {
+  let orders = await find(viewer, { eventId, locationId })
 
   return domain.getStatistics(viewer, { orders, startDate, endDate })
 }

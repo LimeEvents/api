@@ -30,7 +30,6 @@ const application = (repo, services) => async (viewer, updates) => {
 const reducer = {
   EventUpdated (entity, event) {
     entity = { ...entity }
-    if (event.performerIds) entity.performerIds = event.performerIds
     if (event.name) entity.name = event.name
     if (event.caption) entity.caption = event.caption
     if (event.description) entity.description = event.description

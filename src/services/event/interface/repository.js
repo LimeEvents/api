@@ -15,7 +15,6 @@ const reducer = (src = {}, event) => {
       entity.locationId = event.locationId
       entity.inventory = { capacity: event.capacity || 0 }
 
-      entity.performerIds = event.performerIds
       entity.name = event.name
       entity.image = event.image
       entity.video = event.video

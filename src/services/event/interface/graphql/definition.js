@@ -19,7 +19,6 @@ exports.definition = gql`
 
   input EventFilter {
     locationId: ID
-    performerId: ID
     externalId: ID
   }
 
@@ -38,7 +37,6 @@ exports.definition = gql`
 
     locationId: ID!
 
-    performerIds: [ ID! ]!
     name: String!
     image: Url!
     video: Url
@@ -97,7 +95,6 @@ exports.definition = gql`
     locationId: ID!
     capacity: Int
 
-    performerIds: [ ID! ]!
     name: String!
     caption: String
     description: String
@@ -132,7 +129,6 @@ exports.definition = gql`
   input UpdateEventInput {
     clientMutationId: ID!
     id: ID!
-    performerIds: [ ID! ]
     name: String
     caption: String
     description: String

@@ -21,7 +21,6 @@ const reducer = {
       id: event.id,
       eventId: event.eventId,
       locationId: event.locationId,
-      performerIds: event.performerIds,
 
       tickets: event.tickets,
 

@@ -11,7 +11,6 @@ const domain = (viewer, { event, location, tickets }) => {
     id: eventId,
     price,
     feeDistribution,
-    performerIds
   } = event
 
   const subtotal = tickets * price
@@ -29,7 +28,6 @@ const domain = (viewer, { event, location, tickets }) => {
       _timestamp: Date.now(),
       id,
       eventId,
-      performerIds,
       locationId: location.id,
       tickets,
       price,
@@ -44,7 +42,7 @@ const domain = (viewer, { event, location, tickets }) => {
 }
 
 const application = (repo, services) => async (viewer, { eventId, tickets }) => {
-  const event = await services.event.get(viewer, eventId, '{ price locationId id feeDistribution performerIds inventory { available } }')
+  const event = await services.event.get(viewer, eventId, '{ price locationId id feeDistribution inventory { available } }')
   const location = await services.location.get(viewer, event.locationId, '{ id address { postalCode } }')
   return repo.save(
     domain(viewer, { tickets, event, location })
@@ -60,7 +58,6 @@ const reducer = {
       id: event.id,
       eventId: event.eventId,
       locationId: event.locationId,
-      performerIds: event.performerIds,
 
       inventory: {
         capacity: event.capacity || 0,

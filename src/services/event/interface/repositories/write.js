@@ -16,7 +16,6 @@ const reducer = (src = {}, event) => {
       entity.locationId = event.locationId
       entity.inventory = event.inventory
 
-      entity.performerIds = event.performerIds
       entity.name = event.name
       entity.image = event.image
       entity.video = event.video
@@ -36,7 +35,6 @@ const reducer = (src = {}, event) => {
       return entity
     },
     EventUpdated () {
-      if (event.performerIds) entity.performerIds = event.performerIds
       if (event.name) entity.name = event.name
       if (event.caption) entity.caption = event.caption
       if (event.description) entity.description = event.description

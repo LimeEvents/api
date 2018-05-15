@@ -27,7 +27,6 @@ const reducer = {
     }
     entity.url = event.url || `https://www.wiseguyscomedy.com/tickets/${event.id}`
     entity.externalIds = event.externalIds || []
-    entity.performerIds = event.performerIds
     entity.name = event.name
     entity.image = event.image
     entity.video = event.video

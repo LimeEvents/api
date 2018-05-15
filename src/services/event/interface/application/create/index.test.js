@@ -5,9 +5,6 @@ const { application, domain } = require('./index')
 const FAKE_EVENT = {
   'id': 'RXZlbnQ6M2M5ZTFiMzgtOTJjZC00ODJlLWEyMmYtZWQ3YWE2YmQ5OWQ2',
   'locationId': 'TG9jYXRpb246Yjc5NWY2YzUtMWJlYS00MzlhLTg4N2QtODc3ZDM3ZGJhZDM1',
-  'performerIds': [
-    'UGVyZm9ybWVyOmZkMzdkZjc4LWM3OTktNDBiYy04YjgxLTkwNzA3YjM2OTU2Mg=='
-  ],
   'name': 'Jarrod Klocko',
   'image': 'http://lorempixel.com/640/480/people',
   'video': null,
@@ -88,9 +85,6 @@ describe('Create event', () => {
           }),
           'locationId': expect.any(String),
           'minimumAge': expect.any(Number),
-          'performerIds': expect.arrayContaining([
-            expect.any(String)
-          ]),
           'price': expect.any(Number),
           'start': expect.any(Number),
 

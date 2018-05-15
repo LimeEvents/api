@@ -10,7 +10,6 @@ fragment EventFragment on Event {
   image
   video
   minimumAge
-  performerIds
   locationId
   feeDistribution
   cancelled
