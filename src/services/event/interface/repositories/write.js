@@ -42,6 +42,7 @@ const reducer = (src = {}, event) => {
       if (event.image) entity.image = event.image
       if (event.video) entity.video = event.video
       if (event.acceptDiscounts) entity.acceptDiscounts = event.acceptDiscounts
+      if (event.url) entity.url = event.url
       if (event.price) entity.price = event.price
       if (event.contentRating) entity.contentRating = event.contentRating
       if (event.minimumAge) entity.minimumAge = event.minimumAge

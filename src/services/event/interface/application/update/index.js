@@ -36,6 +36,7 @@ const reducer = {
     if (event.slug) entity.slug = event.slug
     if (event.image) entity.image = event.image
     if (event.video) entity.video = event.video
+    if (event.url) entity.url = event.url
     if (event.acceptDiscounts) entity.acceptDiscounts = event.acceptDiscounts
     if (event.price) entity.price = event.price
     if (event.contentRating) entity.contentRating = event.contentRating
