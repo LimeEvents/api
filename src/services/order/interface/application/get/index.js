@@ -34,6 +34,20 @@ const reducer = {
       total: event.total,
       created: event._timestamp
     }
+  },
+  OrderChargeSucceeded (entity, event) {
+    return {
+      ...entity,
+      id: event.id,
+      chargeId: event.chargeId,
+      amountPaid: entity.total
+    }
+  },
+  OrderChargeFailed (entity, event) {
+    return {
+      ...entity,
+      id: event.id
+    }
   }
 }
 
