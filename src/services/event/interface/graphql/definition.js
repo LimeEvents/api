@@ -134,6 +134,7 @@ exports.definition = gql`
     description: String
     slug: String
     image: Url
+    url: Url
     video: Url
     acceptDiscounts: Boolean
     price: Int
