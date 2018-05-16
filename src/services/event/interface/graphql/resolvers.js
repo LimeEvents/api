@@ -54,7 +54,10 @@ exports.resolvers = {
     cancelled: format('cancelled'),
     image ({ image }, { size = 100 }) {
       if (!image) return image
-      if (image.startsWith('https://wiseguys')) return `${image}?w=${size}&h=${size}&fit=crop&crop=faces,center`
+      if (image.startsWith('https://wiseguys')) {
+        image = image.split('?').shift()
+        return `${image}?w=${size}&h=${size}&fit=crop&crop=faces,center`
+      }
       return `${image}-/resize/${size}x/`
     },
     video ({ video }) {
