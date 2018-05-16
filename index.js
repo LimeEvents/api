@@ -1,5 +1,6 @@
 const { microGraphql, microGraphiql } = require('apollo-server-micro')
 const { router, get, post } = require('microrouter')
+const cors = require('micro-cors')()
 
 const { loadSchema } = require('./src')
 
@@ -23,4 +24,4 @@ let handler = router(
   }))
 )
 
-module.exports = handler
+module.exports = cors(handler)
