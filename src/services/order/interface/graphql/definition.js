@@ -8,19 +8,18 @@ exports.definition = gql`
     node(id: ID!): Node
     order(id: ID!): Order
     orders(filter: OrderFilter, first: Int, last: Int, before: String, after: String): OrderConnection!
-    orderStatistics(startDate: Int!, endDate: Int!, performerId: ID, locationId: ID, eventId: ID): OrderStatistic!
 
     """ Number of orders in a time period """
+    orderMetric(filter: MetricFilter!): OrderMetric!
     orderMetrics(filter: MetricFilter! first: Int, last: Int, before: String, after: String): OrderMetricConnection!
   }
 
   input MetricFilter {
     """ If the values of the field should be combined """
-    aggregate: OrderMetricAggregateField
-    """ Field name to count value occurrances """
-    count: OrderMetricCountField
-    """ Required for 'count' queries """
-    value: String
+    aggregate: OrderMetricAggregateField!
+
+    eventId: ID
+    locationId: ID
 
     """ Interval to break into buckets """
     interval: MetricInterval = week
@@ -40,12 +39,6 @@ exports.definition = gql`
     amountRefunded
   }
 
-  enum OrderMetricCountField {
-    type
-    eventId
-    fingerprint
-  }
-
   enum MetricInterval {
     year
     quarter
@@ -58,6 +51,7 @@ exports.definition = gql`
   }
 
   type OrderMetricConnection {
+    count: Int!
     edges: [ OrderMetricEdge! ]!
     pageInfo: PageInfo
   }
@@ -71,7 +65,7 @@ exports.definition = gql`
     type: MetricType!
     field: String!
     value: Int!
-    timestamp: DateTime!
+    timestamp(format: String): DateTime!
   }
 
   enum MetricType {
@@ -82,6 +76,8 @@ exports.definition = gql`
   input OrderFilter {
     eventId: ID
     locationId: ID
+    start: DateTime
+    end: DateTime
   }
 
   type OrderStatistic {
@@ -212,8 +208,8 @@ exports.definition = gql`
     fingerprint: ID
     willcall: [ String! ]!
 
-    created: DateTime!
-    updated: DateTime!
+    created(format: String): DateTime!
+    updated(format: String): DateTime!
   }
 
   type OrderConnection {

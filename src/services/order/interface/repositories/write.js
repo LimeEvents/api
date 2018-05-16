@@ -94,6 +94,8 @@ class StripeRepository extends Repository {
         _type: 'OrderChargeSucceeded',
         _timestamp: Date.now(),
         id,
+        eventId: event.id,
+        tickets: order.tickets,
         chargeId
       }])
     } catch (ex) {

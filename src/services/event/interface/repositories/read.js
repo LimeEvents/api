@@ -86,16 +86,23 @@ class EventReadRepository {
       event.inventory.reserved += tickets
       this[_cache].clear(eventId).prime(eventId, update(this[_view], eventId, event))
     })
-
+    emitter.on('OrderChargeSucceeded', async ({ eventId, tickets }) => {
+      eventId = fromGlobalId(eventId).id
+      const event = await this[_view].findOne({ id: eventId })
+      event.inventory.reserved -= tickets
+      event.inventory.sold += tickets
+      this[_cache].clear(eventId).prime(eventId, update(this[_view], eventId, event))
+    })
     emitter.on('EventCreated', async (event) => {
       const entity = await this[_view].findOne({ id: event.id })
       entity.id = event.id
       entity.locationId = event.locationId
       entity.inventory = {
-        capacity: event.capacity || 0,
-        reserved: event.reserved || 0,
-        available: event.available || 0,
-        sold: event.sold || 0
+        capacity: 0,
+        reserved: 0,
+        available: 0,
+        sold: 0,
+        ...event.inventory
       }
       entity.url = event.url || `https://www.wiseguyscomedy.com/tickets/${event.id}`
       entity.externalIds = event.externalIds || []

@@ -10,7 +10,7 @@ const domain = (viewer, { event, location, tickets }) => {
   const {
     id: eventId,
     price,
-    feeDistribution,
+    feeDistribution
   } = event
 
   const subtotal = tickets * price
@@ -84,7 +84,7 @@ const reducer = {
 function calculateFee (tickets, price) {
   const amount = tickets * price
   // Fee: 3% + $0.50/ticket
-  return Math.ceil((tickets * 0.5) + (amount * 0.03))
+  return Math.ceil((tickets * 50) + (amount * 0.03))
 }
 
 exports.application = application

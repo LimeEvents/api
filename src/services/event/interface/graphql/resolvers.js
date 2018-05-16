@@ -48,21 +48,21 @@ exports.resolvers = {
     }
   },
   Event: {
-    doorsOpen ({ doorsOpen }, { format }) {
-      if (!format) return doorsOpen
-      return doorsOpen && moment(doorsOpen).format(format)
+    doorsOpen: format('doorsOpen'),
+    start: format('start'),
+    end: format('end'),
+    cancelled: format('cancelled'),
+    image ({ image }, { size = 100 }) {
+      if (!image) return image
+      if (image.startsWith('https://wiseguys')) return `${image}?w=${size}&h=${size}&fit=crop&crop=faces,center`
+      return `${image}-/resize/${size}x/`
     },
-    start ({ start }, { format }) {
-      if (!format) return start
-      return start && moment(start).format(format)
-    },
-    end ({ end }, { format }) {
-      if (!format) return end
-      return end && moment(end).format(format)
-    },
-    cancelled ({ cancelled }, { format }) {
-      if (!format) return cancelled
-      return cancelled && moment(cancelled).format(format)
+    video ({ video }) {
+      if (video) {
+        const results = video.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/i)
+        if (results) return `https://www.youtube.com/embed/${results[1]}`
+      }
+      return video
     }
   },
   CreateEventResponse: {
@@ -84,5 +84,12 @@ function refetchEvent (field = 'id') {
     const id = fromGlobalId(args[field] || source[field]).id
     const event = await application.get(viewer, id)
     return { ...event, id: toGlobalId('Event', id) }
+  }
+}
+
+function format (field) {
+  return (source, { format }) => {
+    if (!format) return source[field]
+    return source[field] && moment(source[field]).format(format)
   }
 }

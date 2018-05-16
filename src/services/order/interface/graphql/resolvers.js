@@ -1,3 +1,4 @@
+const moment = require('moment')
 const { fromGlobalId, connectionFromArray, toGlobalId } = require('graphql-relay')
 
 const orderGlobalId = addGlobalId.bind(this, 'Order')
@@ -9,20 +10,31 @@ exports.resolvers = {
       return fromGlobalId(id).type
     }
   },
+  Order: {
+    created: format('created'),
+    updated: format('updated')
+  },
+  OrderMetric: {
+    timestamp: format('timestamp')
+  },
   Query: {
     order: refetchResolver(),
-    orderStatistics (source, args, { viewer, application }, info) {
-      return application.getStatistics(viewer, args)
-    },
     async orders (source, args, { viewer, application }, info) {
       if (args.first) args.first = Math.min(args.first, 50)
       if (args.last) args.last = Math.min(args.last, 50)
+      if (!args.first && !args.last) {
+        args.first = 50
+      }
 
       const orders = await application.find(viewer, args)
       return connectionFromArray(
         orders.map(orderGlobalId),
         args
       )
+    },
+    async orderMetric (source, args, { viewer, application }) {
+      const metrics = await application.getMetrics(viewer, args)
+      return metrics[0]
     },
     async orderMetrics (source, args, { viewer, application }) {
       const metrics = await application.getMetrics(viewer, args)
@@ -101,4 +113,11 @@ function refetchResolver (field = 'id') {
 
 function addGlobalId (type, entity) {
   return { ...entity, id: toGlobalId(type, entity.id) }
+}
+
+function format (field) {
+  return (source, { format }) => {
+    if (!format) return source[field]
+    return source[field] && moment(source[field]).format(format)
+  }
 }

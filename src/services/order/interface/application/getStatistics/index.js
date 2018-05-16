@@ -1,3 +1,4 @@
+const { application: find } = require('../find')
 const domain = (viewer, { orders, startDate, endDate }) => {
   return orders
     .reduce((totals, { eventId: orderEventId, paid, refunded, tickets, amount, fee, salesTax }) => {
@@ -30,7 +31,7 @@ const domain = (viewer, { orders, startDate, endDate }) => {
 const application = ({ read, write, ...services }) => async (viewer, { eventId, locationId, startDate, endDate }) => {
   let orders = await find(viewer, { eventId, locationId })
 
-  return domain.getStatistics(viewer, { orders, startDate, endDate })
+  return domain(viewer, { orders, startDate, endDate })
 }
 
 exports.application = application

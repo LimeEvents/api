@@ -23,7 +23,7 @@ const domain = (viewer, { order, event, name, email, source }) => {
 
 const application = (repo, services) => async (viewer, { id, name, email, source }) => {
   const order = await repo.get(id)
-  const event = await services.event.get(viewer, order.eventId, '{ price }')
+  const event = await services.event.get(viewer, order.eventId, '{ id price }')
 
   await repo.save(
     domain(viewer, { order, event, id, name, email, source })
@@ -36,10 +36,8 @@ const reducer = {
     return {
       ...entity,
       id: event.id,
-      fee: event.fee,
-      salesTax: event.salesTax,
+      chargeId: event.chargeId,
       email: event.email,
-      amount: event.amount,
       willcall: entity.willcall.concat(event.name)
     }
   },
@@ -48,14 +46,13 @@ const reducer = {
       ...entity,
       id: event.id,
       chargeId: event.chargeId,
-      paid: true
+      amountPaid: entity.total
     }
   },
   OrderChargeFailed (entity, event) {
     return {
       ...entity,
-      id: event.id,
-      paid: false
+      id: event.id
     }
   }
 }

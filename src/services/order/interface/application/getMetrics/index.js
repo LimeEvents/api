@@ -5,15 +5,9 @@ const domain = (viewer, { metrics }) => {
 }
 
 const application = (repo, services) => async (viewer, args) => {
-  const { aggregate, count, value } = args.filter
-  let metrics = null
-  assert(aggregate || count, 'Must include either "aggregate" or "count" field')
-  if (aggregate) {
-    metrics = repo.aggregate(aggregate, args)
-  } else if (count) {
-    assert(value, 'Order metric count queries require a "value" field')
-    metrics = repo.count(count, value, args)
-  }
+  const { aggregate } = args.filter
+  assert(aggregate, 'Must include either "aggregate" field')
+  const metrics = await repo.aggregate(aggregate, args)
   return domain(viewer, { metrics })
 }
 

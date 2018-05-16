@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
-    "start": "micro -p ${PORT} index.js",
-    "dev-server": "micro-dev -p ${PORT} -i tmp development.js",
-    "debug": "NODE_ENV=development node --inspect=${PORT} node_modules/.bin/micro-dev --silent -p ${PORT} -i tmp development.js",
-    "dev": "concurrently --names \"WEB,MONGO\" -c \"bgGreen.bold,bgBlue.bold\" \"micro-dev development.js\" \"mongod\" --kill-others-on-fail",
+    "start": "micro -p ${PORT=3000} index.js",
+    "watch": "micro-dev -p ${PORT=3000} -i tmp development.js",
+    "debug": "NODE_ENV=development node --inspect=${PORT=3000} node_modules/.bin/micro-dev --silent -p ${PORT=3000} -i tmp development.js",
+    "dev": "concurrently --names \"WEB,MONGO\" -c \"bgGreen.bold,bgBlue.bold\" \"micro-dev -p ${PORT=3000} development.js\" \"mongod\" --kill-others-on-fail",
     "setup": "node setup.js"
   },
   "keywords": [],
@@ -26,7 +26,8 @@
     "faker": "^4.1.0",
     "jest": "^22.4.2",
     "micro-dev": "^2.2.2",
-    "microrouter": "^3.1.1"
+    "microrouter": "^3.1.1",
+    "node-fetch": "^2.1.2"
   },
   "dependencies": {
     "@vivintsolar/graphql-repository": "file:src/lib/graphql-repository",
@@ -47,6 +48,7 @@
     "lodash.get": "^4.4.2",
     "lodash.memoize": "^4.1.2",
     "micro": "^9.1.0",
+    "micro-cors": "^0.1.0",
     "moment": "^2.22.1",
     "sanitize-html": "^1.18.2",
     "slug": "^0.9.1",

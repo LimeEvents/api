@@ -38,7 +38,7 @@ exports.definition = gql`
     locationId: ID!
 
     name: String!
-    image: Url!
+    image(size: Int = 100): Url!
     video: Url
     caption: String
     description: String
