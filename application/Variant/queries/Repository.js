@@ -12,6 +12,17 @@ class QueryRepository {
     await collection(PRODUCT_COLLECTION).findOne({})
     return { mongo: Date.now() - start }
   }
+
+  async get (id) {
+    return {
+      id,
+      name: 'Black',
+      productId: '1234',
+      created: Date.now(),
+      updated: Date.now(),
+      metadata: {}
+    }
+  }
 }
 
 exports.Repository = QueryRepository

@@ -1,11 +1,8 @@
-const { Repository: QueryRepo } = require('./queries/Repository')
-const { Repository: CommandRepo } = require('./commands/Repository')
+const { application: variant } = require('./Variant')
 
-const { health } = require('./queries/health')
-
-exports.application = (viewer, command = new CommandRepo(), query = new QueryRepo()) => {
+exports.application = (viewer) => {
   return {
-    health: health(query, viewer)
+    ...variant(viewer)
   }
 }
 exports.getViewer = async (token) => {
