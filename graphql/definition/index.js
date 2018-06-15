@@ -1,6 +1,7 @@
 const gql = require('graphql-tag')
 
 const { Variant } = require('./Variant')
+const { Product } = require('./Product')
 const { interfaces } = require('./interfaces')
 const { scalars } = require('./scalars')
 
@@ -34,4 +35,4 @@ const Query = gql`
   }
 `
 
-exports.definition = [Query, Variant, interfaces, scalars]
+exports.definition = [Query, Variant, Product, interfaces, scalars]

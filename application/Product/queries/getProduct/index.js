@@ -1,0 +1,14 @@
+const curry = require('lodash.curry')
+
+const domain = (viewer, { product }) => {
+  return product
+}
+
+const application = curry(async (domain, repository, viewer, id) => {
+  const product = await repository.get(id)
+  return domain(viewer, { product })
+})
+
+exports.domain = domain
+exports.application = application
+exports.getProduct = application(domain)

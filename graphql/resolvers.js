@@ -23,10 +23,17 @@ exports.resolvers = {
     async addProductVariant (source, { input: { clientMutationId, ...input } }, { application }) {
       const { id } = await application.addProductVariant(input)
       return { clientMutationId, id: toGlobalId('Variant', id) }
+    },
+    async addProduct (source, { input: { clientMutationId, ...input } }, { application }) {
+      const { id } = await application.addProduct(input)
+      return { clientMutationId, id: toGlobalId('Product', id) }
     }
   },
   AddProductVariantResponse: {
     variant: refetchVariant()
+  },
+  AddProductResponse: {
+    product: refetchProduct()
   }
 }
 
@@ -34,6 +41,13 @@ function refetchVariant (field = 'id') {
   return async (source, args, { application }) => {
     const id = args.id || source.id
     const variant = await application.getVariant(fromGlobalId(id).id)
+    return variant
+  }
+}
+function refetchProduct (field = 'id') {
+  return async (source, args, { application }) => {
+    const id = args.id || source.id
+    const variant = await application.getProduct(fromGlobalId(id).id)
     return variant
   }
 }
