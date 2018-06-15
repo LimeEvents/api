@@ -45,12 +45,6 @@ class ProductRepository {
     return result
   }
   async health () {
-    console.log('mongodb', process.env.MONGODB_URL)
-    try {
-      Monk(process.env.MONGODB_URL).catch(ex => console.error(JSON.stringify(ex, null, 2)))
-    } catch (ex) {
-      console.log('blah', ex)
-    }
     const start = Date.now()
     await collection(PRODUCT_COLLECTION).findOne({})
     return { mongo: Date.now() - start }

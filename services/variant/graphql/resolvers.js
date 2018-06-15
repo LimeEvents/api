@@ -15,7 +15,6 @@ exports.resolvers = {
     },
     async health (source, args, { application }) {
       const results = await application.health({})
-      console.log("results'", results)
       return results
     }
   },

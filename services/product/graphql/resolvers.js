@@ -11,12 +11,10 @@ exports.resolvers = {
   Medium: resolveType,
   Query: {
     ping () {
-      console.log('mongodb', JSON.stringify(process.env, null, 2))
       return 'pong'
     },
     async health (source, args, { application }) {
       const results = await application.health({})
-      console.log("results'", results)
       return results
     },
     product: refetchProduct()
