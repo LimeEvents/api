@@ -21,7 +21,7 @@ exports.resolvers = {
   },
   Mutation: {
     async addProductVariant (source, { input: { clientMutationId, ...input } }, { application }) {
-      const { id } = await application.addProductVariant(input)
+      const { id } = await application.addProductVariant({ ...input, productId: fromGlobalId(input.productId).id })
       return { clientMutationId, id: toGlobalId('Variant', id) }
     },
     async addProduct (source, { input: { clientMutationId, ...input } }, { application }) {
@@ -41,13 +41,13 @@ function refetchVariant (field = 'id') {
   return async (source, args, { application }) => {
     const id = args.id || source.id
     const variant = await application.getVariant(fromGlobalId(id).id)
-    return variant
+    return { ...variant, id }
   }
 }
 function refetchProduct (field = 'id') {
   return async (source, args, { application }) => {
     const id = args.id || source.id
     const variant = await application.getProduct(fromGlobalId(id).id)
-    return variant
+    return { ...variant, id }
   }
 }

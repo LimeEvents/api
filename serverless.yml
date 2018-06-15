@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: product-catalog
+service: ecommerce
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -22,8 +22,8 @@ provider:
   runtime: nodejs8.10
 
 # you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -42,8 +42,14 @@ provider:
 #            - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    MONGODB_URL: mongodb://ticketing:F30TpCTSO7UQpH1l@stage-lime-events-shard-00-00-fkjou.mongodb.net:27017,stage-lime-events-shard-00-01-fkjou.mongodb.net:27017,stage-lime-events-shard-00-02-fkjou.mongodb.net:27017/test?ssl=true&replicaSet=stage-lime-events-shard-0&authSource=admin&retryWrites=true
+    PRODUCT_API: ${self:service}-product-${self:provider.stage}
+    PRODUCT_SINK: ${self:service}-product-sink-${self:provider.stage}
+    LOCATION_SOURCE_TABLE: ${self:service}-source-${self:provider.stage}
+    LOCATION_OPENED_TOPIC: LocationOpened-${self:provider.stage}
+    LOCATION_UPDATED_TOPIC: LocationUpdated-${self:provider.stage}
+    LOCATION_CLOSED_TOPIC: LocationClosed-${self:provider.stage}
 
 # you can add packaging information here
 #package:
@@ -55,8 +61,12 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  graphql:
-    handler: handler.graphql
+  product-api:
+    handler: services/product/handler.graphql
+    name: ${self:provider.environment.PRODUCT_API}
+  product-sink:
+    handler: services/product/handler.sink
+    name: ${self:provider.environment.PRODUCT_SINK}
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -92,13 +102,37 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+# resources:
+#   Resources:
+#     LocationOpenedTopic:
+#       Type: AWS::SNS::Topic
+#       Properties:
+#         DisplayName: Location Opened
+#         TopicName: ${self:provider.environment.LOCATION_OPENED_TOPIC}
+#     LocationUpdatedTopic:
+#       Type: AWS::SNS::Topic
+#       Properties:
+#         DisplayName: Location Updated
+#         TopicName: ${self:provider.environment.LOCATION_UPDATED_TOPIC}
+#     LocationClosedTopic:
+#       Type: AWS::SNS::Topic
+#       Properties:
+#         DisplayName: Location Closed
+#         TopicName: ${self:provider.environment.LOCATION_CLOSED_TOPIC}
+#     LocationSourceTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: ${self:provider.environment.LOCATION_SOURCE_TABLE}
+#         AttributeDefinitions:
+#           - AttributeName: id
+#             AttributeType: S
+#           - AttributeName: _timestamp
+#             AttributeType: N
+#         KeySchema:
+#           - AttributeName: id
+#             KeyType: HASH
+#           - AttributeName: _timestamp
+#             KeyType: RANGE
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
