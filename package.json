@@ -38,6 +38,7 @@
     "graphql-tools": "^3.0.2",
     "lodash.curry": "^4.1.1",
     "lodash.memoize": "^4.1.2",
+    "lodash.merge": "^4.6.1",
     "monk": "^6.0.6",
     "quick-lru": "^1.1.0",
     "uuid": "^3.2.1"
