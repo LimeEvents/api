@@ -2,7 +2,7 @@ const uuid = require('uuid/v4')
 const curry = require('lodash.curry')
 
 const domain = (viewer, { product }) => {
-  return [{
+  return {
     id: uuid(),
     name: product.name,
     caption: product.caption,
@@ -14,14 +14,12 @@ const domain = (viewer, { product }) => {
     sections: product.sections || [],
     tags: product.tags,
     dimensions: product.dimensions,
-    metadata: product.metadata || {},
-    _timestamp: Date.now(),
-    _type: 'ProductAdded'
-  }]
+    metadata: product.metadata || {}
+  }
 }
 
 const application = curry(async (domain, repository, viewer, product) => {
-  return repository.save(
+  return repository.add(
     domain(viewer, { product })
   )
 })

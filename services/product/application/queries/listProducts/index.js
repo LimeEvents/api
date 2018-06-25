@@ -4,9 +4,8 @@ const domain = (viewer, { products }) => {
   return products
 }
 
-const application = curry(async (domain, repository, viewer, input) => {
-  const products = await repository.list()
-  console.log('products', products)
+const application = curry(async (domain, repository, viewer, args) => {
+  const products = await repository.find(args)
   return domain(viewer, { products })
 })
 

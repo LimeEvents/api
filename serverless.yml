@@ -23,7 +23,7 @@ provider:
 
 # you can overwrite defaults here
   stage: ${opt:stage, 'dev'}
-  region: us-west-2
+  region: ${opt:region, 'us-west-2'}
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -46,10 +46,7 @@ provider:
     MONGODB_URL: mongodb://ticketing:F30TpCTSO7UQpH1l@stage-lime-events-shard-00-00-fkjou.mongodb.net:27017,stage-lime-events-shard-00-01-fkjou.mongodb.net:27017,stage-lime-events-shard-00-02-fkjou.mongodb.net:27017/test?ssl=true&replicaSet=stage-lime-events-shard-0&authSource=admin&retryWrites=true
     PRODUCT_API: ${self:service}-product-${self:provider.stage}
     PRODUCT_SINK: ${self:service}-product-sink-${self:provider.stage}
-    PRODUCT_SOURCE_TABLE: ${self:service}-source-${self:provider.stage}
-    PRODUCT_ADDED_TOPIC: ProductAdded-${self:provider.stage}
-    PRODUCT_UPDATED_TOPIC: ProductUpdated-${self:provider.stage}
-    PRODUCT_REMOVED_TOPIC: ProductRemoved-${self:provider.stage}
+    AWS_SDK_REGION: ${self:provider.region}
 
 
 # you can add packaging information here
@@ -65,6 +62,15 @@ functions:
   product-api:
     handler: services/product/handler.graphql
     name: ${self:provider.environment.PRODUCT_API}
+    environment:
+      PRODUCT_ADDED_TOPIC:
+        Ref: ProductAddedTopic
+      PRODUCT_UPDATED_TOPIC:
+        Ref: ProductUpdatedTopic
+      PRODUCT_REMOVED_TOPIC:
+        Ref: ProductRemovedTopic
+      PRODUCT_TABLE:
+        Ref: ProductTable
   product-sink:
     handler: services/product/handler.sink
     name: ${self:provider.environment.PRODUCT_SINK}
@@ -126,31 +132,27 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: Product Added
-        TopicName: ${self:provider.environment.PRODUCT_ADDED_TOPIC}
+        TopicName: ProductAdded-${self:provider.stage}
     ProductUpdatedTopic:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: Product Updated
-        TopicName: ${self:provider.environment.PRODUCT_UPDATED_TOPIC}
+        TopicName: ProductUpdated-${self:provider.stage}
     ProductRemovedTopic:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: Product Removed
-        TopicName: ${self:provider.environment.PRODUCT_REMOVED_TOPIC}
-    ProductSourceTable:
+        TopicName: ProductRemoved-${self:provider.stage}
+    ProductTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.PRODUCT_SOURCE_TABLE}
+        TableName: ${self:service}-product-${self:provider.stage}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: _timestamp
-            AttributeType: N
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: _timestamp
-            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1

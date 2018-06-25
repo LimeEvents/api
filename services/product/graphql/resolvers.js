@@ -9,6 +9,9 @@ exports.resolvers = {
   Entity: resolveType,
   Taggable: resolveType,
   Medium: resolveType,
+  Product: {
+    id: ({ id }) => toGlobalId('Product', id)
+  },
   Query: {
     ping () {
       return 'pong'

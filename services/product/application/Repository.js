@@ -1,95 +1,71 @@
 const assert = require('assert')
-const EventEmitter = require('events')
 
-const Dataloader = require('dataloader')
-const Monk = require('monk')
-const Observable = require('zen-observable')
-const QuickLru = require('quick-lru')
-const memoize = require('lodash.memoize')
+const AWS = require('aws-sdk')
+const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
+const db = new AWS.DynamoDB.DocumentClient({
+  apiVersion: '2012-08-10',
+  region: process.env.AWS_REGION,
+  params: {
+    TableName: process.env.PRODUCT_TABLE
+  }
+})
 
-const { reduce } = require('./reducer')
-
-const connection = memoize(url => new Monk(url))
-const collection = memoize(name => connection(process.env.MONGODB_URL).get(name))
-
-const PRODUCT_COLLECTION = 'catalog.product'
-const PRODUCT_SOURCE = 'catalog.product.source'
+const TOPIC_MAP = {
+  ProductAdded: process.env.PRODUCT_ADDED_TOPIC,
+  ProductUpdated: process.env.PRODUCT_UPDATED_TOPIC,
+  ProductRemoved: process.env.PRODUCT_REMOVED_TOPIC
+}
 
 class ProductRepository {
-  constructor () {
-    this.emitter = new EventEmitter()
-    this.loader = new Dataloader(async ids => {
-      const stream = this.streamMany(ids)
-      return Promise.all(
-        ids.map(id =>
-          new Promise((resolve, reject) =>
-            stream
-              .reduce(reduce, {})
-              .subscribe(resolve, reject)
-          )
-        )
-      )
-    }, { cacheMap: new QuickLru({ maxSize: 100 }) })
-    const update = (event) => this.loader.clear(event.id).prime(event.id, this.update(event))
-    this.emitter
-      .on('ProductAdded', update)
-      .on('ProductUpdated', update)
-      .on('ProductRemoved', update)
+  async find ({ cursor, limit = 50 }) {
+    const { Items } = await db.scan({
+      ExclusiveStartKey: cursor,
+      Limit: limit
+    }).promise()
+    return Items || []
   }
 
-  async update (event) {
-    const id = event.id
-    const entity = await collection(PRODUCT_COLLECTION).findOne({ id })
-    const result = reduce(entity || {}, event)
-    await collection(PRODUCT_COLLECTION).update({ id }, result, { upsert: true })
-    return result
-  }
-  async health () {
-    const start = Date.now()
-    await collection(PRODUCT_COLLECTION).findOne({})
-    return { mongo: Date.now() - start }
+  async get (id) {
+    const { Item } = await db.get({ Key: { id } }).promise()
+    return Item || null
   }
 
-  stream (id, events = []) {
-    return new Observable((observer) => {
-      collection(PRODUCT_SOURCE)
-        .find({ id })
-        .each((event) => observer.next(event))
-        .then(() => observer.complete())
-        .catch(ex => observer.error(ex))
-    }).concat(Observable.from(events))
+  async add (product) {
+    await db.put({ Item: product }).promise()
+    await this.emit('ProductAdded', product)
+    return { id: product.id }
   }
 
-  streamMany (ids, events = []) {
-    return new Observable((observer) => {
-      collection(PRODUCT_SOURCE)
-        .find({ id: { $in: ids } })
-        .each((event) => observer.next(event))
-        .then(() => observer.complete())
-        .catch(ex => observer.error(ex))
-    }).concat(Observable.from(events))
+  async update (updates) {
+    const product = await this.get(updates.id)
+    await db.put({ Item: { ...product, ...updates } }).promise()
+    await this.emit('ProductUpdated', updates)
+    return { id: updates.id }
   }
 
-  async list () {
-    const products = await collection(PRODUCT_COLLECTION).find({})
-    return products
+  async remove (id) {
+    await db.delete({ Key: id }).promise()
+    await this.emit('ProductRemoved', { id })
+    return { id }
   }
 
-  async get (id, force = false) {
-    if (force) this.loader.clear(id)
-    const product = await this.loader.load(id)
-    if (Object.keys(product).length) return product
-    this.loader.clear(id)
-    return null
-  }
-
-  async save (events = []) {
-    assert(Array.isArray(events), 'Cannot call save without an array')
-    assert(events.length, 'Must save at least one event')
-
-    await collection(PRODUCT_SOURCE).insert(events)
-    events.forEach(event => this.emitter.emit(event._type, event))
-    return { id: events[0].id }
+  async emit (_type, payload) {
+    const TopicArn = TOPIC_MAP[_type]
+    if (!TopicArn) {
+      console.warn(`Event not emitted. Missing topic for "${_type}"`)
+      return
+    }
+    assert(payload.id, 'Emitted events must include an "id" field')
+    await sns
+      .publish({
+        Message: JSON.stringify({
+          ...payload,
+          _type,
+          _timestamp: Date.now()
+        }),
+        TopicArn
+      })
+      .promise()
   }
 }
 
