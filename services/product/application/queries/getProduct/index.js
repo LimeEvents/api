@@ -1,6 +1,10 @@
+const assert = require('assert')
 const curry = require('lodash.curry')
 
 const domain = (viewer, { product }) => {
+  if (product.removed) {
+    assert(viewer.roles.includes('administrator'), 'Must be an administrator to view removed products')
+  }
   return product
 }
 

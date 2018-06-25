@@ -130,13 +130,6 @@ const definition = gql`
     edges: [ ProductEdge! ]!
     pageInfo: PageInfo
   }
-  type PageInfo {
-    startCursor: String
-    endCursor: String
-    hasNextPage: Boolean
-    hasPreviousPage: Boolean
-  }
-
   type ProductEdge {
     cursor: String
     node: Product

@@ -1,4 +1,4 @@
-const { fromGlobalId, toGlobalId } = require('graphql-relay')
+const { connectionFromArray, fromGlobalId, toGlobalId } = require('graphql-relay')
 
 const resolveType = {
   __resolveType: ({ id }) => fromGlobalId(id).type
@@ -17,7 +17,11 @@ exports.resolvers = {
       const results = await application.health({})
       return results
     },
-    product: refetchProduct()
+    product: refetchProduct(),
+    async products (source, args, { application }) {
+      const products = await application.listProducts({})
+      return connectionFromArray(products, args)
+    }
   },
   Mutation: {
     async addProduct (source, { input: { clientMutationId, ...input } }, { application }) {

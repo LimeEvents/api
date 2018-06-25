@@ -70,6 +70,11 @@ class ProductRepository {
     }).concat(Observable.from(events))
   }
 
+  async list () {
+    const products = await collection(PRODUCT_COLLECTION).find({})
+    return products
+  }
+
   async get (id, force = false) {
     if (force) this.loader.clear(id)
     const product = await this.loader.load(id)

@@ -1,6 +1,7 @@
 require('dotenv').load()
 const { router, get, post } = require('microrouter')
-const { schema, application, getViewer } = require('./services')
+const { schema } = require('../graphql')
+const { application, getViewer } = require('../application')
 const { microGraphql, microGraphiql } = require('apollo-server-micro')
 
 module.exports = router(
