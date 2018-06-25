@@ -2,7 +2,7 @@ const { graphql } = require('graphql')
 const { application, getViewer, sink } = require('./application')
 const { schema } = require('./graphql')
 
-exports.graphql = async ({ query, variables, context: { token } }, context, cb) => {
+exports.graphql = async ({ query, variables = {}, context: { token } = {} }, context, cb) => {
   try {
     const viewer = await getViewer(token)
     const results = await graphql(schema, query, {}, { application: application(viewer) }, variables)
