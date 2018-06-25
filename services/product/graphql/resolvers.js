@@ -30,9 +30,20 @@ exports.resolvers = {
     async addProduct (source, { input: { clientMutationId, ...input } }, { application }) {
       const { id } = await application.addProduct(input)
       return { clientMutationId, id: toGlobalId('Product', id) }
+    },
+    async updateProduct (source, { input: { clientMutationId, id, ...updates } }, { application }) {
+      await application.updateProduct({ ...updates, id: fromGlobalId(id).id })
+      return { clientMutationId, id }
+    },
+    async removeProduct (source, { input: { clientMutationId, id } }, { application }) {
+      await application.removeProduct(fromGlobalId(id).id)
+      return { clientMutationId, id }
     }
   },
   AddProductResponse: {
+    product: refetchProduct()
+  },
+  UpdateProductResponse: {
     product: refetchProduct()
   }
 }

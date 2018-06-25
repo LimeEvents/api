@@ -2,9 +2,11 @@ const uuid = require('uuid/v4')
 const curry = require('lodash.curry')
 
 const domain = (viewer, { product }) => {
+  const id = uuid()
   return {
-    id: uuid(),
+    id,
     name: product.name,
+    url: `https://www.vivintsolar.com/products/${id}`,
     caption: product.caption,
     description: product.description,
     seo: product.seo || {
@@ -12,9 +14,11 @@ const domain = (viewer, { product }) => {
       description: product.caption || product.description
     },
     sections: product.sections || [],
-    tags: product.tags,
+    tags: product.tags || [],
     dimensions: product.dimensions,
-    metadata: product.metadata || {}
+    metadata: product.metadata || {},
+    created: Date.now(),
+    updated: Date.now()
   }
 }
 

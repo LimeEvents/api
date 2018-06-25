@@ -44,7 +44,7 @@ class ProductRepository {
   }
 
   async remove (id) {
-    await db.delete({ Key: id }).promise()
+    await db.delete({ Key: { id } }).promise()
     await this.emit('ProductRemoved', { id })
     return { id }
   }

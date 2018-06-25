@@ -72,7 +72,7 @@ exports.definition = gql`
   type Mutation {
     addProduct(input: AddProductInput!): AddProductResponse
     updateProduct(input: UpdateProductInput!): UpdateProductResponse
-    discontinueProduct(input: DiscontinueProductInput!): DiscontinueProductResponse
+    removeProduct(input: RemoveProductInput!): RemoveProductResponse
   }
 
   input AddProductInput {
@@ -109,18 +109,27 @@ exports.definition = gql`
 
   input UpdateProductInput {
     clientMutationId: ID!
+    id: ID!
+    name: String
+    caption: String
+    description: String
+    seo: SeoInput
+    sections: [ SectionInput! ]
+    tags: [ String! ]
+    dimensions: DimensionsInput
+    metadata: JSON
   }
   type UpdateProductResponse {
     clientMutationId: ID!
     product: Product!
   }
 
-  input DiscontinueProductInput {
+  input RemoveProductInput {
     clientMutationId: ID!
+    id: ID!
   }
-  type DiscontinueProductResponse {
+  type RemoveProductResponse {
     clientMutationId: ID!
-    product: Product!
   }
 
   type PageInfo {
