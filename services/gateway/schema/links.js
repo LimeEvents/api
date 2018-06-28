@@ -56,7 +56,7 @@ const createLambdaLink = (linkOptions = {}) => {
 }
 
 const links = {
-  product: createLambdaLink({ FunctionName: 'ecommerce-product-dev', region: 'us-west-2' })
+  product: createLambdaLink({ FunctionName: process.env.PRODUCT_API, region: process.env.AWS_REGION })
 }
 
 exports.links = links
