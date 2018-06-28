@@ -8,6 +8,7 @@
     "debug": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT} -i tmp",
     "start": "micro index.js",
     "db": "dynalite --path tmp",
+    "postinstall": "node ./services/gateway/compile",
     "gateway": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT=3005} services/gateway/development",
     "fast": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT} -i tmp fast",
     "channel": "micro-dev -p ${PORT=3003} services/channel/development",

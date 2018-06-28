@@ -28,8 +28,9 @@ custom:
     domainName: api.${self:custom.domainMapping.${self:provider.stage}}
     stage: ${self:provider.stage}
     basePath: ''
-    certificateName: "*.${self:custom.domainMapping.${self:provider.stage}}"
+    certificateName: ${self:custom.domainMapping.${self:provider.stage}}
     createRoute53Record: false
+    endpointType: regional
 provider:
   name: aws
   runtime: nodejs8.10
@@ -90,14 +91,14 @@ provider:
             - Ref: "AWS::AccountId"
             - ":table/"
             - Ref: VariantProductTable
-    ### GATEWAY ###
-    # - Effect: Allow
-    #   Action:
-    #     - lambda:InvokeFunction
-    #   Resource:
-    #     Fn::GetAtt:
-    #     - "ProductDashapiLambdaFunction"
-    #     - "Arn"
+    ## GATEWAY ###
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource:
+        Fn::GetAtt:
+        - "ProductDashapiLambdaFunction"
+        - "Arn"
 # you can overwrite defaults here
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-west-2'}
