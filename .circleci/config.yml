@@ -40,7 +40,11 @@ jobs:
       - run: yarn test
 
       - run:
-          name: Deploy application
-          command: npx sls deploy --stage stage
+          name: Deploy us-west-2
+          command: npx sls deploy --stage stage --region us-west-2
+
+      - run:
+          name: Deploy us-east-1
+          command: npx sls deploy --stage stage --region us-east-1
 
 
