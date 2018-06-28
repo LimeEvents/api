@@ -92,13 +92,13 @@ provider:
             - ":table/"
             - Ref: VariantProductTable
     ## GATEWAY ###
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-      Resource:
-        Fn::GetAtt:
-        - "ProductDashapiLambdaFunction"
-        - "Arn"
+    # - Effect: Allow
+    #   Action:
+    #     - lambda:InvokeFunction
+    #   Resource:
+    #     Fn::GetAtt:
+    #     - "ProductDashapiLambdaFunction"
+    #     - "Arn"
 # you can overwrite defaults here
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-west-2'}
