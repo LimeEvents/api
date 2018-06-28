@@ -4,6 +4,8 @@ const path = require('path')
 const { parse, introspectionQuery } = require('graphql')
 const { links } = require('./schema/links')
 
+fs.mkdirSync(path.resolve(__dirname, './schema/services'))
+
 Object.entries(links)
   .map(async ([ key, link ]) => {
     try {
@@ -13,7 +15,6 @@ Object.entries(links)
         context: { getContext: () => ({}) }
       })
       observable.subscribe(result => {
-        console.log('result', result)
         fs.writeFileSync(path.resolve(__dirname, './schema/services', `${key}.json`), JSON.stringify(result))
       })
     } catch (ex) {
