@@ -51,6 +51,12 @@ class ProductRepository {
 
   async emit (_type, payload) {
     const TopicArn = TOPIC_MAP[_type]
+    const Message = JSON.stringify({
+      ...payload,
+      _type,
+      _timestamp: Date.now()
+    })
+    console.log('MESSAGE', Message)
     if (!TopicArn) {
       console.warn(`Event not emitted. Missing topic for "${_type}"`)
       return
@@ -58,11 +64,7 @@ class ProductRepository {
     assert(payload.id, 'Emitted events must include an "id" field')
     await sns
       .publish({
-        Message: JSON.stringify({
-          ...payload,
-          _type,
-          _timestamp: Date.now()
-        }),
+        Message,
         TopicArn
       })
       .promise()

@@ -37,6 +37,23 @@
         "PORT": 3001
       },
       "port": 3001
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Gateway Debug",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "gateway"
+      ],
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "PORT": 3005
+      },
+      "port": 3005
     }
   ]
 }
