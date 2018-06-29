@@ -5,6 +5,7 @@ const curry = require('lodash.curry')
 const domain = (viewer, { channel }) => {
   assert(viewer, 'Unauthenticated')
   assert(viewer.roles.includes('administrator'), 'Unauthorized')
+  assert(typeof channel === 'object', 'Invalid input')
   const now = Date.now()
   return {
     id: uuid(),
@@ -16,7 +17,7 @@ const domain = (viewer, { channel }) => {
 
 const application = curry(async (domain, repository, viewer, input) => {
   return repository.addChannel(
-    domain(viewer, input)
+    domain(viewer, { channel: input })
   )
 })
 

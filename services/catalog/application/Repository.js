@@ -44,6 +44,11 @@ class ProductRepository {
     return Item || null
   }
 
+  async getChannel (id) {
+    const { Item } = await db('channel').get({ Key: { id } }).promise()
+    return Item || null
+  }
+
   async add (product) {
     await db('product').put({ Item: product }).promise()
     await this.emit('ProductAdded', product)

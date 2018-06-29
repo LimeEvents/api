@@ -40,20 +40,9 @@ const resolvers = {
     }
   },
   Mutation: {
-    async addChannel (source, { input: { clientMutationId, ...input } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      assert(viewer.roles.includes('administrator'))
-      const id = uuid()
-      const now = Date.now()
-      await collection(CHANNEL_SOURCE).insert([{
-        id,
-        productIds: [],
-        ...input,
-        _timestamp: now,
-        _type: 'ChannelAdded'
-      }])
-      await collection(CHANNEL_VIEW).insert({ id, ...input, created: now, enabled: now, updated: now })
-      return { clientMutationId, id }
+    async addChannel (source, { input: { clientMutationId, ...input } }, { application }) {
+      const { id } = await application.addChannel(input)
+      return { clientMutationId, id: toGlobalId('Channel', id) }
     },
     async enableChannel (source, { input: { clientMutationId, id, start } }, { viewer }) {
       assert(viewer, 'Unauthenticated')
@@ -133,7 +122,6 @@ const resolvers = {
       id = fromGlobalId(id).id
       const channel = await getChannel(id)
       assert(channel, 'Channel does not exist')
-      const product = await getProduct()
       const now = Date.now()
       await collection(CHANNEL_SOURCE).insert({
         id,
@@ -195,8 +183,10 @@ function getChannel (id) {
   return collection(CHANNEL_VIEW).findOne({ id })
 }
 function refetchChannel (field = 'id') {
-  return async (source, args, { viewer }) => {
-    return getChannel(args[field] || source[field])
+  return async (source, args, { application }) => {
+    const id = args[field] || source[field]
+    const channel = await application.getChannel(fromGlobalId(id).id)
+    return { ...channel, id }
   }
 }
 function getProduct (id) {
