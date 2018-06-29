@@ -1,23 +1,24 @@
 require('dotenv').load()
 const fs = require('fs')
 const path = require('path')
-const { parse, introspectionQuery } = require('graphql')
-const { links } = require('./schema/links')
+const { introspectionQuery } = require('graphql')
+const { graphql: product } = require('../product/handler')
 
-fs.mkdirSync(path.resolve(__dirname, './schema/services'))
+try {
+  fs.mkdirSync(path.resolve(__dirname, './schema/services'))
+} catch (ex) {}
 
-Object.entries(links)
-  .map(async ([ key, link ]) => {
-    try {
-      const observable = link.request({
-        query: parse(introspectionQuery),
-        variables: {},
-        context: { getContext: () => ({}) }
-      })
-      observable.subscribe(result => {
-        fs.writeFileSync(path.resolve(__dirname, './schema/services', `${key}.json`), JSON.stringify(result))
-      })
-    } catch (ex) {
-      console.log(ex)
-    }
+const services = { product }
+
+Object.entries(services)
+  .map(([ key, service ]) => {
+    service({
+      query: introspectionQuery,
+      variables: {},
+      context: { getContext: () => ({}) }
+    }, {}, (err, result) => {
+      if (err) return console.error(err)
+      console.log('results', result)
+      fs.writeFileSync(path.resolve(__dirname, './schema/services', `${key}.json`), JSON.stringify(result))
+    })
   })
