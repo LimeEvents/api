@@ -56,7 +56,7 @@ const createLambdaLink = (linkOptions = {}) => {
 }
 
 const links = {
-  product: createLambdaLink({ FunctionName: process.env.PRODUCT_API, region: process.env.AWS_REGION })
+  catalog: createLambdaLink({ FunctionName: process.env.PRODUCT_API, region: process.env.AWS_REGION })
 }
 
 exports.links = links

@@ -38,7 +38,7 @@ provider:
   deploymentBucket:
     name: ${self:custom.deploymentBucket}
   iamRoleStatements:
-    ### PRODUCT API ###
+    ### CATALOG API ###
     - Effect: Allow
       Action:
       - dynamodb:DeleteItem
@@ -55,6 +55,38 @@ provider:
             - Ref: "AWS::AccountId"
             - ":table/"
             - Ref: ProductTable
+    - Effect: Allow
+      Action:
+      - dynamodb:DeleteItem
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:Query
+      - dynamodb:Scan
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:dynamodb:"
+            - Ref: "AWS::Region"
+            - ":"
+            - Ref: "AWS::AccountId"
+            - ":table/"
+            - Ref: ChannelTable
+    - Effect: Allow
+      Action:
+      - dynamodb:DeleteItem
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:Query
+      - dynamodb:Scan
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:dynamodb:"
+            - Ref: "AWS::Region"
+            - ":"
+            - Ref: "AWS::AccountId"
+            - ":table/"
+            - Ref: VariantTable
     - Effect: Allow
       Action:
       - sns:Publish
