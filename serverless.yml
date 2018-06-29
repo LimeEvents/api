@@ -177,7 +177,7 @@ functions:
     name: ${self:provider.environment.PRODUCT_SINK}
 
   variant-sink:
-    handler: services/variant/sink/index.sink
+    handler: services/variant/sink.sink
     name: ${self:provider.environment.VARIANT_SINK}
     environment:
       PRODUCT_TABLE:
