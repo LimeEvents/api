@@ -1,8 +1,6 @@
 const gql = require('graphql-tag')
 
 exports.definition = gql`
-  scalar JSON
-  scalar DateTime
   enum ContentOutputFormat {
     HTML
     Markdown
@@ -130,13 +128,6 @@ exports.definition = gql`
   }
   type RemoveProductResponse {
     clientMutationId: ID!
-  }
-
-  type PageInfo {
-    startCursor: String!
-    endCursor: String!
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
   }
 
   interface Node {

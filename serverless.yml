@@ -90,7 +90,7 @@ provider:
             - ":"
             - Ref: "AWS::AccountId"
             - ":table/"
-            - Ref: VariantProductTable
+            - Ref: VariantTable
     ## GATEWAY ###
     - Effect: Allow
       Action:
@@ -161,7 +161,7 @@ functions:
          method: get
 
   product-api:
-    handler: services/product/handler.graphql
+    handler: services/catalog/handler.graphql
     name: ${self:provider.environment.PRODUCT_API}
     environment:
       PRODUCT_ADDED_TOPIC:
@@ -172,29 +172,10 @@ functions:
         Ref: ProductRemovedTopic
       PRODUCT_TABLE:
         Ref: ProductTable
-  product-sink:
-    handler: services/product/handler.sink
-    name: ${self:provider.environment.PRODUCT_SINK}
-
-  variant-sink:
-    handler: services/variant/sink.sink
-    name: ${self:provider.environment.VARIANT_SINK}
-    environment:
-      PRODUCT_TABLE:
-        Ref: VariantProductTable
-    events:
-      - sns:
-          arn:
-            Ref: ProductAddedTopic
-          topicName: ProductAdded-${self:provider.stage}
-      - sns:
-          arn:
-            Ref: ProductUpdatedTopic
-          topicName: ProductUpdated-${self:provider.stage}
-      - sns:
-          arn:
-            Ref: ProductRemovedTopic
-          topicName: ProductRemoved-${self:provider.stage}
+      CHANNEL_TABLE:
+        Ref: ChannelTable
+      VARIANT_TABLE:
+        Ref: VariantTable
       # - sns:
       #     displayName: Product Updated
       #     arn:
@@ -293,10 +274,25 @@ resources:
           WriteCapacityUnits: 1
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
-    VariantProductTable:
+    ChannelTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-variant-product-${self:provider.stage}
+        TableName: ${self:service}-channel-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    VariantTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-variant-${self:provider.stage}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S

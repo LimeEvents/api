@@ -1,24 +1,38 @@
 const assert = require('assert')
+const memoize = require('lodash.memoize')
 
 const AWS = require('aws-sdk')
 const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
-const db = new AWS.DynamoDB.DocumentClient({
-  apiVersion: '2012-08-10',
-  region: process.env.AWS_REGION,
-  params: {
-    TableName: process.env.PRODUCT_TABLE
-  }
-})
 
+const tables = {
+  product: process.env.PRODUCT_TABLE,
+  channel: process.env.CHANNEL_TABLE
+}
 const TOPIC_MAP = {
   ProductAdded: process.env.PRODUCT_ADDED_TOPIC,
   ProductUpdated: process.env.PRODUCT_UPDATED_TOPIC,
   ProductRemoved: process.env.PRODUCT_REMOVED_TOPIC
 }
 
+const db = memoize(table => new AWS.DynamoDB.DocumentClient({
+  apiVersion: '2012-08-10',
+  region: process.env.AWS_REGION,
+  params: {
+    TableName: tables[table]
+  }
+}))
+
 class ProductRepository {
+  async findChannels ({ cursor, limit = 50 }) {
+    const { Items } = await db('channel').scan({
+      ExclusiveStartKey: cursor,
+      Limit: limit
+    }).promise()
+    return Items || []
+  }
+
   async find ({ cursor, limit = 50 }) {
-    const { Items } = await db.scan({
+    const { Items } = await db('product').scan({
       ExclusiveStartKey: cursor,
       Limit: limit
     }).promise()
@@ -26,27 +40,33 @@ class ProductRepository {
   }
 
   async get (id) {
-    const { Item } = await db.get({ Key: { id } }).promise()
+    const { Item } = await db('product').get({ Key: { id } }).promise()
     return Item || null
   }
 
   async add (product) {
-    await db.put({ Item: product }).promise()
+    await db('product').put({ Item: product }).promise()
     await this.emit('ProductAdded', product)
     return { id: product.id }
   }
 
   async update (updates) {
     const product = await this.get(updates.id)
-    await db.put({ Item: { ...product, ...updates } }).promise()
+    await db('product').put({ Item: { ...product, ...updates } }).promise()
     await this.emit('ProductUpdated', updates)
     return { id: updates.id }
   }
 
   async remove (id) {
-    await db.delete({ Key: { id } }).promise()
+    await db('product').delete({ Key: { id } }).promise()
     await this.emit('ProductRemoved', { id })
     return { id }
+  }
+
+  async addChannel (channel) {
+    await db('channel').put({ Item: channel }).promise()
+    await this.emit('ChannelAdded', channel)
+    return { id: channel.id }
   }
 
   async emit (_type, payload) {

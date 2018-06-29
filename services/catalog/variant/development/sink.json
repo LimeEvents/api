@@ -1,0 +1,21 @@
+{
+  "Records": [
+    {
+      "EventVersion": "1.0",
+      "EventSubscriptionArn": "",
+      "EventSource": "aws:sns",
+      "Sns": {
+        "SignatureVersion": "1",
+        "Timestamp": "1970-01-01T00:00:00.000Z",
+        "Signature": "EXAMPLE",
+        "SigningCertUrl": "EXAMPLE",
+        "MessageId": "95df01b4-ee98-5cb9-9903-4c221d41eb5e",
+        "Message": "{\"id\":\"2e6697ce-5baa-4a18-967f-30ae1d212c0e\",\"name\":\"Google Home 2\",\"url\":\"https://www.vivintsolar.com/products/2e6697ce-5baa-4a18-967f-30ae1d212c0e\",\"seo\":{\"title\":\"Google Home 2\"},\"sections\":[],\"tags\":[],\"metadata\":{},\"created\":1530041434118,\"updated\":1530041434118,\"_type\":\"ProductAdded\",\"_timestamp\":1530041434397}",
+        "Type": "Notification",
+        "UnsubscribeUrl": "EXAMPLE",
+        "TopicArn": "topicarn",
+        "Subject": "TestInvoke"
+      }
+    }
+  ]
+}

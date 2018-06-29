@@ -41,6 +41,23 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Variant Debug",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "variant"
+      ],
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "PORT": 3002
+      },
+      "port": 3002
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Gateway Debug",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

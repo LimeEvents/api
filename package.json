@@ -12,8 +12,8 @@
     "gateway": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT=3005} services/gateway/development",
     "fast": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT} -i tmp fast",
     "channel": "micro-dev -p ${PORT=3003} services/channel/development",
-    "product": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT=3001} services/product/development",
-    "variant": "micro-dev -p ${PORT=3002} services/variant",
+    "catalog": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT=3001} services/catalog/development",
+    "variant": "node --inspect=${PORT} node_modules/.bin/micro-dev -p ${PORT=3001} services/variant/development",
     "test": "jest --env node --coverage"
   },
   "keywords": [],
@@ -46,6 +46,7 @@
     "graphql-tools": "^3.0.2",
     "lodash.curry": "^4.1.1",
     "lodash.memoize": "^4.1.2",
+    "lodash.merge": "^4.6.1",
     "monk": "^6.0.6",
     "quick-lru": "^1.1.0",
     "uuid": "^3.2.1"
