@@ -5,3 +5,4 @@ tmp
 coverage
 
 .serverless
+services/gateway/schema/services

@@ -2,13 +2,13 @@ require('dotenv').load()
 const fs = require('fs')
 const path = require('path')
 const { introspectionQuery } = require('graphql')
-const { graphql: product } = require('../product/handler')
+const { graphql: catalog } = require('../catalog/handler')
 
 try {
   fs.mkdirSync(path.resolve(__dirname, './schema/services'))
 } catch (ex) {}
 
-const services = { product }
+const services = { catalog }
 
 Object.entries(services)
   .map(([ key, service ]) => {
