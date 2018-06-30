@@ -42,7 +42,7 @@ const resolvers = {
   Mutation: {
     async addChannel (source, { input: { clientMutationId, ...input } }, { application }) {
       const { id } = await application.addChannel(input)
-      return { clientMutationId, id: toGlobalId('Channel', id) }
+      return { clientMutationId, id }
     },
     async enableChannel (source, { input: { clientMutationId, id, start } }, { application }) {
       await application.enableChannel({ id: fromGlobalId(id).id, start })
@@ -108,9 +108,6 @@ const resolvers = {
     channel: refetchChannel()
   },
   DisableChannelResponse: {
-    channel: refetchChannel()
-  },
-  RemoveChannelResponse: {
     channel: refetchChannel()
   },
   PublishChannelProductResponse: {

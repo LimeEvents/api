@@ -1,5 +1,7 @@
-const assert = require('assert')
+const _assert = require('assert')
 const curry = require('lodash.curry')
+
+const assert = (check, message) => _assert(check, `Error updating channel: ${message}`)
 
 const domain = (viewer, { channel, updates }) => {
   assert(viewer, 'Unauthenticated')

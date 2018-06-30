@@ -111,6 +111,5 @@ exports.definition = gql`
   }
   type RemoveChannelResponse {
     clientMutationId: ID!
-    channel: Channel!
   }
 `

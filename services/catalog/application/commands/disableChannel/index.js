@@ -1,9 +1,11 @@
-const assert = require('assert')
+const _assert = require('assert')
 const curry = require('lodash.curry')
 
+const assert = (check, message) => _assert(check, `Error disabling channel: ${message}`)
+
 const domain = (viewer, { channel, start = Date.now() }) => {
-  assert(viewer, 'Must be signed in to disable channels')
-  assert(viewer.roles.includes('administrator'))
+  assert(viewer, 'Must be signed in')
+  assert(viewer.roles.includes('administrator'), 'Unauthorized')
   assert(channel, 'Channel does not exist')
   assert(!channel.removed, 'Channel has been removed')
   assert(!channel.disabled, 'Channel is already disabled')
