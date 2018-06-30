@@ -11,6 +11,8 @@ const { listProducts } = require('./queries/listProducts')
 const { addChannel } = require('./commands/addChannel')
 const { enableChannel } = require('./commands/enableChannel')
 const { disableChannel } = require('./commands/disableChannel')
+const { updateChannel } = require('./commands/updateChannel')
+const { removeChannel } = require('./commands/removeChannel')
 const { getChannel } = require('./queries/getChannel')
 const { listChannels } = require('./queries/listChannels')
 
@@ -26,6 +28,8 @@ exports.application = (viewer, repository = new Repository()) => {
     addChannel: addChannel(repository, viewer),
     enableChannel: enableChannel(repository, viewer),
     disableChannel: disableChannel(repository, viewer),
+    updateChannel: updateChannel(repository, viewer),
+    removeChannel: removeChannel(repository, viewer),
     getChannel: getChannel(repository, viewer),
     listChannels: listChannels(repository, viewer),
     health: health(repository, viewer)

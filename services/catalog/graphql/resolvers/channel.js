@@ -52,40 +52,12 @@ const resolvers = {
       await application.disableChannel({ id: fromGlobalId(id).id, start })
       return { clientMutationId, id }
     },
-    async updateChannel (source, { input: { clientMutationId, id, ...input } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      assert(viewer.roles.includes('administrator'))
-      id = fromGlobalId(id).id
-      const now = Date.now()
-      const channel = await getChannel(id)
-      assert(channel, 'Channel does not exist')
-      assert(!channel.removed, 'Channel has been removed')
-      await collection(CHANNEL_SOURCE).insert([{
-        id,
-        productIds: [],
-        ...input,
-        _timestamp: now,
-        _type: 'ChannelUpdated'
-      }])
-      await collection(CHANNEL_VIEW).update({ id }, { $set: { updated: now, ...input } })
+    async updateChannel (source, { input: { clientMutationId, id, ...updates } }, { application }) {
+      await application.updateChannel({ ...updates, id: fromGlobalId(id).id })
       return { clientMutationId, id }
     },
-    async removeChannel (source, { input: { clientMutationId, id, ...input } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      assert(viewer.roles.includes('administrator'))
-      id = fromGlobalId(id).id
-      const now = Date.now()
-      const channel = await getChannel(id)
-      assert(channel, 'Channel does not exist')
-      assert(!channel.removed, 'Channel has already been removed')
-      assert(channel.disabled, 'Channel must be disabled before it can be removed')
-      await collection(CHANNEL_SOURCE).insert([{
-        id,
-        ...input,
-        _timestamp: now,
-        _type: 'ChannelRemoved'
-      }])
-      await collection(CHANNEL_VIEW).update({ id }, { $set: { updated: now, removed: now } })
+    async removeChannel (source, { input: { clientMutationId, id } }, { application }) {
+      await application.removeChannel({ id: fromGlobalId(id).id })
       return { clientMutationId, id }
     },
     async publishChannelProduct (source, { input: { clientMutationId, id, productId } }, { viewer }) {
