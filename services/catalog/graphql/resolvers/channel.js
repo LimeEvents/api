@@ -60,41 +60,16 @@ const resolvers = {
       await application.removeChannel({ id: fromGlobalId(id).id })
       return { clientMutationId, id }
     },
-    async publishChannelProduct (source, { input: { clientMutationId, id, productId } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      const channelId = id
-      id = fromGlobalId(id).id
-      const channel = await getChannel(id)
-      assert(channel, 'Channel does not exist')
-      const now = Date.now()
-      await collection(CHANNEL_SOURCE).insert({
-        id,
-        productId,
-        _timestamp: now,
-        _type: 'ChannelProductPublished'
-      })
-      const productIds = channel.productIds || []
-      productIds.push(productId)
-      await collection(CHANNEL_PRODUCT_LINK).insert({ id: uuid(), productId, channelId })
-      return { clientMutationId, id: channelId, productId }
+    async publishChannelProduct (source, { input: { clientMutationId, id, productId } }, { application }) {
+      await application.publishChannelProduct({
+        id: fromGlobalId(id).id,
+        productId: fromGlobalId(productId).id })
+      return { clientMutationId, id, productId }
     },
-    async unpublishChannelProduct (source, { input: { clientMutationId, id, productId } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      id = fromGlobalId(id).id
-      const channel = await getChannel(id)
-      assert(channel, 'Channel does not exist')
-      assert(channel.productIds.includes(productId), 'Product is not published to this channel')
-      const now = Date.now()
-      await collection(CHANNEL_SOURCE).insert({
-        id,
-        productId,
-        _timestamp: now,
-        _type: 'ChannelProductUnpublished'
-      })
-      let productIds = channel.productIds || []
-      const idx = productIds.indexOf(productId)
-      productIds.splice(idx, 1)
-      await collection(CHANNEL_VIEW).update({ id }, { $set: { productIds } })
+    async unpublishChannelProduct (source, { input: { clientMutationId, id, productId } }, { application }) {
+      await application.unpublishChannelProduct({
+        id: fromGlobalId(id).id,
+        productId: fromGlobalId(productId).id })
       return { clientMutationId, id, productId }
     }
   },
@@ -135,8 +110,10 @@ function getProduct (id) {
   return collection(PRODUCT_VIEW).findOne({ id })
 }
 function refetchProduct (field = 'id') {
-  return async (source, args, { viewer }) => {
-    return getProduct(args[field] || source[field])
+  return async (source, args, { application }) => {
+    const id = args[field] || source[field]
+    const channel = await application.getProduct(fromGlobalId(id).id)
+    return { ...channel, id }
   }
 }
 
