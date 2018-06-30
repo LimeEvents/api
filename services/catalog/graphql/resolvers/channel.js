@@ -44,40 +44,12 @@ const resolvers = {
       const { id } = await application.addChannel(input)
       return { clientMutationId, id: toGlobalId('Channel', id) }
     },
-    async enableChannel (source, { input: { clientMutationId, id, start } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      assert(viewer.roles.includes('administrator'))
-      id = fromGlobalId(id).id
-      const now = Date.now()
-      const channel = await getChannel(id)
-      assert(channel, 'Channel does not exist')
-      assert(!channel.removed, 'Channel has been removed')
-      assert(!channel.enabled, 'Channel is already enabled')
-      await collection(CHANNEL_SOURCE).insert([{
-        id,
-        start,
-        _timestamp: now,
-        _type: 'ChannelEnabled'
-      }])
-      await collection(CHANNEL_VIEW).update({ id }, { $set: { enabled: now, disabled: null, updated: now } })
+    async enableChannel (source, { input: { clientMutationId, id, start } }, { application }) {
+      await application.enableChannel({ id: fromGlobalId(id).id, start })
       return { clientMutationId, id }
     },
-    async disableChannel (source, { input: { clientMutationId, id, start } }, { viewer }) {
-      assert(viewer, 'Unauthenticated')
-      assert(viewer.roles.includes('administrator'))
-      id = fromGlobalId(id).id
-      const channel = await getChannel(id)
-      assert(channel, 'Channel does not exist')
-      assert(!channel.removed, 'Channel has been removed')
-      assert(!channel.disabled, 'Channel is already disabled')
-      const now = Date.now()
-      await collection(CHANNEL_SOURCE).insert([{
-        id,
-        start,
-        _timestamp: now,
-        _type: 'ChannelDisabled'
-      }])
-      await collection(CHANNEL_VIEW).update({ id }, { $set: { disabled: now, enabled: null, updated: now } })
+    async disableChannel (source, { input: { clientMutationId, id, start } }, { application }) {
+      await application.disableChannel({ id: fromGlobalId(id).id, start })
       return { clientMutationId, id }
     },
     async updateChannel (source, { input: { clientMutationId, id, ...input } }, { viewer }) {

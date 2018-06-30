@@ -3,7 +3,7 @@ const assert = require('assert')
 const curry = require('lodash.curry')
 
 const domain = (viewer, { channel }) => {
-  assert(viewer, 'Unauthenticated')
+  assert(viewer, 'Must be signed in to enable channels')
   assert(viewer.roles.includes('administrator'), 'Unauthorized')
   assert(typeof channel === 'object', 'Invalid input')
   const now = Date.now()

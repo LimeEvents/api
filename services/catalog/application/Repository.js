@@ -74,6 +74,13 @@ class ProductRepository {
     return { id: channel.id }
   }
 
+  async save (events) {
+    // TODO: Save events
+    await Promise.all(
+      events.map(event => this.emit(event._type, event))
+    )
+  }
+
   async emit (_type, payload) {
     const TopicArn = TOPIC_MAP[_type]
     const Message = JSON.stringify({

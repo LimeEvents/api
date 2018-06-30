@@ -2,7 +2,7 @@ const assert = require('assert')
 const curry = require('lodash.curry')
 
 const domain = (viewer, { id, ...product }) => {
-  assert(viewer, 'Unauthenticated')
+  assert(viewer, 'Must be signed in to remove products')
   assert(viewer.roles.includes('administrator'), 'Unauthorized')
   assert(product, 'Product does not exist')
 
