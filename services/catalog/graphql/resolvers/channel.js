@@ -24,19 +24,14 @@ const resolvers = {
   Channel: {
     id: ({ id }) => toGlobalId('Channel', id),
     metadata: ({ metadata }) => metadata || {},
-    async products ({ productIds = [] }, args, { viewer }) {
-      const { edges, pageInfo } = connectionFromArray(productIds.map(id => ({ id })), args)
-      return {
-        pageInfo,
-        edges: await Promise.all(
-          edges.map(async ({ node, cursor }) => {
-            return {
-              cursor,
-              node: await getProduct(node.id)
-            }
-          })
-        )
-      }
+    async products ({ id }, args, { application }) {
+      const { first, last, before, after } = args
+      const products = await application.listChannelProducts({
+        id,
+        cursor: before || after,
+        limit: first || last
+      })
+      return connectionFromArray(products, args)
     }
   },
   Mutation: {

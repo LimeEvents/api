@@ -17,6 +17,7 @@ const { unpublishChannelProduct } = require('./commands/unpublishChannelProduct'
 const { removeChannel } = require('./commands/removeChannel')
 const { getChannel } = require('./queries/getChannel')
 const { listChannels } = require('./queries/listChannels')
+const { listChannelProducts } = require('./queries/listChannelProducts')
 
 exports.application = (viewer, repository = new Repository()) => {
   return {
@@ -36,6 +37,7 @@ exports.application = (viewer, repository = new Repository()) => {
     removeChannel: removeChannel(repository, viewer),
     getChannel: getChannel(repository, viewer),
     listChannels: listChannels(repository, viewer),
+    listChannelProducts: listChannelProducts(repository, viewer),
     health: health(repository, viewer)
   }
 }
