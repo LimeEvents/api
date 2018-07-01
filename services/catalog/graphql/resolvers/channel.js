@@ -1,16 +1,6 @@
 const { fromGlobalId, toGlobalId, connectionFromArray } = require('graphql-relay')
-const assert = require('assert')
-const memoize = require('lodash.memoize')
-const Monk = require('monk')
-const uuid = require('uuid/v4')
 
-const connection = memoize(url => new Monk(url))
-const collection = memoize(name => connection(process.env.MONGODB_URL).get(name))
-
-const CHANNEL_SOURCE = 'channel.source'
-const CHANNEL_VIEW = 'channel.view'
-const PRODUCT_VIEW = 'product.view'
-const CHANNEL_PRODUCT_LINK = 'channel.product.link'
+const { refetchChannel, refetchProduct } = require('./utils')
 
 const resolvers = {
   Query: {
@@ -87,28 +77,6 @@ const resolvers = {
   UnpublishChannelProductResponse: {
     channel: refetchChannel(),
     product: refetchProduct('productId')
-  }
-}
-
-function getChannel (id) {
-  return collection(CHANNEL_VIEW).findOne({ id })
-}
-function refetchChannel (field = 'id') {
-  return async (source, args, { application }) => {
-    const id = args[field] || source[field]
-    const channel = await application.getChannel(fromGlobalId(id).id)
-    return { ...channel, id }
-  }
-}
-function getProduct (id) {
-  id = fromGlobalId(id).id
-  return collection(PRODUCT_VIEW).findOne({ id })
-}
-function refetchProduct (field = 'id') {
-  return async (source, args, { application }) => {
-    const id = args[field] || source[field]
-    const channel = await application.getProduct(fromGlobalId(id).id)
-    return { ...channel, id }
   }
 }
 
