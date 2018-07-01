@@ -7,6 +7,7 @@ const { updateProduct } = require('./commands/updateProduct')
 const { removeProduct } = require('./commands/removeProduct')
 const { getProduct } = require('./queries/getProduct')
 const { listProducts } = require('./queries/listProducts')
+const { listProductVariants } = require('./queries/listProductVariants')
 
 const { addChannel } = require('./commands/addChannel')
 const { enableChannel } = require('./commands/enableChannel')
@@ -27,6 +28,7 @@ exports.application = (viewer, repository = new Repository()) => {
 
     getProduct: getProduct(repository, viewer),
     listProducts: listProducts(repository, viewer),
+    listProductVariants: listProductVariants(repository, viewer),
 
     addChannel: addChannel(repository, viewer),
     enableChannel: enableChannel(repository, viewer),

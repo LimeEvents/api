@@ -1,12 +1,14 @@
 const assert = require('assert')
 const memoize = require('lodash.memoize')
+const Dataloader = require('dataloader')
 
 const AWS = require('aws-sdk')
 const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
 
 const tables = {
   product: process.env.PRODUCT_TABLE,
-  channel: process.env.CHANNEL_TABLE
+  channel: process.env.CHANNEL_TABLE,
+  channelProducts: process.env.CHANNEL_PRODUCT_TABLE
 }
 const TOPIC_MAP = {
   ProductAdded: process.env.PRODUCT_ADDED_TOPIC,
@@ -23,6 +25,31 @@ const db = memoize(table => new AWS.DynamoDB.DocumentClient({
 }))
 
 class ProductRepository {
+  constructor () {
+    const globalDb = new AWS.DynamoDB.DocumentClient({
+      apiVersion: '2012-08-10',
+      region: process.env.AWS_REGION
+    })
+    this.dataloader = new Dataloader(async ids => {
+      const split = ids.map(id => id.split(':'))
+      const RequestItems = split
+        .reduce((prev, [type, id]) => {
+          type = tables[type]
+          if (!prev[type]) prev[type] = { Keys: [] }
+          prev[type].Keys.push({ id })
+          return prev
+        }, {})
+      const { Responses } = await globalDb.batchGet({ RequestItems }).promise()
+      // TODO: find quicker algorithm for matching with request ID
+      return split.map(([ type, id ]) => {
+        return Responses[tables[type]].find((item) => item.id === id)
+      })
+    }, {
+      // cacheKeyFn: (type, id) => {
+      //   return `${type}:${id}`
+      // }
+    })
+  }
   async findChannels ({ cursor, limit = 50 }) {
     const { Items } = await db('channel').scan({
       ExclusiveStartKey: cursor,
@@ -39,9 +66,76 @@ class ProductRepository {
     return Items || []
   }
 
+  // async listProductVariants ({ id, cursor, limit = 50 }) {
+  //   const { Item: { variantId } }
+  // }
+
+  async addChannel (channel) {
+    await db('channel').put({ Item: channel }).promise()
+    await this.emit('ChannelAdded', channel)
+    return { id: channel.id }
+  }
+
+  async listChannelProductIds ({ id, cursor, limit }) {
+    const { Items } = await db('channelProducts')
+      .query({
+        KeyConditionExpression: 'channelId = :hkey',
+        ExpressionAttributeValues: {
+          ':hkey': id
+        }
+      })
+      .promise()
+    return Items.map(({ productId }) => productId)
+  }
+
+  async enableChannel ({ id, enabled }) {
+    const channel = await this.getChannel(id)
+    await db('channel').put({ Item: { ...channel, enabled, disabled: null } }).promise()
+    await this.emit('ChannelEnabled', { id, enabled })
+    return { id }
+  }
+
+  async disableChannel ({ id, disabled }) {
+    const channel = await this.getChannel(id)
+    await db('channel').put({ Item: { ...channel, enabled: null, disabled } }).promise()
+    await this.emit('ChannelDisabled', { id, disabled })
+    return { id }
+  }
+
+  async updateChannel ({ id, name, metadata }) {
+    const channel = await this.getChannel(id)
+    await db('channel').put({ Item: { ...channel, name, metadata } }).promise()
+    await this.emit('ChannelUpdated', { id, name, metadata })
+    return { id }
+  }
+
+  async removeChannel ({ id }) {
+    await db('channel').delete({ Key: { id } }).promise()
+    await this.emit('ChannelRemoved', { id })
+    return { id }
+  }
+
+  async publishChannelProduct ({ id, productId }) {
+    await db('channelProducts').put({ Item: { channelId: id, productId } }).promise()
+    await this.emit('ChannelProductPublished', { id, productId })
+    return { id }
+  }
+
+  async unpublishChannelProduct ({ id, productId }) {
+    const results = await db('channelProducts')
+      .delete({ Key: {
+        channelId: id,
+        productId
+      }})
+      .promise()
+    console.log(results)
+    await this.emit('ChannelProductUnpublished', { id, productId })
+    return { id }
+  }
+
   async get (id) {
-    const { Item } = await db('product').get({ Key: { id } }).promise()
-    return Item || null
+    const product = await this.dataloader.load(`product:${id}`)
+    return product || null
   }
 
   async getChannel (id) {
@@ -66,12 +160,6 @@ class ProductRepository {
     await db('product').delete({ Key: { id } }).promise()
     await this.emit('ProductRemoved', { id })
     return { id }
-  }
-
-  async addChannel (channel) {
-    await db('channel').put({ Item: channel }).promise()
-    await this.emit('ChannelAdded', channel)
-    return { id: channel.id }
   }
 
   async save (events) {

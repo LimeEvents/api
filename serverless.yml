@@ -336,6 +336,25 @@ resources:
           WriteCapacityUnits: 1
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
+    ProductVariantTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-product-variants-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: productId
+            AttributeType: S
+          - AttributeName: variantId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: productId
+            KeyType: HASH
+          - AttributeName: variantId
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
 
     # CloudfrontAPI:
     #   Type: AWS::CloudFront::Distribution

@@ -14,15 +14,26 @@ const resolvers = {
   Channel: {
     id: ({ id }) => toGlobalId('Channel', id),
     metadata: ({ metadata }) => metadata || {},
-    async products ({ id }, args, { application }) {
-      const { first, last, before, after } = args
-      const products = await application.listChannelProducts({
+    async products ({ id }, args) {
+      return { id, ...args }
+    }
+  },
+  ChannelProductConnection: {
+    async edges ({ id, before, after, first, last }, args, { application }) {
+      const productIds = await application.listChannelProductIds({
         id,
         cursor: before || after,
         limit: first || last
       })
-      return connectionFromArray(products, args)
+
+      return productIds.map(id => ({ id }))
     }
+  },
+  ChannelProductEdge: {
+    node ({ id }, args, { application }) {
+      return application.getProduct(id)
+    },
+    cursor: ({ id }) => id
   },
   Mutation: {
     async addChannel (source, { input: { clientMutationId, ...input } }, { application }) {

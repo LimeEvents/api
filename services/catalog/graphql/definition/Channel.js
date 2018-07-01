@@ -23,11 +23,21 @@ exports.definition = gql`
     created: DateTime!
     updated: DateTime!
 
-    products: ProductConnection!
+    products: ChannelProductConnection!
 
     enabled: DateTime
     disabled: DateTime
     removed: DateTime
+  }
+
+
+  type ChannelProductConnection {
+    edges: [ ChannelProductEdge! ]!
+    pageInfo: PageInfo
+  }
+  type ChannelProductEdge {
+    cursor: String
+    node: Product
   }
 
   extend type Mutation {

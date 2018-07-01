@@ -7,10 +7,10 @@ const domain = (viewer, { channel, products }) => {
 
 const application = curry(async (domain, repository, viewer, { id }) => {
   const channel = await repository.getChannel(id)
-  const products = await repository.listChannelProducts({ id })
+  const products = await repository.listChannelProductIds({ id })
   return domain(viewer, { channel, products })
 })
 
 exports.domain = domain
 exports.application = application
-exports.listChannelProducts = application(domain)
+exports.listChannelProductIds = application(domain)
