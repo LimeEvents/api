@@ -18,8 +18,8 @@ const domain = (viewer, { product, updates }) => {
 }
 
 const application = curry(async (domain, repository, viewer, { id, ...updates }) => {
-  const product = await repository.get(id)
-  return repository.update(
+  const product = await repository.getProduct(id)
+  return repository.updateProduct(
     domain(viewer, { product, updates })
   )
 })

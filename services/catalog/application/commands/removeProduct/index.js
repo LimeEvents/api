@@ -10,9 +10,9 @@ const domain = (viewer, { id, ...product }) => {
 }
 
 const application = curry(async (domain, repository, viewer, id) => {
-  const product = await repository.get(id)
+  const product = await repository.getProduct(id)
   domain(viewer, product)
-  return repository.remove(id)
+  return repository.removeProduct(id)
 })
 
 exports.domain = domain

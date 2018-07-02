@@ -5,7 +5,7 @@ const domain = (viewer, { products }) => {
 }
 
 const application = curry(async (domain, repository, viewer, args) => {
-  const products = await repository.find(args)
+  const products = await repository.findProducts(args)
   return domain(viewer, { products })
 })
 

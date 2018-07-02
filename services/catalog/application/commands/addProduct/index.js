@@ -23,7 +23,7 @@ const domain = (viewer, { product }) => {
 }
 
 const application = curry(async (domain, repository, viewer, product) => {
-  return repository.add(
+  return repository.addProduct(
     domain(viewer, { product })
   )
 })

@@ -58,7 +58,7 @@ class ProductRepository {
     return Items || []
   }
 
-  async find ({ cursor, limit = 50 }) {
+  async findProducts ({ cursor, limit = 50 }) {
     const { Items } = await db('product').scan({
       ExclusiveStartKey: cursor,
       Limit: limit
@@ -133,7 +133,7 @@ class ProductRepository {
     return { id }
   }
 
-  async get (id) {
+  async getProduct (id) {
     const product = await this.dataloader.load(`product:${id}`)
     return product || null
   }
@@ -143,20 +143,20 @@ class ProductRepository {
     return channel || null
   }
 
-  async add (product) {
+  async addProduct (product) {
     await db('product').put({ Item: product }).promise()
     await this.emit('ProductAdded', product)
     return { id: product.id }
   }
 
-  async update (updates) {
-    const product = await this.get(updates.id)
+  async updateProduct (updates) {
+    const product = await this.getProduct(updates.id)
     await db('product').put({ Item: { ...product, ...updates } }).promise()
     await this.emit('ProductUpdated', updates)
     return { id: updates.id }
   }
 
-  async remove (id) {
+  async removeProduct (id) {
     await db('product').delete({ Key: { id } }).promise()
     await this.emit('ProductRemoved', { id })
     return { id }
