@@ -139,8 +139,8 @@ class ProductRepository {
   }
 
   async getChannel (id) {
-    const { Item } = await db('channel').get({ Key: { id } }).promise()
-    return Item || null
+    const channel = await this.dataloader.load(`channel:${id}`)
+    return channel || null
   }
 
   async add (product) {

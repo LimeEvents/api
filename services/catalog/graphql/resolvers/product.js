@@ -1,4 +1,5 @@
 const { connectionFromArray, fromGlobalId, toGlobalId } = require('graphql-relay')
+const { refetchProduct } = require('./utils')
 
 const resolveType = {
   __resolveType: ({ id }) => fromGlobalId(id).type
@@ -45,13 +46,5 @@ exports.resolvers = {
   },
   UpdateProductResponse: {
     product: refetchProduct()
-  }
-}
-
-function refetchProduct (field = 'id') {
-  return async (source, args, { application }) => {
-    const id = args.id || source.id
-    const variant = await application.getProduct(fromGlobalId(id).id)
-    return { ...variant, id }
   }
 }
