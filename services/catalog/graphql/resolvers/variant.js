@@ -22,7 +22,13 @@ exports.resolvers = {
   Mutation: {
     async addProductVariant (source, { input: { clientMutationId, id, ...input } }, { application }) {
       id = fromGlobalId(id).id
-      await application.addProductVariant({ ...input, id })
+      const { variantId } = await application.addProductVariant({ ...input, id })
+      return { clientMutationId, id, variantId }
+    },
+    async removeProductVariant (source, { input: { clientMutationId, id, variantId } }, { application }) {
+      id = fromGlobalId(id).id
+      variantId = fromGlobalId(variantId).id
+      await application.removeProductVariant({ id, variantId })
       return { clientMutationId, id }
     }
   },
@@ -52,9 +58,10 @@ exports.resolvers = {
     cursor: ({ id }) => id
   },
   AddProductVariantResponse: {
-    variant: refetchVariant()
+    product: refetchProduct(),
+    variant: refetchVariant('variantId')
   },
-  AddProductResponse: {
+  RemoveProductVariantResponse: {
     product: refetchProduct()
   }
 }

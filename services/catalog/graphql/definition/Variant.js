@@ -44,6 +44,7 @@ exports.definition = gql`
 
   extend type Mutation {
     addProductVariant(input: AddProductVariantInput!): AddProductVariantResponse
+    removeProductVariant(input: RemoveProductVariantInput!): RemoveProductVariantResponse
   }
 
   input AddProductVariantInput {
@@ -56,6 +57,17 @@ exports.definition = gql`
   }
   type AddProductVariantResponse {
     clientMutationId: ID!
+    product: Product!
     variant: Variant!
+  }
+
+  input RemoveProductVariantInput {
+    clientMutationId: ID!
+    id: ID!
+    variantId: ID!
+  }
+  type RemoveProductVariantResponse {
+    clientMutationId: ID!
+    product: Product!
   }
 `

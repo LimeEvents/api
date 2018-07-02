@@ -79,7 +79,21 @@ class ProductRepository {
       })
       .promise()
     await this.emit('ProductVariantAdded', variant)
-    return { id: variant.id }
+    return { id: variant.productId, variantId: variant.id }
+  }
+
+  async removeProductVariant ({ variantId, productId }) {
+    await db('variant').delete({ Key: { id: variantId } }).promise()
+    await db('productVariants')
+      .delete({
+        Key: {
+          variantId,
+          productId
+        }
+      })
+      .promise()
+    await this.emit('ProductVariantRemoved', { variantId, productId })
+    return { id: productId, variantId }
   }
 
   async listProductVariantIds ({ id, cursor, limit = 50 }) {
