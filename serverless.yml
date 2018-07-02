@@ -321,6 +321,25 @@ resources:
           WriteCapacityUnits: 1
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
+    ChannelProductTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-channel-products-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: channelId
+            AttributeType: S
+          - AttributeName: productId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: channelId
+            KeyType: HASH
+          - AttributeName: productId
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
     VariantTable:
       Type: AWS::DynamoDB::Table
       Properties:

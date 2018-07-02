@@ -32,8 +32,6 @@ exports.definition = gql`
 
     tags: [ String! ]!
 
-    variantIds: [ ID! ]!
-
     dimensions: Dimensions
 
     metadata: JSON!

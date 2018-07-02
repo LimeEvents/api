@@ -8,7 +8,9 @@ const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
 const tables = {
   product: process.env.PRODUCT_TABLE,
   channel: process.env.CHANNEL_TABLE,
-  channelProducts: process.env.CHANNEL_PRODUCT_TABLE
+  variant: process.env.VARIANT_TABLE,
+  channelProducts: process.env.CHANNEL_PRODUCT_TABLE,
+  productVariants: process.env.PRODUCT_VARIANT_TABLE
 }
 const TOPIC_MAP = {
   ProductAdded: process.env.PRODUCT_ADDED_TOPIC,
@@ -66,9 +68,31 @@ class ProductRepository {
     return Items || []
   }
 
-  // async listProductVariants ({ id, cursor, limit = 50 }) {
-  //   const { Item: { variantId } }
-  // }
+  async addProductVariant (variant) {
+    await db('variant').put({ Item: variant }).promise()
+    await db('productVariants')
+      .put({
+        Item: {
+          variantId: variant.id,
+          productId: variant.productId
+        }
+      })
+      .promise()
+    await this.emit('ProductVariantAdded', variant)
+    return { id: variant.id }
+  }
+
+  async listProductVariantIds ({ id, cursor, limit = 50 }) {
+    const { Items } = await db('productVariants')
+      .query({
+        KeyConditionExpression: 'productId = :hkey',
+        ExpressionAttributeValues: {
+          ':hkey': id
+        }
+      })
+      .promise()
+    return Items.map(({ variantId }) => variantId)
+  }
 
   async addChannel (channel) {
     await db('channel').put({ Item: channel }).promise()
@@ -136,6 +160,11 @@ class ProductRepository {
   async getProduct (id) {
     const product = await this.dataloader.load(`product:${id}`)
     return product || null
+  }
+
+  async getVariant (id) {
+    const variant = await this.dataloader.load(`variant:${id}`)
+    return variant || null
   }
 
   async getChannel (id) {

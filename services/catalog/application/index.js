@@ -5,9 +5,11 @@ const { health } = require('./queries/health')
 const { addProduct } = require('./commands/addProduct')
 const { updateProduct } = require('./commands/updateProduct')
 const { removeProduct } = require('./commands/removeProduct')
+const { addProductVariant } = require('./commands/addProductVariant')
 const { getProduct } = require('./queries/getProduct')
+const { getVariant } = require('./queries/getVariant')
 const { listProducts } = require('./queries/listProducts')
-const { listProductVariants } = require('./queries/listProductVariants')
+const { listProductVariantIds } = require('./queries/listProductVariantIds')
 
 const { addChannel } = require('./commands/addChannel')
 const { enableChannel } = require('./commands/enableChannel')
@@ -18,7 +20,7 @@ const { unpublishChannelProduct } = require('./commands/unpublishChannelProduct'
 const { removeChannel } = require('./commands/removeChannel')
 const { getChannel } = require('./queries/getChannel')
 const { listChannels } = require('./queries/listChannels')
-const { listChannelProducts } = require('./queries/listChannelProducts')
+const { listChannelProductIds } = require('./queries/listChannelProductIds')
 
 exports.application = (viewer, repository = new Repository()) => {
   return {
@@ -27,8 +29,10 @@ exports.application = (viewer, repository = new Repository()) => {
     removeProduct: removeProduct(repository, viewer),
 
     getProduct: getProduct(repository, viewer),
+    getVariant: getVariant(repository, viewer),
     listProducts: listProducts(repository, viewer),
-    listProductVariants: listProductVariants(repository, viewer),
+    addProductVariant: addProductVariant(repository, viewer),
+    listProductVariantIds: listProductVariantIds(repository, viewer),
 
     addChannel: addChannel(repository, viewer),
     enableChannel: enableChannel(repository, viewer),
@@ -39,7 +43,7 @@ exports.application = (viewer, repository = new Repository()) => {
     removeChannel: removeChannel(repository, viewer),
     getChannel: getChannel(repository, viewer),
     listChannels: listChannels(repository, viewer),
-    listChannelProducts: listChannelProducts(repository, viewer),
+    listChannelProductIds: listChannelProductIds(repository, viewer),
     health: health(repository, viewer)
   }
 }

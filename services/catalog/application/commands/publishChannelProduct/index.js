@@ -16,7 +16,7 @@ const domain = (viewer, { channel, product }) => {
 
 const application = curry(async (domain, repository, viewer, { id, productId }) => {
   const channel = await repository.getChannel(id)
-  const product = await repository.get(productId)
+  const product = await repository.getProduct(productId)
   return repository.publishChannelProduct(
     domain(viewer, { channel, product })
   )
