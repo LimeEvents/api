@@ -6,6 +6,7 @@ const { addProduct } = require('./commands/addProduct')
 const { updateProduct } = require('./commands/updateProduct')
 const { removeProduct } = require('./commands/removeProduct')
 const { addProductVariant } = require('./commands/addProductVariant')
+const { updateProductVariant } = require('./commands/updateProductVariant')
 const { removeProductVariant } = require('./commands/removeProductVariant')
 const { getProduct } = require('./queries/getProduct')
 const { getVariant } = require('./queries/getVariant')
@@ -33,6 +34,7 @@ exports.application = (viewer, repository = new Repository()) => {
     getVariant: getVariant(repository, viewer),
     listProducts: listProducts(repository, viewer),
     addProductVariant: addProductVariant(repository, viewer),
+    updateProductVariant: updateProductVariant(repository, viewer),
     removeProductVariant: removeProductVariant(repository, viewer),
     listProductVariantIds: listProductVariantIds(repository, viewer),
 

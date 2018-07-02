@@ -82,6 +82,12 @@ class ProductRepository {
     return { id: variant.productId, variantId: variant.id }
   }
 
+  async updateProductVariant (variant) {
+    await db('variant').put({ Item: variant }).promise()
+    await this.emit('ProductVariantUpdateded', variant)
+    return { id: variant.productId, variantId: variant.id }
+  }
+
   async removeProductVariant ({ variantId, productId }) {
     await db('variant').delete({ Key: { id: variantId } }).promise()
     await db('productVariants')

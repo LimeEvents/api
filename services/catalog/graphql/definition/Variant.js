@@ -44,6 +44,7 @@ exports.definition = gql`
 
   extend type Mutation {
     addProductVariant(input: AddProductVariantInput!): AddProductVariantResponse
+    updateProductVariant(input: UpdateProductVariantInput!): UpdateProductVariantResponse
     removeProductVariant(input: RemoveProductVariantInput!): RemoveProductVariantResponse
   }
 
@@ -56,6 +57,21 @@ exports.definition = gql`
     metadata: JSON
   }
   type AddProductVariantResponse {
+    clientMutationId: ID!
+    product: Product!
+    variant: Variant!
+  }
+
+  input UpdateProductVariantInput {
+    clientMutationId: ID!
+    id: ID!
+    variantId: ID!
+    name: String
+    sku: String
+    image: Url
+    metadata: JSON
+  }
+  type UpdateProductVariantResponse {
     clientMutationId: ID!
     product: Product!
     variant: Variant!
