@@ -5,13 +5,13 @@ const { health } = require('./queries/health')
 const { addProduct } = require('./commands/addProduct')
 const { updateProduct } = require('./commands/updateProduct')
 const { removeProduct } = require('./commands/removeProduct')
-const { addProductVariant } = require('./commands/addProductVariant')
-const { updateProductVariant } = require('./commands/updateProductVariant')
-const { removeProductVariant } = require('./commands/removeProductVariant')
 const { getProduct } = require('./queries/getProduct')
-const { getVariant } = require('./queries/getVariant')
 const { listProducts } = require('./queries/listProducts')
 const { listProductVariantIds } = require('./queries/listProductVariantIds')
+
+const { addProductOffer } = require('./commands/addProductOffer')
+const { getProductOffer } = require('./queries/getProductOffer')
+const { listProductOfferIds } = require('./queries/listProductOfferIds')
 
 const { addChannel } = require('./commands/addChannel')
 const { enableChannel } = require('./commands/enableChannel')
@@ -30,12 +30,12 @@ exports.application = (viewer, repository = new Repository()) => {
     updateProduct: updateProduct(repository, viewer),
     removeProduct: removeProduct(repository, viewer),
 
+    addProductOffer: addProductOffer(repository, viewer),
+    listProductOfferIds: listProductOfferIds(repository, viewer),
+    getProductOffer: getProductOffer(repository, viewer),
+
     getProduct: getProduct(repository, viewer),
-    getVariant: getVariant(repository, viewer),
     listProducts: listProducts(repository, viewer),
-    addProductVariant: addProductVariant(repository, viewer),
-    updateProductVariant: updateProductVariant(repository, viewer),
-    removeProductVariant: removeProductVariant(repository, viewer),
     listProductVariantIds: listProductVariantIds(repository, viewer),
 
     addChannel: addChannel(repository, viewer),

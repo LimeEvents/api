@@ -73,22 +73,6 @@ provider:
             - Ref: ChannelTable
     - Effect: Allow
       Action:
-      - dynamodb:DeleteItem
-      - dynamodb:GetItem
-      - dynamodb:PutItem
-      - dynamodb:Query
-      - dynamodb:Scan
-      Resource:
-        Fn::Join:
-          - ""
-          - - "arn:aws:dynamodb:"
-            - Ref: "AWS::Region"
-            - ":"
-            - Ref: "AWS::AccountId"
-            - ":table/"
-            - Ref: VariantTable
-    - Effect: Allow
-      Action:
       - sns:Publish
       # - sns:ConfirmSubscription
       # - sns:Subscribe
@@ -106,23 +90,6 @@ provider:
       Resource:
         Ref: ProductRemovedTopic
 
-    ### VARIANT SINK ###
-    - Effect: Allow
-      Action:
-      - dynamodb:DeleteItem
-      - dynamodb:GetItem
-      - dynamodb:PutItem
-      - dynamodb:Query
-      - dynamodb:Scan
-      Resource:
-        Fn::Join:
-          - ""
-          - - "arn:aws:dynamodb:"
-            - Ref: "AWS::Region"
-            - ":"
-            - Ref: "AWS::AccountId"
-            - ":table/"
-            - Ref: VariantTable
     ## GATEWAY ###
     - Effect: Allow
       Action:
@@ -206,8 +173,6 @@ functions:
         Ref: ProductTable
       CHANNEL_TABLE:
         Ref: ChannelTable
-      VARIANT_TABLE:
-        Ref: VariantTable
       # - sns:
       #     displayName: Product Updated
       #     arn:
@@ -298,9 +263,54 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: parentId
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: parent-index
+            KeySchema:
+              - AttributeName: parentId
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    OfferTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-offer-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: productId
+            AttributeType: S
+          - AttributeName: price
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: product-index
+            KeySchema:
+              - AttributeName: productId
+                KeyType: HASH
+              - AttributeName: price
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
@@ -334,40 +344,6 @@ resources:
           - AttributeName: channelId
             KeyType: HASH
           - AttributeName: productId
-            KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
-    VariantTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:service}-variant-${self:provider.stage}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
-    ProductVariantTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:service}-product-variants-${self:provider.stage}
-        AttributeDefinitions:
-          - AttributeName: productId
-            AttributeType: S
-          - AttributeName: variantId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: productId
-            KeyType: HASH
-          - AttributeName: variantId
             KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1

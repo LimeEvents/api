@@ -7,30 +7,26 @@ exports.definition = gql`
     Text
   }
 
-  type HealthCheck {
-    mongo: Float
-  }
-
-  type Query {
-    node(id: ID!): Node
-    ping: String!
-    health: HealthCheck
+  extend type Query {
     product(id: ID!): Product
-    products(first: Int, last: Int, before: String, after: String): ProductConnection!
+    products(first: Int, after: String): ProductConnection!
   }
-  type Product implements Node {
+  type Product implements Node & Searchable & Visible {
     id: ID!
 
     ## Viewable ##
     url: String!
-    # media(type: MediumType, first: Int, last: Int, before: String, after: String): MediumConnection!
+    media(first: Int, after: String): ProductMediaConnection!
     name: String!
     caption: String
     description: String
-    seo: Seo!
     sections: [ ContentSection! ]!
 
-    tags: [ String! ]!
+    variants(first: Int, after: String): ProductVariantConnection!
+
+    ## Searchable ##
+    seo: Seo!
+    tags(first: Int, after: String): ProductTagConnection!
 
     dimensions: Dimensions
 
@@ -38,10 +34,15 @@ exports.definition = gql`
     created: DateTime!
     updated: DateTime!
   }
-  type Seo {
-    title: String!
-    description: String
-    image: String
+
+  type ProductTagConnection implements TagConnection {
+    edges: [ ProductTagEdge! ]!
+    pageInfo: PageInfo!
+  }
+
+  type ProductTagEdge implements TagEdge {
+    node: Tag!
+    cursor: String
   }
 
   type ContentSection {
@@ -50,11 +51,30 @@ exports.definition = gql`
     body(format: ContentOutputFormat = Markdown): String!
   }
 
+  type ProductMediaConnection implements MediaConnection {
+    edges: [ ProductMediaEdge! ]!
+    pageInfo: PageInfo!
+  }
+
+  type ProductMediaEdge implements MediaEdge {
+    node: Media!
+    cursor: String
+  }
+
   type Dimensions {
     width: Float!
     height: Float!
     depth: Float!
     weight: Float!
+  }
+
+  type ProductVariantConnection {
+    edges: [ ProductVariantEdge! ]!
+    pageInfo: PageInfo
+  }
+  type ProductVariantEdge {
+    node: Product!
+    cursor: String
   }
 
   type ProductConnection {
@@ -74,6 +94,7 @@ exports.definition = gql`
   input AddProductInput {
     clientMutationId: ID!
     name: String!
+    parentId: ID
     caption: String
     description: String
     seo: SeoInput
@@ -106,6 +127,7 @@ exports.definition = gql`
   input UpdateProductInput {
     clientMutationId: ID!
     id: ID!
+    parentId: ID
     name: String
     caption: String
     description: String
@@ -126,24 +148,5 @@ exports.definition = gql`
   }
   type RemoveProductResponse {
     clientMutationId: ID!
-  }
-
-  interface Node {
-    id: ID!
-  }
-
-  interface Entity {
-    metadata: JSON!
-    created: DateTime!
-    updated: DateTime!
-  }
-
-  interface Taggable {
-    tags: [ String! ]!
-  }
-
-  interface Medium {
-    id: ID!
-    url: String!
   }
 `
