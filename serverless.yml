@@ -1,0 +1,371 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: ecommerce
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+plugins:
+  - serverless-domain-manager
+custom:
+  deploymentBucket: com.limetix.${self:provider.region}.deploys
+  domainMapping:
+    dev: dev.limetix.com
+    stage: stage.limetix.com
+    prod: limetix.com
+  customDomain:
+    domainName: api.${self:custom.domainMapping.${self:provider.stage}}
+    stage: ${self:provider.stage}
+    basePath: ''
+    certificateName: ${self:custom.domainMapping.${self:provider.stage}}
+    createRoute53Record: false
+    endpointType: regional
+provider:
+  name: aws
+  runtime: nodejs8.10
+  endpointType: regional
+  deploymentBucket:
+    name: ${self:custom.deploymentBucket}
+  iamRoleStatements:
+    ### CATALOG API ###
+    - Effect: Allow
+      Action:
+      - dynamodb:DeleteItem
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:Query
+      - dynamodb:Scan
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:dynamodb:"
+            - Ref: "AWS::Region"
+            - ":"
+            - Ref: "AWS::AccountId"
+            - ":table/"
+            - Ref: ProductTable
+    - Effect: Allow
+      Action:
+      - dynamodb:DeleteItem
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:Query
+      - dynamodb:Scan
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:dynamodb:"
+            - Ref: "AWS::Region"
+            - ":"
+            - Ref: "AWS::AccountId"
+            - ":table/"
+            - Ref: ChannelTable
+    - Effect: Allow
+      Action:
+      - sns:Publish
+      # - sns:ConfirmSubscription
+      # - sns:Subscribe
+      # - sns:Unsubscribe
+      Resource:
+        Ref: ProductAddedTopic
+    - Effect: Allow
+      Action:
+      - sns:Publish
+      Resource:
+        Ref: ProductUpdatedTopic
+    - Effect: Allow
+      Action:
+      - sns:Publish
+      Resource:
+        Ref: ProductRemovedTopic
+
+    ## GATEWAY ###
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource:
+        Fn::Join:
+          - ":"
+          - - arn
+            - aws
+            - lambda
+            - Ref: "AWS::Region"
+            - Ref: "AWS::AccountId"
+            - function
+            - "*"
+# you can overwrite defaults here
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-west-2'}
+
+# you can add statements to the Lambda function's IAM Role here
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:ListBucket"
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:PutObject"
+#      Resource:
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+  environment:
+    MONGODB_URL: mongodb://ticketing:F30TpCTSO7UQpH1l@stage-lime-events-shard-00-00-fkjou.mongodb.net:27017,stage-lime-events-shard-00-01-fkjou.mongodb.net:27017,stage-lime-events-shard-00-02-fkjou.mongodb.net:27017/test?ssl=true&replicaSet=stage-lime-events-shard-0&authSource=admin&retryWrites=true
+    GRAPHQL_API: ${self:service}-graphql-${self:provider.stage}
+    PRODUCT_API: ${self:service}-product-${self:provider.stage}
+    PRODUCT_SINK: ${self:service}-product-sink-${self:provider.stage}
+    VARIANT_SINK: ${self:service}-variant-sink-${self:provider.stage}
+    AWS_SDK_REGION: ${self:provider.region}
+
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+
+functions:
+  graphql:
+    handler: services/gateway/handler.graphql
+    name: ${self:provider.environment.GRAPHQL_API}
+    events:
+     - http:
+         path: graphql
+         method: post
+  graphiql:
+    handler: services/gateway/handler.graphiql
+    name: ${self:service}-graphiql-${self:provider.stage}
+    events:
+     - http:
+         path: "/"
+         method: get
+
+  product-api:
+    handler: services/catalog/handler.graphql
+    name: ${self:provider.environment.PRODUCT_API}
+    environment:
+      PRODUCT_ADDED_TOPIC:
+        Ref: ProductAddedTopic
+      PRODUCT_UPDATED_TOPIC:
+        Ref: ProductUpdatedTopic
+      PRODUCT_REMOVED_TOPIC:
+        Ref: ProductRemovedTopic
+      PRODUCT_TABLE:
+        Ref: ProductTable
+      CHANNEL_TABLE:
+        Ref: ChannelTable
+      # - sns:
+      #     displayName: Product Updated
+      #     arn:
+      #       Ref: ProductUpdatedTopic
+      # - sns:
+      #     displayName: Product Removed
+      #     arn:
+      #       Ref: ProductRemovedTopic
+
+#    The following are a few example events you can configure
+#    NOTE: Please make sure to change your handler code to work with those events
+#    Check the event documentation for details
+#    events:
+#      - http:
+#          path: users/create
+#          method: get
+#      - s3: ${env:BUCKET}
+#      - schedule: rate(10 minutes)
+#      - sns: greeter-topic
+#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
+#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
+#      - iot:
+#          sql: "SELECT * FROM 'some_topic'"
+#      - cloudwatchEvent:
+#          event:
+#            source:
+#              - "aws.ec2"
+#            detail-type:
+#              - "EC2 Instance State-change Notification"
+#            detail:
+#              state:
+#                - pending
+#      - cloudwatchLog: '/aws/lambda/hello'
+#      - cognitoUserPool:
+#          pool: MyUserPool
+#          trigger: PreSignUp
+
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can add CloudFormation resource templates here
+resources:
+  Resources:
+    # EventSchedule
+    # EventReschedule
+    # EventUpdated
+    # EventCancelled
+    # VariantAdded
+    # VariantUpdated
+    # VariantRemoved
+    # OfferAdded
+    # OfferUpdated
+    # OfferRemoved
+    # OrderCreated
+    # OrderItemAdded
+    # OrderTokenAdded
+    # OrderConfirmed
+    # OrderRefunded
+    # OrderTransferred
+    # OrderReassigned
+    # ApiGatewayRestApi:
+    # ApiDomainName:
+    #   Type: "AWS::ApiGateway::DomainName"
+    #   Properties:
+    #     DomainName: ${self:custom.domainMapping.${self:provider.stage}}.limetix.com
+    ProductAddedTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Product Added
+        TopicName: ProductAdded-${self:provider.stage}
+    ProductUpdatedTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Product Updated
+        TopicName: ProductUpdated-${self:provider.stage}
+    ProductRemovedTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Product Removed
+        TopicName: ProductRemoved-${self:provider.stage}
+
+    ProductTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-product-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: parentId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: parent-index
+            KeySchema:
+              - AttributeName: parentId
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    OfferTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-offer-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: productId
+            AttributeType: S
+          - AttributeName: price
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: product-index
+            KeySchema:
+              - AttributeName: productId
+                KeyType: HASH
+              - AttributeName: price
+                KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    ChannelTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-channel-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    ChannelProductTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-channel-products-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: channelId
+            AttributeType: S
+          - AttributeName: productId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: channelId
+            KeyType: HASH
+          - AttributeName: productId
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    # CloudfrontAPI:
+    #   Type: AWS::CloudFront::Distribution
+    #   Properties:
+    #     DistributionConfig:
+    #       DefaultRootObject: index.html
+    #       Enabled: true
+    #       PriceClass: PriceClass_100
+    #       Origins:
+    #         -
+    #       Aliases:
+    #         - Fn::Join:
+    #           - "."
+    #           - - ${self:provider.stage}
+    #             - "limetix"
+    #             - "com"
+    #     Tags:
+    #       - Key: stage
+    #       - Value: ${self:provider.stage}

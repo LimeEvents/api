@@ -1,6 +1,6 @@
 require('dotenv').load()
 const { router, get, post } = require('microrouter')
-const { schema, application, getViewer } = require('./services')
+const { schema } = require('../schema')
 const { microGraphql, microGraphiql } = require('apollo-server-micro')
 
 module.exports = router(
@@ -9,9 +9,11 @@ module.exports = router(
     const viewer = await getViewer(req.headers.authorization)
     return {
       schema,
-      context: {
-        application: application(viewer)
-      }
+      context: { viewer }
     }
   }))
 )
+
+async function getViewer (token) {
+  return { roles: ['administrator'] }
+}
